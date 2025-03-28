@@ -1,14 +1,18 @@
 package com.example.demo.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Route {
@@ -25,16 +29,23 @@ public class Route {
 	@Enumerated(EnumType.STRING)
 	private Difficulty difficulty;
 
-	private List<String> imageUrls;
+	@ElementCollection
+	private List<String> imageUrls = new ArrayList<>();
 
-	private List<Review> reviews;
+	@Column(nullable = false)
+	private String city;
+
+	@Column(nullable = false)
+	@ElementCollection
+	private List<String> coordinates = new ArrayList<>();
 
 	private double reviewsScoreAverage;
 
-	private String city;
-	
-	@Column(nullable = false)
-	private List<String> coordinates;
+	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Review> reviews = new ArrayList<>();
+
+	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Incidents> incidents = new ArrayList<>();
 
 	public Route() {
 		super();

@@ -7,15 +7,23 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "route_id"})
+})
 public class Review {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@Column(nullable = false)
@@ -23,16 +31,21 @@ public class Review {
 
 	private LocalDate date;
 
+	@ManyToOne
+	@JoinColumn(name = "route_id")
+	private Route route;
+
 	public Review() {
 		super();
 	}
 
-	public Review(Long id, User user, String text, LocalDate date) {
+	public Review(Long id, User user, String text, LocalDate date, Route route) {
 		super();
 		this.id = id;
 		this.user = user;
 		this.text = text;
 		this.date = date;
+		this.route = route;
 	}
 
 	public Long getId() {
@@ -67,9 +80,17 @@ public class Review {
 		this.date = date;
 	}
 
+	public Route getRoute() {
+		return route;
+	}
+
+	public void setRoute(Route route) {
+		this.route = route;
+	}
+
 	@Override
 	public String toString() {
-		return "Review [id=" + id + ", user=" + user + ", text=" + text + ", date=" + date + "]";
+		return "Review [id=" + id + ", user=" + user + ", text=" + text + ", date=" + date + ", route=" + route + "]";
 	}
 
 }
