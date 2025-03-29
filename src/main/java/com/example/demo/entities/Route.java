@@ -3,6 +3,8 @@ package com.example.demo.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.demo.enums.Difficulty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -27,6 +29,7 @@ public class Route {
 	private String description;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private Difficulty difficulty;
 
 	@ElementCollection
@@ -39,7 +42,7 @@ public class Route {
 	@ElementCollection
 	private List<String> coordinates = new ArrayList<>();
 
-	private double reviewsScoreAverage;
+	private Double averageReviewScore = 0.0;
 
 	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Review> reviews = new ArrayList<>();
@@ -48,20 +51,20 @@ public class Route {
 	private List<Incidents> incidents = new ArrayList<>();
 
 	public Route() {
-		super();
 	}
 
-	public Route(Long id, String title, String description, Difficulty difficulty, List<String> imageUrls,
-			List<Review> reviews, double reviewsScoreAverage, List<String> coordinates) {
-		super();
+	public Route(Long id, String title, String description, Difficulty difficulty, List<String> imageUrls, String city,
+			List<String> coordinates, Double averageReviewScore, List<Review> reviews, List<Incidents> incidents) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
-		this.difficulty = difficulty;
+		this.difficulty = difficulty == null ? Difficulty.EASY : difficulty;
 		this.imageUrls = imageUrls;
-		this.reviews = reviews;
-		this.reviewsScoreAverage = reviewsScoreAverage;
+		this.city = city;
 		this.coordinates = coordinates;
+		this.averageReviewScore = averageReviewScore == null ? 0.0 : averageReviewScore;
+		this.reviews = reviews == null ? new ArrayList<>() : reviews;
+		this.incidents = incidents == null ? new ArrayList<>() : incidents;
 	}
 
 	public Long getId() {
@@ -104,20 +107,12 @@ public class Route {
 		this.imageUrls = imageUrls;
 	}
 
-	public List<Review> getReviews() {
-		return reviews;
+	public String getCity() {
+		return city;
 	}
 
-	public void setReviews(List<Review> reviews) {
-		this.reviews = reviews;
-	}
-
-	public double getReviewsScoreAverage() {
-		return reviewsScoreAverage;
-	}
-
-	public void setReviewsScoreAverage(double reviewsScoreAverage) {
-		this.reviewsScoreAverage = reviewsScoreAverage;
+	public void setCity(String city) {
+		this.city = city;
 	}
 
 	public List<String> getCoordinates() {
@@ -128,11 +123,36 @@ public class Route {
 		this.coordinates = coordinates;
 	}
 
+	public Double getAverageReviewScore() {
+		return averageReviewScore;
+	}
+
+	public void setAverageReviewScore(Double averageReviewScore) {
+		this.averageReviewScore = averageReviewScore;
+	}
+
+	public List<Review> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<Review> reviews) {
+		this.reviews = reviews;
+	}
+
+	public List<Incidents> getIncidents() {
+		return incidents;
+	}
+
+	public void setIncidents(List<Incidents> incidents) {
+		this.incidents = incidents;
+	}
+
 	@Override
 	public String toString() {
 		return "Route [id=" + id + ", title=" + title + ", description=" + description + ", difficulty=" + difficulty
-				+ ", imageUrls=" + imageUrls + ", reviews=" + reviews + ", reviewsScoreAverage=" + reviewsScoreAverage
-				+ ", coordinates=" + coordinates + "]";
+				+ ", imageUrls=" + imageUrls + ", city=" + city + ", coordinates=" + coordinates
+				+ ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", incidents=" + incidents
+				+ "]";
 	}
 
 }
