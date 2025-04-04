@@ -52,8 +52,6 @@ public class UserAuthService {
         }
 
         String token = jwtService.generateToken(user, rememberMe);
-        user.setToken(token);
-        userService.setToken(user);
 
         Map<String, Object> result = new HashMap<>();
         result.put("nickname", user.getName());
@@ -143,10 +141,7 @@ public class UserAuthService {
         }
 
         user.setRole(Role.ROLE_USER);
-
         user.setActive(false);
-
-        user.setToken(null);
 
         userService.saveUser(user);
 

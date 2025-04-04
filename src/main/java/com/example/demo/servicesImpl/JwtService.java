@@ -57,13 +57,13 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("remember", rememberMe);
 
-        String userEmail = ((User) user).getEmail();
-        
+        Long userId = ((User) user).getId();
+
         long expiration = rememberMe ? jwtExpirationLong : jwtExpirationShort;
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(userEmail)
+                .subject(userId.toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(secretKey)
@@ -78,11 +78,15 @@ public class JwtService {
                 .getPayload();
     }
 
+    /**
+     * Get user from token subject
+     */
     public User getUser(String token) {
-        return userService.findByEmail(extractUsername(cleanToken(token)));
+        String userId = extractUserId(cleanToken(token));
+        return userService.findById(Long.parseLong(userId));
     }
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
         return getClaims(cleanToken(token)).getSubject();
     }
 
@@ -93,12 +97,13 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        String userId = extractUserId(token);
+        return userId.equals(String.valueOf(((User) userDetails).getId())) && !isTokenExpired(token);
     }
 
     /**
      * Checks if a token has expired
+     * 
      * @param token The JWT token to verify
      * @return true if the token has expired, false otherwise
      */
@@ -106,7 +111,6 @@ public class JwtService {
         try {
             return getClaims(cleanToken(token)).getExpiration().before(new Date());
         } catch (Exception e) {
-            // If there is any error processing the token, we consider it expired
             return true;
         }
     }

@@ -33,18 +33,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElse(null);
     }
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username);
-        if (user == null) 
+        if (user == null)
             throw new UsernameNotFoundException("Usuario no encontrado");
         if (!user.getActive()) {
             throw new DisabledException("El usuario está desactivado");
@@ -59,12 +65,7 @@ public class UserServiceImpl implements UserService {
     public List<String> findEmailsByQuery(String query) {
         List<User> users = userRepository.findByEmailContainingIgnoreCase(query);
         return users.stream()
-                    .map(User::getEmail)
-                    .collect(Collectors.toList());
-    }
-
-    @Override
-    public void setToken(User user) {
-    	userRepository.save(user);
+                .map(User::getEmail)
+                .collect(Collectors.toList());
     }
 }

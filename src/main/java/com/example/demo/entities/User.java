@@ -20,130 +20,117 @@ import jakarta.persistence.Id;
 @Entity
 public class User implements UserDetails {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private Long id;
+    private String username;
 
-	private String username;
+    private String name;
 
-	private String name;
+    private String surname;
 
-	private String surname;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	@Column(unique = true, nullable = false)
-	private String email;
+    @Column(nullable = false)
+    private String password;
 
-	@Column(nullable = false)
-	private String password;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-	@Enumerated(EnumType.STRING)
-	private Role role;
+    @Column(nullable = false)
+    private Boolean active = false;
 
-	@Column(nullable = false)
-	private Boolean active = false;
+    public User() {
+        super();
+    }
 
-	private String token;
+    public User(Long id, String username, String name, String surname, String email, String password, Role role,
+            Boolean active) {
+        super();
+        this.id = id;
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.active = active;
+    }
 
-	public User() {
-		super();
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public User(Long id, String username, String name, String surname, String email, String password, Role role,
-			Boolean active, String token) {
-		super();
-		this.id = id;
-		this.username = username;
-		this.name = name;
-		this.surname = surname;
-		this.email = email;
-		this.password = password;
-		this.role = role;
-		this.active = active;
-		this.token = token;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getSurname() {
+        return surname;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
 
-	public String getSurname() {
-		return surname;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public Role getRole() {
+        return role;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
-	public Role getRole() {
-		return role;
-	}
+    public Boolean getActive() {
+        return active;
+    }
 
-	public void setRole(Role role) {
-		this.role = role;
-	}
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
-	public Boolean getActive() {
-		return active;
-	}
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", username=" + username + ", name=" + name + ", surname=" + surname + ", email="
+                + email + ", password=" + password + ", role=" + role + ", active=" + active + "]";
+    }
 
-	public void setActive(Boolean active) {
-		this.active = active;
-	}
-
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", name=" + name + ", surname=" + surname + ", email="
-				+ email + ", password=" + password + ", role=" + role + ", active=" + active + ", token=" + token + "]";
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Arrays.asList(new SimpleGrantedAuthority(role.name()));
-	}
-
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new SimpleGrantedAuthority(role.name()));
+    }
 }

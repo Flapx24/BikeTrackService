@@ -105,12 +105,17 @@ public class UserAuthController {
                         ));
             }
 
-            Map<String, Object> result = userAuthService.loginWithToken(authHeader);
+            Map<String, Object> fullResult = userAuthService.loginWithToken(authHeader);
             
-            if ((boolean) result.get("success")) {
-                return ResponseEntity.ok(result);
+            if ((boolean) fullResult.get("success")) {
+                Map<String, Object> response = Map.of(
+                    "success", true,
+                    "nickname", fullResult.get("nickname"),
+                    "message", "Autenticación válida"
+                );
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(fullResult);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

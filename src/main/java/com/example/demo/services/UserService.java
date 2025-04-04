@@ -10,14 +10,15 @@ public interface UserService extends UserDetailsService {
 
     User saveUser(User user);
 
-    boolean existsByEmail(String email);
-
+    User findById(Long id);
+    
     User findByEmail(String email);
 
-	void setToken(User user);
+    boolean existsByEmail(String email);
     
     List<User> getAllUsers();
     
     List<String> findEmailsByQuery(String query);
+
 }
 

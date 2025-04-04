@@ -48,13 +48,13 @@ public class Route {
 	private List<Review> reviews = new ArrayList<>();
 
 	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Incidents> incidents = new ArrayList<>();
+	private List<RouteUpdate> updates = new ArrayList<>();
 
 	public Route() {
 	}
 
 	public Route(Long id, String title, String description, Difficulty difficulty, List<String> imageUrls, String city,
-			List<String> coordinates, Double averageReviewScore, List<Review> reviews, List<Incidents> incidents) {
+			List<String> coordinates, Double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
@@ -64,7 +64,7 @@ public class Route {
 		this.coordinates = coordinates;
 		this.averageReviewScore = averageReviewScore == null ? 0.0 : averageReviewScore;
 		this.reviews = reviews == null ? new ArrayList<>() : reviews;
-		this.incidents = incidents == null ? new ArrayList<>() : incidents;
+		this.updates = updates == null ? new ArrayList<>() : updates;
 	}
 
 	public Long getId() {
@@ -139,19 +139,19 @@ public class Route {
 		this.reviews = reviews;
 	}
 
-	public List<Incidents> getIncidents() {
-		return incidents;
+	public List<RouteUpdate> getUpdates() {
+		return updates;
 	}
 
-	public void setIncidents(List<Incidents> incidents) {
-		this.incidents = incidents;
+	public void setUpdates(List<RouteUpdate> updates) {
+		this.updates = updates;
 	}
 
 	@Override
 	public String toString() {
 		return "Route [id=" + id + ", title=" + title + ", description=" + description + ", difficulty=" + difficulty
 				+ ", imageUrls=" + imageUrls + ", city=" + city + ", coordinates=" + coordinates
-				+ ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", incidents=" + incidents
+				+ ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", updates=" + updates
 				+ "]";
 	}
 
