@@ -38,79 +38,6 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
         }
 
         bicycleComponentService.resetCurrentKilometers(componentId);
-        
-        bicycle.setLastMaintenanceDate(new Date());
-        bicycleService.saveBicycle(bicycle);
-        
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public boolean resetComponentByName(Long bicycleId, String componentName) {
-        Bicycle bicycle = bicycleService.findById(bicycleId);
-        if (bicycle == null) {
-            return false;
-        }
-
-        BicycleComponent componentToReset = null;
-        for (BicycleComponent component : bicycle.getComponents()) {
-            if (component.getName().equals(componentName)) {
-                componentToReset = component;
-                break;
-            }
-        }
-        
-        if (componentToReset == null) {
-            return false;
-        }
-        
-        bicycleComponentService.resetCurrentKilometers(componentToReset.getId());
-        
-        bicycle.setLastMaintenanceDate(new Date());
-        bicycleService.saveBicycle(bicycle);
-        
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public boolean performMaintenanceOnComponent(Long bicycleId, Long componentId) {
-        Bicycle bicycle = bicycleService.findById(bicycleId);
-        if (bicycle == null) {
-            return false;
-        }
-        
-        BicycleComponent component = bicycleComponentService.findById(componentId);
-        if (component == null || !component.getBicycle().getId().equals(bicycleId)) {
-            return false;
-        }
-        
-        bicycleComponentService.performMaintenance(componentId);
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public boolean performMaintenanceOnComponentByName(Long bicycleId, String componentName) {
-        Bicycle bicycle = bicycleService.findById(bicycleId);
-        if (bicycle == null) {
-            return false;
-        }
-        
-        BicycleComponent componentToMaintain = null;
-        for (BicycleComponent component : bicycle.getComponents()) {
-            if (component.getName().equals(componentName)) {
-                componentToMaintain = component;
-                break;
-            }
-        }
-        
-        if (componentToMaintain == null) {
-            return false;
-        }
-        
-        bicycleComponentService.performMaintenance(componentToMaintain.getId());
         return true;
     }
 
@@ -133,7 +60,7 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
 
         component.setMaxKilometers(maxKilometers);
         bicycleComponentService.saveComponent(component);
-        
+
         bicycle.setLastMaintenanceDate(new Date());
         bicycleService.saveBicycle(bicycle);
         
@@ -142,8 +69,17 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
 
     @Override
     @Transactional
-    public boolean performFullMaintenance(Long bicycleId) {
+    public boolean registerMaintenance(Long bicycleId) {
         return bicycleService.updateMaintenanceDate(bicycleId);
+    }
+
+    @Override
+    @Transactional
+    public boolean registerMaintenanceWithDate(Long bicycleId, Date maintenanceDate) {
+        if (maintenanceDate == null) {
+            return false;
+        }
+        return bicycleService.updateMaintenanceDate(bicycleId, maintenanceDate);
     }
 
     @Override

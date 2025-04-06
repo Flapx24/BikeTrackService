@@ -27,10 +27,8 @@ public class BicycleServiceImpl implements BicycleService {
     private BicycleComponentService bicycleComponentService;
 
     @Override
+    @Transactional
     public Bicycle saveBicycle(Bicycle bicycle) {
-        if (bicycle.getLastMaintenanceDate() == null) {
-            bicycle.setLastMaintenanceDate(new Date());
-        }
         return bicycleRepository.save(bicycle);
     }
 
@@ -46,29 +44,19 @@ public class BicycleServiceImpl implements BicycleService {
     }
 
     @Override
-    @Transactional
     public Bicycle initializeWithDefaultComponents(Bicycle bicycle) {
-        Bicycle savedBicycle = saveBicycle(bicycle);
-        
-        List<BicycleComponent> defaultComponents = bicycleComponentService.getDefaultComponents(savedBicycle);
-        for (BicycleComponent component : defaultComponents) {
-            bicycleComponentService.saveComponent(component);
-        }
-
-        return findById(savedBicycle.getId());
+        List<BicycleComponent> defaultComponents = bicycleComponentService.getDefaultComponents(bicycle);
+        bicycle.setComponents(defaultComponents);
+        return bicycle;
     }
 
     @Override
-    @Transactional
     public Bicycle initializeWithCustomComponents(Bicycle bicycle, List<BicycleComponent> components) {
-        Bicycle savedBicycle = saveBicycle(bicycle);
-        
         for (BicycleComponent component : components) {
-            component.setBicycle(savedBicycle);
-            bicycleComponentService.saveComponent(component);
+            component.setBicycle(bicycle);
         }
-
-        return findById(savedBicycle.getId());
+        bicycle.setComponents(components);
+        return bicycle;
     }
 
     @Override
@@ -84,11 +72,12 @@ public class BicycleServiceImpl implements BicycleService {
         }
 
         bicycle.setTotalKilometers(bicycle.getTotalKilometers() + kilometers);
-        saveBicycle(bicycle);
 
         for (BicycleComponent component : bicycle.getComponents()) {
-            bicycleComponentService.addKilometers(component.getId(), kilometers);
+            component.addKilometers(kilometers);
         }
+
+        saveBicycle(bicycle);
     }
 
     @Override
@@ -100,7 +89,11 @@ public class BicycleServiceImpl implements BicycleService {
         }
         
         component.setBicycle(bicycle);
-        return bicycleComponentService.saveComponent(component);
+        bicycle.getComponents().add(component);
+
+        saveBicycle(bicycle);
+        
+        return component;
     }
 
     @Override
@@ -110,27 +103,10 @@ public class BicycleServiceImpl implements BicycleService {
         if (bicycle == null) {
             return false;
         }
-        
-        BicycleComponent component = bicycleComponentService.findById(componentId);
-        if (component == null || !component.getBicycle().getId().equals(bicycleId)) {
-            return false;
-        }
-        
-        bicycleComponentService.deleteComponent(componentId);
-        return true;
-    }
-
-    @Override
-    @Transactional
-    public boolean removeComponentByName(Long bicycleId, String componentName) {
-        Bicycle bicycle = findById(bicycleId);
-        if (bicycle == null) {
-            return false;
-        }
 
         BicycleComponent componentToRemove = null;
         for (BicycleComponent component : bicycle.getComponents()) {
-            if (component.getName().equals(componentName)) {
+            if (component.getId().equals(componentId)) {
                 componentToRemove = component;
                 break;
             }
@@ -139,8 +115,11 @@ public class BicycleServiceImpl implements BicycleService {
         if (componentToRemove == null) {
             return false;
         }
+
+        bicycle.getComponents().remove(componentToRemove);
+
+        saveBicycle(bicycle);
         
-        bicycleComponentService.deleteComponent(componentToRemove.getId());
         return true;
     }
 
@@ -152,10 +131,9 @@ public class BicycleServiceImpl implements BicycleService {
             return;
         }
 
-        List<BicycleComponent> components = new ArrayList<>(bicycle.getComponents());
-        for (BicycleComponent component : components) {
-            bicycleComponentService.deleteComponent(component.getId());
-        }
+        bicycle.getComponents().clear();
+
+        saveBicycle(bicycle);
     }
 
     @Override
@@ -167,7 +145,7 @@ public class BicycleServiceImpl implements BicycleService {
 
         List<BicycleComponent> needMaintenance = new ArrayList<>();
         for (BicycleComponent component : bicycle.getComponents()) {
-            if (bicycleComponentService.needsMaintenance(component.getId())) {
+            if (component.needsMaintenance()) {
                 needMaintenance.add(component);
             }
         }

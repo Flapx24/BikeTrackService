@@ -43,27 +43,17 @@ public class Bicycle {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastMaintenanceDate;
 
-    /**
-     * Default constructor
-     */
     public Bicycle() {
     }
 
-    /**
-     * Constructor without components
-     */
     public Bicycle(Long id, String name, String iconUrl, User owner, Double totalKilometers) {
         this.id = id;
         this.name = name;
         this.iconUrl = iconUrl;
         this.owner = owner;
         this.totalKilometers = totalKilometers != null ? totalKilometers : 0.0;
-        this.lastMaintenanceDate = new Date();
     }
 
-    /**
-     * Constructor with custom components
-     */
     public Bicycle(Long id, String name, String iconUrl, User owner, Double totalKilometers, 
                    List<BicycleComponent> components) {
         this.id = id;
@@ -71,7 +61,6 @@ public class Bicycle {
         this.iconUrl = iconUrl;
         this.owner = owner;
         this.totalKilometers = totalKilometers != null ? totalKilometers : 0.0;
-        this.lastMaintenanceDate = new Date();
         
         if (components != null) {
             this.components = components;

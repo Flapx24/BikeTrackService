@@ -24,8 +24,6 @@ public interface BicycleService {
     
     boolean removeComponent(Long bicycleId, Long componentId);
     
-    boolean removeComponentByName(Long bicycleId, String componentName);
-    
     void removeAllComponents(Long bicycleId);
     
     List<BicycleComponent> getComponentsNeedingMaintenance(Long bicycleId);
