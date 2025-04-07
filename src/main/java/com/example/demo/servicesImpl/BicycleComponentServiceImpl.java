@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dtos.BicycleComponentDTO;
 import com.example.demo.entities.Bicycle;
 import com.example.demo.entities.BicycleComponent;
 import com.example.demo.repositories.BicycleComponentRepository;
@@ -30,7 +31,27 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         if (component == null) {
             return null;
         }
+        if (component.getBicycle() == null) {
+            throw new IllegalArgumentException("No se puede guardar un componente sin bicicleta asociada");
+        }
+        
         return bicycleComponentRepository.save(component);
+    }
+
+    @Override
+    @Transactional
+    public BicycleComponent createComponentFromDTO(BicycleComponentDTO dto, Long bicycleId) {
+        if (dto == null || bicycleId == null) {
+            return null;
+        }
+        
+        Bicycle bicycle = bicycleService.findById(bicycleId);
+        if (bicycle == null) {
+            throw new IllegalArgumentException("Bicicleta no encontrada con ID: " + bicycleId);
+        }
+
+        BicycleComponent component = dto.toEntity(bicycle);
+        return saveComponent(component);
     }
     
     @Override
@@ -48,6 +69,24 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         component.setBicycle(existingComponent.getBicycle());
         
         return bicycleComponentRepository.save(component);
+    }
+
+    @Override
+    @Transactional
+    public BicycleComponent updateComponentFromDTO(BicycleComponentDTO dto, Long componentId) {
+        if (dto == null || componentId == null) {
+            return null;
+        }
+        
+        BicycleComponent existingComponent = findById(componentId);
+        if (existingComponent == null) {
+            return null;
+        }
+        
+        BicycleComponent updatedComponent = dto.toEntity(existingComponent.getBicycle());
+        updatedComponent.setId(componentId);
+        
+        return bicycleComponentRepository.save(updatedComponent);
     }
 
     @Override
@@ -84,7 +123,7 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         if (component == null) {
             return false;
         }
-        
+
         component.setCurrentKilometers(component.getCurrentKilometers() + kilometers);
         saveComponent(component);
         return true;
@@ -101,7 +140,7 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         if (component == null) {
             return false;
         }
-        
+
         component.setCurrentKilometers(0.0);
         saveComponent(component);
         return true;
@@ -114,11 +153,17 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         }
         
         BicycleComponent component = findById(componentId);
-        if (component == null || component.getMaxKilometers() <= 0) {
-            return null;
+        if (component == null) {
+            return 0.0;
         }
         
-        return component.getWearPercentage();
+        if (component.getMaxKilometers() == null || component.getMaxKilometers() <= 0 || 
+            component.getCurrentKilometers() == null) {
+            return 0.0;
+        }
+        
+        double percentage = (component.getCurrentKilometers() / component.getMaxKilometers()) * 100;
+        return Math.min(100.0, Math.max(0.0, percentage));
     }
 
     @Override
@@ -129,10 +174,14 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
         
         BicycleComponent component = findById(componentId);
         if (component == null) {
-            return null;
+            return 0.0;
         }
         
-        return component.getRemainingKilometers();
+        if (component.getMaxKilometers() == null || component.getCurrentKilometers() == null) {
+            return 0.0;
+        }
+        
+        return Math.max(0.0, component.getMaxKilometers() - component.getCurrentKilometers());
     }
 
     @Override
@@ -146,7 +195,11 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
             return null;
         }
         
-        return component.needsMaintenance();
+        if (component.getMaxKilometers() == null || component.getCurrentKilometers() == null) {
+            return false;
+        }
+        
+        return component.getCurrentKilometers() >= component.getMaxKilometers();
     }
 
     @Override

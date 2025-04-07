@@ -42,51 +42,6 @@ public class BicycleComponent {
         this.bicycle = bicycle;
     }
 
-    /**
-     * Add kilometers to this component
-     * @param kilometers Amount of kilometers to add
-     */
-    public void addKilometers(Double kilometers) {
-        if (kilometers > 0) {
-            this.currentKilometers += kilometers;
-        }
-    }
-
-    /**
-     * Reset kilometers counter after maintenance
-     */
-    public void resetCurrentKilometers() {
-        this.currentKilometers = 0.0;
-    }
-
-    /**
-     * Calculate maintenance percentage (how worn the component is)
-     * @return Percentage from 0 to 100
-     */
-    public Double getWearPercentage() {
-        if (maxKilometers <= 0) {
-            return 0.0;
-        }
-        double percentage = (currentKilometers / maxKilometers) * 100;
-        return Math.min(100.0, Math.max(0.0, percentage));
-    }
-
-    /**
-     * Calculate remaining kilometers before maintenance
-     * @return Kilometers remaining
-     */
-    public Double getRemainingKilometers() {
-        return Math.max(0.0, maxKilometers - currentKilometers);
-    }
-
-    /**
-     * Check if component needs maintenance
-     * @return true if current kilometers >= max kilometers
-     */
-    public boolean needsMaintenance() {
-        return currentKilometers >= maxKilometers;
-    }
-
     public Long getId() {
         return id;
     }
@@ -129,8 +84,8 @@ public class BicycleComponent {
 
     @Override
     public String toString() {
-        return "BicycleComponent [id=" + id + ", name=" + name + 
-               ", currentKilometers=" + currentKilometers + 
-               "/" + maxKilometers + " (" + getWearPercentage() + "%)]";
+        return "BicycleComponent [id=" + id + ", name=" + name + ", maxKilometers=" + maxKilometers
+                + ", currentKilometers=" + currentKilometers + "]";
     }
+
 }

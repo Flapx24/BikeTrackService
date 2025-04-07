@@ -74,7 +74,7 @@ public class BicycleServiceImpl implements BicycleService {
         bicycle.setTotalKilometers(bicycle.getTotalKilometers() + kilometers);
 
         for (BicycleComponent component : bicycle.getComponents()) {
-            component.addKilometers(kilometers);
+            bicycleComponentService.addKilometers(component.getId(), kilometers);
         }
 
         saveBicycle(bicycle);
@@ -117,7 +117,6 @@ public class BicycleServiceImpl implements BicycleService {
         }
 
         bicycle.getComponents().remove(componentToRemove);
-
         saveBicycle(bicycle);
         
         return true;
@@ -132,7 +131,6 @@ public class BicycleServiceImpl implements BicycleService {
         }
 
         bicycle.getComponents().clear();
-
         saveBicycle(bicycle);
     }
 
@@ -145,7 +143,7 @@ public class BicycleServiceImpl implements BicycleService {
 
         List<BicycleComponent> needMaintenance = new ArrayList<>();
         for (BicycleComponent component : bicycle.getComponents()) {
-            if (component.needsMaintenance()) {
+            if (bicycleComponentService.needsMaintenance(component.getId())) {
                 needMaintenance.add(component);
             }
         }
