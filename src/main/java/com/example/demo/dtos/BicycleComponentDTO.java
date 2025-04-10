@@ -63,34 +63,20 @@ public class BicycleComponentDTO {
         return component;
     }
     
-    /**
-     * Creates a BicycleComponentDTO from a JSON string
-     * 
-     * @param json String in JSON format
-     * @return BicycleComponentDTO object
-     * @throws JsonProcessingException If an error occurs while processing the JSON
-     */
     public static BicycleComponentDTO fromJson(String json) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(json, BicycleComponentDTO.class);
     }
     
-    /**
-     * Converts this object to a JSON string
-     * 
-     * @return String in JSON format
-     * @throws JsonProcessingException If an error occurs while generating the JSON
-     */
     public String toJson() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(this);
     }
     
-    // Getters and setters
     public Long getId() {
         return id;
     }
-
+    
     public void setId(Long id) {
         this.id = id;
     }
