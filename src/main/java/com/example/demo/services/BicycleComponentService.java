@@ -31,4 +31,6 @@ public interface BicycleComponentService {
     Boolean needsMaintenance(Long componentId);
     
     List<BicycleComponent> getDefaultComponents(Bicycle bicycle);
+
+    boolean resetComponentsCurrentKilometers(Long bicycleId);
 }

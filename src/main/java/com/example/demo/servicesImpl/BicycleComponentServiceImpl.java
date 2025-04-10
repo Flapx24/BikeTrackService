@@ -147,6 +147,31 @@ public class BicycleComponentServiceImpl implements BicycleComponentService {
     }
 
     @Override
+    @Transactional
+    public boolean resetComponentsCurrentKilometers(Long bicycleId) {
+        if (bicycleId == null) {
+            return false;
+        }
+        
+        Bicycle bicycle = bicycleService.findById(bicycleId);
+        if (bicycle == null) {
+            return false;
+        }
+        
+        List<BicycleComponent> components = bicycle.getComponents();
+        if (components == null || components.isEmpty()) {
+            return true;
+        }
+        
+        for (BicycleComponent component : components) {
+            component.setCurrentKilometers(0.0);
+            saveComponent(component);
+        }
+        
+        return true;
+    }
+
+    @Override
     public Double getWearPercentage(Long componentId) {
         if (componentId == null) {
             return null;
