@@ -11,10 +11,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "route_id"})
+		@UniqueConstraint(columnNames = { "user_id", "route_id" })
 })
 public class Review {
 
@@ -27,6 +29,11 @@ public class Review {
 	private User user;
 
 	@Column(nullable = false)
+	@Min(value = 1, message = "Rating must be between 1 and 5")
+	@Max(value = 5, message = "Rating must be between 1 and 5")
+	private Integer rating;
+
+	@Column(nullable = false)
 	private String text;
 
 	private LocalDate date;
@@ -36,13 +43,14 @@ public class Review {
 	private Route route;
 
 	public Review() {
-		super();
 	}
 
-	public Review(Long id, User user, String text, LocalDate date, Route route) {
-		super();
+	public Review(Long id, User user,
+			@Min(value = 1, message = "Rating must be between 1 and 5") @Max(value = 5, message = "Rating must be between 1 and 5") Integer rating,
+			String text, LocalDate date, Route route) {
 		this.id = id;
 		this.user = user;
+		this.rating = rating;
 		this.text = text;
 		this.date = date;
 		this.route = route;
@@ -62,6 +70,14 @@ public class Review {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Integer getRating() {
+		return rating;
+	}
+
+	public void setRating(Integer rating) {
+		this.rating = rating;
 	}
 
 	public String getText() {
@@ -90,7 +106,8 @@ public class Review {
 
 	@Override
 	public String toString() {
-		return "Review [id=" + id + ", user=" + user + ", text=" + text + ", date=" + date + ", route=" + route + "]";
+		return "Review [id=" + id + ", user=" + user + ", rating=" + rating + ", text=" + text + ", date=" + date
+				+ ", route=" + route + "]";
 	}
 
 }
