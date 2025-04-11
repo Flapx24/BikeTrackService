@@ -3,6 +3,7 @@ package com.example.demo.servicesImpl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,6 +39,17 @@ public class BicycleServiceImpl implements BicycleService {
     }
 
     @Override
+    public List<Bicycle> findByOwnerId(Long ownerId) {
+        if (ownerId == null) {
+            throw new IllegalArgumentException("Owner ID cannot be null");
+        }
+        
+        return bicycleRepository.findAll().stream()
+                .filter(bicycle -> bicycle.getOwner() != null && bicycle.getOwner().getId().equals(ownerId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void deleteBicycle(Long id) {
         bicycleRepository.deleteById(id);
@@ -61,14 +73,14 @@ public class BicycleServiceImpl implements BicycleService {
 
     @Override
     @Transactional
-    public void addKilometers(Long bicycleId, Double kilometers) {
+    public Bicycle addKilometers(Long bicycleId, Double kilometers) {
         if (kilometers <= 0) {
-            return;
+            return null;
         }
         
         Bicycle bicycle = findById(bicycleId);
         if (bicycle == null) {
-            return;
+            return null;
         }
 
         bicycle.setTotalKilometers(bicycle.getTotalKilometers() + kilometers);
@@ -77,7 +89,31 @@ public class BicycleServiceImpl implements BicycleService {
             bicycleComponentService.addKilometers(component.getId(), kilometers);
         }
 
-        saveBicycle(bicycle);
+        return saveBicycle(bicycle);
+    }
+
+    @Override
+    @Transactional
+    public Bicycle subtractKilometers(Long bicycleId, Double kilometers) {
+        if (kilometers <= 0) {
+            return null;
+        }
+        
+        Bicycle bicycle = findById(bicycleId);
+        if (bicycle == null) {
+            return null;
+        }
+
+        Double newTotalKm = Math.max(0.0, bicycle.getTotalKilometers() - kilometers);
+        bicycle.setTotalKilometers(newTotalKm);
+
+        for (BicycleComponent component : bicycle.getComponents()) {
+            Double newComponentKm = Math.max(0.0, component.getCurrentKilometers() - kilometers);
+            component.setCurrentKilometers(newComponentKm);
+            bicycleComponentService.saveComponent(component);
+        }
+
+        return saveBicycle(bicycle);
     }
 
     @Override
@@ -169,4 +205,5 @@ public class BicycleServiceImpl implements BicycleService {
         saveBicycle(bicycle);
         return true;
     }
+
 }

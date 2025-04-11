@@ -11,6 +11,8 @@ public interface BicycleService {
     Bicycle saveBicycle(Bicycle bicycle);
     
     Bicycle findById(Long id);
+
+    List<Bicycle> findByOwnerId(Long ownerId);
     
     void deleteBicycle(Long id);
     
@@ -18,7 +20,9 @@ public interface BicycleService {
     
     Bicycle initializeWithCustomComponents(Bicycle bicycle, List<BicycleComponent> components);
     
-    void addKilometers(Long bicycleId, Double kilometers);
+    Bicycle addKilometers(Long bicycleId, Double kilometers);
+
+    Bicycle subtractKilometers(Long bicycleId, Double kilometers);
     
     BicycleComponent addComponent(Long bicycleId, BicycleComponent component);
     
@@ -31,4 +35,5 @@ public interface BicycleService {
     boolean updateMaintenanceDate(Long bicycleId);
     
     boolean updateMaintenanceDate(Long bicycleId, Date maintenanceDate);
+    
 }
