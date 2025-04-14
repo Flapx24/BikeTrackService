@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class BicycleServiceImpl implements BicycleService {
     private BicycleRepository bicycleRepository;
     
     @Autowired
+    @Lazy
     @Qualifier("bicycleComponentService")
     private BicycleComponentService bicycleComponentService;
 
