@@ -1,0 +1,20 @@
+# Example configuration for BikeTrack
+spring.application.name=BikeTrack
+server.port=8080
+
+# Database Configuration
+spring.datasource.url=your_database_url
+spring.datasource.username=your_database_username
+spring.datasource.password=your_database_password
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# JWT Configuration
+jwt.secret=your_jwt_secret_key
+
+# JWT token expiration times in milliseconds (modify only if you want to override the default values defined in JwtConfig class)
+# Short: 3 hours (for normal sessions)
+# jwt.expiration.short=short_expiration_value
+# Long: 60 days (for "remember me" sessions)
+# jwt.expiration.long=long_expiration_value
