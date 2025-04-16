@@ -19,14 +19,14 @@ public interface RouteRepository extends JpaRepository<Route, Serializable>{
     
     List<Route> findAllByOrderByIdAsc(Pageable pageable);
     
-    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore >= :minScore AND r.id > :lastId ORDER BY r.id ASC")
+    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore AND r.id > :lastId ORDER BY r.id ASC")
     List<Route> findByCityAndMinScoreAndIdGreaterThan(
             @Param("city") String city, 
             @Param("minScore") Double minScore, 
             @Param("lastId") Long lastId,
             Pageable pageable);
     
-    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore >= :minScore ORDER BY r.id ASC")
+    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore ORDER BY r.id ASC")
     List<Route> findByCityAndMinScore(
             @Param("city") String city, 
             @Param("minScore") Double minScore,

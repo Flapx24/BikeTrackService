@@ -93,14 +93,18 @@ public class RouteController {
     public ResponseEntity<?> getRoutesByCityAndScore(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam String city,
-            @RequestParam Integer minScore,
+            @RequestParam(defaultValue = "0") Integer minScore,
             @RequestParam(required = false) Long lastRouteId) {
 
-        if (minScore < 1 || minScore > 5) {
-            return ResponseEntity.badRequest().body("Score must be between 1 and 5");
+        if (minScore < 0 || minScore > 5) {
+            return ResponseEntity.badRequest().body("Score must be between 0 and 5");
         }
-
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.badRequest().body("City name is required");
+        }
+        
         List<Route> routes = routeService.getRoutesByCityAndMinScore(city, minScore, lastRouteId);
+        
         List<RouteDTO> routeDTOs = routes.stream()
                 .map(route -> RouteDTO.fromEntity(route, RouteDetailLevel.BASIC))
                 .collect(Collectors.toList());

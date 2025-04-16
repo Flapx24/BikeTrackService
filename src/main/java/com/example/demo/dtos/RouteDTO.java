@@ -2,6 +2,7 @@ package com.example.demo.dtos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.demo.entities.Review;
 import com.example.demo.entities.Route;
@@ -15,7 +16,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RouteDTO {
     private Long id;
     
@@ -39,9 +42,9 @@ public class RouteDTO {
     
     private Double averageReviewScore;
     
-    private List<Review> reviews = new ArrayList<>();
+    private List<ReviewDTO> reviews = new ArrayList<>();
     
-    private List<RouteUpdate> updates = new ArrayList<>();
+    private List<RouteUpdateDTO> updates = new ArrayList<>();
 
     public RouteDTO() {
     }
@@ -57,7 +60,7 @@ public class RouteDTO {
     }
 
     public RouteDTO(Long id, String title, String description, String difficulty, List<String> imageUrls, String city,
-            List<GeoPoint> routePoints, double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
+            List<GeoPoint> routePoints, double averageReviewScore, List<ReviewDTO> reviews, List<RouteUpdateDTO> updates) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -88,21 +91,73 @@ public class RouteDTO {
         dto.setImageUrls(route.getImageUrls());
         dto.setCity(route.getCity());
         dto.setAverageReviewScore(route.getAverageReviewScore());
+        dto.setDescription(route.getDescription());
 
         if (detailLevel == RouteDetailLevel.FULL) {
-            dto.setDescription(route.getDescription());
             dto.setRoutePoints(route.getRoutePoints());
-            dto.setReviews(route.getReviews());
-            dto.setUpdates(route.getUpdates());
+            
+            if (route.getReviews() != null) {
+                dto.setReviews(route.getReviews().stream()
+                    .map(ReviewDTO::new)
+                    .collect(Collectors.toList()));
+            } else {
+                dto.setReviews(new ArrayList<>());
+            }
+            
+            if (route.getUpdates() != null) {
+                dto.setUpdates(route.getUpdates().stream()
+                    .map(RouteUpdateDTO::new)
+                    .collect(Collectors.toList()));
+            } else {
+                dto.setUpdates(new ArrayList<>());
+            }
+        } else {
+            dto.setReviews(null);
+            dto.setUpdates(null);
+            dto.setRoutePoints(null);
         }
 
         return dto;
     }
 
+    /**
+     * Converts this DTO to a complete Route entity ready for persistence.
+     * This method properly handles the conversion of related entities for creating and updating routes.
+     * 
+     * @return Complete Route entity with proper relationships
+     */
     public Route toEntity() {
-        return new Route(this.id, this.title, this.description,
-                this.difficulty == null ? Difficulty.EASY : Difficulty.valueOf(this.difficulty), this.imageUrls,
-                this.city, this.routePoints, this.averageReviewScore, this.reviews, this.updates);
+        Route route = new Route();
+        route.setId(this.id);
+        route.setTitle(this.title);
+        route.setDescription(this.description);
+        route.setDifficulty(this.difficulty == null ? Difficulty.EASY : Difficulty.valueOf(this.difficulty));
+        route.setImageUrls(this.imageUrls);
+        route.setCity(this.city);
+        route.setRoutePoints(this.routePoints);
+        route.setAverageReviewScore(this.averageReviewScore);
+        
+        if (this.reviews != null && !this.reviews.isEmpty()) {
+            List<Review> reviewEntities = new ArrayList<>();
+            for (ReviewDTO reviewDTO : this.reviews) {
+                Review review = reviewDTO.toEntity();
+                review.setRoute(route);
+                reviewEntities.add(review);
+            }
+            route.setReviews(reviewEntities);
+        }
+        
+        if (this.updates != null && !this.updates.isEmpty()) {
+            List<RouteUpdate> updateEntities = new ArrayList<>();
+            for (RouteUpdateDTO updateDTO : this.updates) {
+                RouteUpdate update = updateDTO.toEntity();
+                update.setRoute(route);
+                updateEntities.add(update);
+            }
+            route.setUpdates(updateEntities);
+        }
+        
+        return route;
     }
 
     public Long getId() {
@@ -169,19 +224,19 @@ public class RouteDTO {
         this.averageReviewScore = averageReviewScore;
     }
 
-    public List<Review> getReviews() {
+    public List<ReviewDTO> getReviews() {
         return reviews;
     }
 
-    public void setReviews(List<Review> reviews) {
+    public void setReviews(List<ReviewDTO> reviews) {
         this.reviews = reviews;
     }
 
-    public List<RouteUpdate> getUpdates() {
+    public List<RouteUpdateDTO> getUpdates() {
         return updates;
     }
 
-    public void setUpdates(List<RouteUpdate> updates) {
+    public void setUpdates(List<RouteUpdateDTO> updates) {
         this.updates = updates;
     }
 
