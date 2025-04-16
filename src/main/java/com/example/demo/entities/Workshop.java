@@ -24,6 +24,9 @@ public class Workshop {
 	@ElementCollection
 	private List<String> imageUrls;
 
+	@Column(nullable = false)
+	private String city;
+
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String location;
 
@@ -31,11 +34,12 @@ public class Workshop {
 		super();
 	}
 
-	public Workshop(Long id, String name, List<String> imageUrls, GeoPoint location) {
+	public Workshop(Long id, String name, List<String> imageUrls, String city, GeoPoint location) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.imageUrls = imageUrls;
+		this.city = city;
 		setLocation(location);
 	}
 
@@ -53,6 +57,14 @@ public class Workshop {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
 	}
 
 	public List<String> getImageUrls() {
@@ -73,7 +85,7 @@ public class Workshop {
 
 	@Override
 	public String toString() {
-		return "Workshop [id=" + id + ", name=" + name + ", imageUrls=" + imageUrls + 
+		return "Workshop [id=" + id + ", name=" + name + ", city=" + city + ", imageUrls=" + imageUrls + 
 				", location=" + getLocation() + "]";
 	}
 }

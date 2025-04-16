@@ -19,6 +19,9 @@ public class WorkshopDTO {
     @NotBlank(message = "Workshop name is required")
     private String name;
 
+    @NotBlank(message = "City is required")
+    private String city;
+
     private List<String> imageUrls = new ArrayList<>();
 
     @Valid
@@ -32,6 +35,7 @@ public class WorkshopDTO {
         if (workshop != null) {
             this.id = workshop.getId();
             this.name = workshop.getName();
+            this.city = workshop.getCity();
             this.location = workshop.getLocation();
 
             if (workshop.getImageUrls() != null) {
@@ -44,6 +48,7 @@ public class WorkshopDTO {
         Workshop workshop = new Workshop();
         workshop.setId(this.id);
         workshop.setName(this.name);
+        workshop.setCity(this.city);
         workshop.setImageUrls(this.imageUrls);
         workshop.setLocation(this.location);
         return workshop;
@@ -75,6 +80,14 @@ public class WorkshopDTO {
         this.name = name;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public List<String> getImageUrls() {
         return imageUrls;
     }
@@ -93,7 +106,7 @@ public class WorkshopDTO {
 
     @Override
     public String toString() {
-        return "WorkshopDTO [id=" + id + ", name=" + name + 
+        return "WorkshopDTO [id=" + id + ", name=" + name + ", city=" + city + 
                 ", imageUrls=" + imageUrls + ", location=" + location + "]";
     }
 }
