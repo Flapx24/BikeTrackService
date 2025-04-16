@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.demo.entities.Review;
 import com.example.demo.entities.User;
+import com.example.demo.entities.Route;
 
 public interface ReviewService {
     
@@ -18,4 +19,6 @@ public interface ReviewService {
     boolean isReviewOwner(Long reviewId, Long userId);
     
     void updateRouteAverageScore(Long routeId);
+    
+    List<Review> findByUserAndRoute(User user, Route route);
 }

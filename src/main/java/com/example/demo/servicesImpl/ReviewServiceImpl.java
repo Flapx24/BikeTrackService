@@ -108,4 +108,9 @@ public class ReviewServiceImpl implements ReviewService {
         route.setAverageReviewScore(averageScore);
         routeRepository.save(route);
     }
+
+    @Override
+    public List<Review> findByUserAndRoute(User user, Route route) {
+        return reviewRepository.findByUserAndRoute(user, route);
+    }
 }

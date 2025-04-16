@@ -63,6 +63,13 @@ public class ReviewController {
             return ResponseEntity.notFound().build();
         }
         
+        List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
+        if (!existingReviews.isEmpty()) {
+            return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("You already have a review for this route. Please update your existing review instead.");
+        }
+        
         reviewDTO.setId(null);
         
         Review review = reviewDTO.toEntity(user, route);
@@ -182,5 +189,34 @@ public class ReviewController {
                 .collect(Collectors.toList());
         
         return ResponseEntity.ok(reviewDTOs);
+    }
+    
+    /**
+     * Get the current user's review for a specific route
+     * 
+     * @param authHeader Authorization token
+     * @param routeId ID of the route
+     * @return The user's review or 404 if not found
+     */
+    @GetMapping("/my/route/{routeId}")
+    public ResponseEntity<?> getMyReviewForRoute(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long routeId) {
+        
+        User user = jwtService.getUser(authHeader);
+        
+        Route route = routeService.findById(routeId);
+        if (route == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
+        if (existingReviews.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Review review = existingReviews.get(0);
+        
+        return ResponseEntity.ok(new ReviewDTO(review));
     }
 }
