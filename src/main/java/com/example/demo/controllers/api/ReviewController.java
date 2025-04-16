@@ -31,7 +31,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
-
+    
     @Autowired
     @Qualifier("reviewService")
     private ReviewService reviewService;
@@ -45,23 +45,27 @@ public class ReviewController {
     private JwtService jwtService;
     
     /**
-     * Create a new review
+     * Create a review for a route
      * 
      * @param authHeader Authorization token
+     * @param routeId ID of the route to review
      * @param reviewDTO Review data to create
      * @return Created review with 201 status code
      */
-    @PostMapping
+    @PostMapping("/route/{routeId}")
     public ResponseEntity<?> createReview(
             @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long routeId,
             @Valid @RequestBody ReviewDTO reviewDTO) {
         
         User user = jwtService.getUser(authHeader);
         
-        Route route = routeService.findById(reviewDTO.getRouteId());
+        Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.notFound().build();
         }
+        
+        reviewDTO.setRouteId(routeId);
         
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (!existingReviews.isEmpty()) {
@@ -80,33 +84,35 @@ public class ReviewController {
     }
     
     /**
-     * Update an existing review
+     * Update the current user's review for a specific route
      * 
      * @param authHeader Authorization token
-     * @param reviewDTO Updated review data
-     * @return Updated review or appropriate error status
+     * @param routeId ID of the route
+     * @param reviewDTO Updated review data (rating and text)
+     * @return Updated review or 404 if the user hasn't reviewed this route
      */
-    @PutMapping
+    @PutMapping("/route/{routeId}")
     public ResponseEntity<?> updateReview(
             @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long routeId,
             @Valid @RequestBody ReviewDTO reviewDTO) {
         
         User user = jwtService.getUser(authHeader);
         
-        if (reviewDTO.getId() == null) {
-            return ResponseEntity.badRequest().body("Review ID is required for update");
-        }
-        
-        Review existingReview = reviewService.findById(reviewDTO.getId());
-        if (existingReview == null) {
+        Route route = routeService.findById(routeId);
+        if (route == null) {
             return ResponseEntity.notFound().build();
         }
         
-        if (!reviewService.isReviewOwner(reviewDTO.getId(), user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
+        if (existingReviews.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
         
-        Route route = existingReview.getRoute();
+        Review existingReview = existingReviews.get(0);
+        
+        reviewDTO.setId(existingReview.getId());
+        reviewDTO.setRouteId(routeId);
         
         Review review = reviewDTO.toEntity(user, route);
         
@@ -116,79 +122,34 @@ public class ReviewController {
     }
     
     /**
-     * Delete a review
-     * 
-     * @param authHeader Authorization token
-     * @param reviewId ID of the review to delete
-     * @return Empty response with appropriate status
-     */
-    @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> deleteReview(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long reviewId) {
-        
-        User user = jwtService.getUser(authHeader);
-        
-        Review review = reviewService.findById(reviewId);
-        if (review == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        if (!reviewService.isReviewOwner(reviewId, user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        
-        boolean deleted = reviewService.deleteReview(reviewId);
-        
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-    }
-    
-    /**
-     * Get a review by its ID
-     * 
-     * @param authHeader Authorization token
-     * @param reviewId ID of the review to retrieve
-     * @return The requested review or 404 if it doesn't exist
-     */
-    @GetMapping("/{reviewId}")
-    public ResponseEntity<?> getReview(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long reviewId) {
-        
-        Review review = reviewService.findById(reviewId);
-        if (review == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        return ResponseEntity.ok(new ReviewDTO(review));
-    }
-    
-    /**
-     * Get all reviews for a route with pagination
+     * Delete the current user's review for a specific route
      * 
      * @param authHeader Authorization token
      * @param routeId ID of the route
-     * @param lastReviewId ID of the last review received (optional, for pagination)
-     * @return List of reviews
+     * @return Empty response with appropriate status (204 if deleted, 404 if not found)
      */
-    @GetMapping("/route/{routeId}")
-    public ResponseEntity<?> getReviewsByRoute(
+    @DeleteMapping("/route/{routeId}")
+    public ResponseEntity<?> deleteReview(
             @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long routeId,
-            @RequestParam(required = false) Long lastReviewId) {
+            @PathVariable Long routeId) {
+        
+        User user = jwtService.getUser(authHeader);
         
         Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.notFound().build();
         }
         
-        List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId);
+        List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
+        if (existingReviews.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         
-        List<ReviewDTO> reviewDTOs = reviews.stream()
-                .map(ReviewDTO::new)
-                .collect(Collectors.toList());
+        Review review = existingReviews.get(0);
         
-        return ResponseEntity.ok(reviewDTOs);
+        boolean deleted = reviewService.deleteReview(review.getId());
+        
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
     
     /**
@@ -198,8 +159,8 @@ public class ReviewController {
      * @param routeId ID of the route
      * @return The user's review or 404 if not found
      */
-    @GetMapping("/my/route/{routeId}")
-    public ResponseEntity<?> getMyReviewForRoute(
+    @GetMapping("/route/{routeId}/mine")
+    public ResponseEntity<?> getMyReview(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId) {
         
@@ -218,5 +179,41 @@ public class ReviewController {
         Review review = existingReviews.get(0);
         
         return ResponseEntity.ok(new ReviewDTO(review));
+    }
+    
+    /**
+     * Get all reviews for a route with pagination
+     * 
+     * @param authHeader Authorization token
+     * @param routeId ID of the route
+     * @param lastReviewId ID of the last review received (optional, for pagination)
+     * @return List of reviews (empty list if no reviews exist)
+     */
+    @GetMapping("/route/{routeId}")
+    public ResponseEntity<?> getRouteReviews(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long routeId,
+            @RequestParam(required = false) Long lastReviewId) {
+        
+        try {
+            Route route = routeService.findById(routeId);
+            if (route == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId);
+            
+            // Si no hay reseñas, devuelve una lista vacía (200 OK) en lugar de 404
+            List<ReviewDTO> reviewDTOs = (reviews == null || reviews.isEmpty()) 
+                ? List.of() 
+                : reviews.stream()
+                    .map(ReviewDTO::new)
+                    .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(reviewDTOs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error getting reviews: " + e.getMessage());
+        }
     }
 }

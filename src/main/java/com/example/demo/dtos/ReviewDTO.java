@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.example.demo.entities.Review;
 import com.example.demo.entities.Route;
 import com.example.demo.entities.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,11 +18,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReviewDTO {
 
     private Long id;
 
-    private UserDTO user;
+    private ReviewUserDTO user;
 
     @NotNull(message = "Rating is required")
     @Min(value = 1, message = "Rating must be between 1 and 5")
@@ -44,7 +46,7 @@ public class ReviewDTO {
         if (review != null) {
             this.id = review.getId();
             if (review.getUser() != null) {
-                this.user = new UserDTO(
+                this.user = new ReviewUserDTO(
                         review.getUser().getId(),
                         review.getUser().getUsername());
             }
@@ -105,11 +107,11 @@ public class ReviewDTO {
         this.id = id;
     }
 
-    public UserDTO getUser() {
+    public ReviewUserDTO getUser() {
         return user;
     }
 
-    public void setUser(UserDTO user) {
+    public void setUser(ReviewUserDTO user) {
         this.user = user;
     }
 
