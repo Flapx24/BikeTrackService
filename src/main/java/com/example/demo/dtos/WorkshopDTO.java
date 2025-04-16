@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.entities.Workshop;
+import com.example.demo.models.GeoPoint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
 public class WorkshopDTO {
 
@@ -20,9 +21,9 @@ public class WorkshopDTO {
 
     private List<String> imageUrls = new ArrayList<>();
 
-    @NotEmpty(message = "At least one coordinate is required")
-    @Size(min = 2, message = "At least latitude and longitude coordinates are required")
-    private List<String> coordinates = new ArrayList<>();
+    @Valid
+    @NotNull(message = "Location is required")
+    private GeoPoint location;
 
     public WorkshopDTO() {
     }
@@ -31,13 +32,10 @@ public class WorkshopDTO {
         if (workshop != null) {
             this.id = workshop.getId();
             this.name = workshop.getName();
+            this.location = workshop.getLocation();
 
             if (workshop.getImageUrls() != null) {
                 this.imageUrls = new ArrayList<>(workshop.getImageUrls());
-            }
-
-            if (workshop.getCoordinates() != null) {
-                this.coordinates = new ArrayList<>(workshop.getCoordinates());
             }
         }
     }
@@ -47,7 +45,7 @@ public class WorkshopDTO {
         workshop.setId(this.id);
         workshop.setName(this.name);
         workshop.setImageUrls(this.imageUrls);
-        workshop.setCoordinates(this.coordinates);
+        workshop.setLocation(this.location);
         return workshop;
     }
 
@@ -85,17 +83,17 @@ public class WorkshopDTO {
         this.imageUrls = imageUrls;
     }
 
-    public List<String> getCoordinates() {
-        return coordinates;
+    public GeoPoint getLocation() {
+        return location;
     }
 
-    public void setCoordinates(List<String> coordinates) {
-        this.coordinates = coordinates;
+    public void setLocation(GeoPoint location) {
+        this.location = location;
     }
 
     @Override
     public String toString() {
-        return "WorkshopDTO [id=" + id + ", name=" + name +
-                ", imageUrls=" + imageUrls + ", coordinates=" + coordinates + "]";
+        return "WorkshopDTO [id=" + id + ", name=" + name + 
+                ", imageUrls=" + imageUrls + ", location=" + location + "]";
     }
 }

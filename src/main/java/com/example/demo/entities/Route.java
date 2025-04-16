@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.enums.Difficulty;
+import com.example.demo.models.GeoPoint;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,9 +42,8 @@ public class Route {
 	@Column(nullable = false)
 	private String city;
 
-	@Column(nullable = false)
-	@ElementCollection
-	private List<String> coordinates = new ArrayList<>();
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String routePointsJson;
 
 	private Double averageReviewScore = 0.0;
 
@@ -50,18 +53,20 @@ public class Route {
 	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<RouteUpdate> updates = new ArrayList<>();
 
+	private static final ObjectMapper mapper = new ObjectMapper();
+	
 	public Route() {
 	}
 
 	public Route(Long id, String title, String description, Difficulty difficulty, List<String> imageUrls, String city,
-			List<String> coordinates, Double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
+			List<GeoPoint> routePoints, Double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
 		this.id = id;
 		this.title = title;
 		this.description = description;
 		this.difficulty = difficulty == null ? Difficulty.EASY : difficulty;
-		this.imageUrls = imageUrls;
+		this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
 		this.city = city;
-		this.coordinates = coordinates;
+		setRoutePoints(routePoints);
 		this.averageReviewScore = averageReviewScore == null ? 0.0 : averageReviewScore;
 		this.reviews = reviews == null ? new ArrayList<>() : reviews;
 		this.updates = updates == null ? new ArrayList<>() : updates;
@@ -114,13 +119,26 @@ public class Route {
 	public void setCity(String city) {
 		this.city = city;
 	}
-
-	public List<String> getCoordinates() {
-		return coordinates;
+	
+	public List<GeoPoint> getRoutePoints() {
+		if (routePointsJson == null || routePointsJson.trim().isEmpty()) {
+			return new ArrayList<>();
+		}
+		
+		try {
+			return mapper.readValue(routePointsJson, new TypeReference<List<GeoPoint>>() {});
+		} catch (JsonProcessingException e) {
+			return new ArrayList<>();
+		}
 	}
-
-	public void setCoordinates(List<String> coordinates) {
-		this.coordinates = coordinates;
+	
+	public void setRoutePoints(List<GeoPoint> routePoints) {
+		try {
+			this.routePointsJson = routePoints != null ? 
+					mapper.writeValueAsString(routePoints) : "[]";
+		} catch (JsonProcessingException e) {
+			this.routePointsJson = "[]";
+		}
 	}
 
 	public Double getAverageReviewScore() {
@@ -150,9 +168,7 @@ public class Route {
 	@Override
 	public String toString() {
 		return "Route [id=" + id + ", title=" + title + ", description=" + description + ", difficulty=" + difficulty
-				+ ", imageUrls=" + imageUrls + ", city=" + city + ", coordinates=" + coordinates
-				+ ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", updates=" + updates
-				+ "]";
+				+ ", imageUrls=" + imageUrls + ", city=" + city + ", routePoints=" + getRoutePoints()
+				+ ", averageReviewScore=" + averageReviewScore + "]";
 	}
-
 }

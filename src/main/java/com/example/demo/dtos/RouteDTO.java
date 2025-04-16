@@ -8,41 +8,63 @@ import com.example.demo.entities.Route;
 import com.example.demo.entities.RouteUpdate;
 import com.example.demo.enums.Difficulty;
 import com.example.demo.enums.RouteDetailLevel;
+import com.example.demo.models.GeoPoint;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class RouteDTO {
     private Long id;
+    
+    @NotBlank(message = "Route title is required")
     private String title;
+    
     private String description;
+    
+    @NotNull(message = "Difficulty is required")
     private String difficulty;
+    
     private List<String> imageUrls = new ArrayList<>();
+    
+    @NotBlank(message = "City is required")
     private String city;
-    private List<String> coordinates = new ArrayList<>();
+    
+    @Valid
+    @Size(min = 2, message = "At least two route points are required")
+    @NotEmpty(message = "Route points are required")
+    private List<GeoPoint> routePoints = new ArrayList<>();
+    
     private Double averageReviewScore;
+    
     private List<Review> reviews = new ArrayList<>();
+    
     private List<RouteUpdate> updates = new ArrayList<>();
 
     public RouteDTO() {
     }
 
     public RouteDTO(String title, String description, String difficulty, List<String> imageUrls, String city,
-            List<String> coordinates) {
+            List<GeoPoint> routePoints) {
         this.title = title;
         this.description = description;
         this.difficulty = difficulty;
         this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
         this.city = city;
-        this.coordinates = coordinates != null ? coordinates : new ArrayList<>();
+        this.routePoints = routePoints != null ? routePoints : new ArrayList<>();
     }
 
     public RouteDTO(Long id, String title, String description, String difficulty, List<String> imageUrls, String city,
-            List<String> coordinates, double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
+            List<GeoPoint> routePoints, double averageReviewScore, List<Review> reviews, List<RouteUpdate> updates) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.difficulty = difficulty;
         this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
         this.city = city;
-        this.coordinates = coordinates != null ? coordinates : new ArrayList<>();
+        this.routePoints = routePoints != null ? routePoints : new ArrayList<>();
         this.averageReviewScore = averageReviewScore;
         this.reviews = reviews != null ? reviews : new ArrayList<>();
         this.updates = updates != null ? updates : new ArrayList<>();
@@ -69,7 +91,7 @@ public class RouteDTO {
 
         if (detailLevel == RouteDetailLevel.FULL) {
             dto.setDescription(route.getDescription());
-            dto.setCoordinates(route.getCoordinates());
+            dto.setRoutePoints(route.getRoutePoints());
             dto.setReviews(route.getReviews());
             dto.setUpdates(route.getUpdates());
         }
@@ -80,7 +102,7 @@ public class RouteDTO {
     public Route toEntity() {
         return new Route(this.id, this.title, this.description,
                 this.difficulty == null ? Difficulty.EASY : Difficulty.valueOf(this.difficulty), this.imageUrls,
-                this.city, this.coordinates, this.averageReviewScore, this.reviews, this.updates);
+                this.city, this.routePoints, this.averageReviewScore, this.reviews, this.updates);
     }
 
     public Long getId() {
@@ -131,12 +153,12 @@ public class RouteDTO {
         this.city = city;
     }
 
-    public List<String> getCoordinates() {
-        return coordinates;
+    public List<GeoPoint> getRoutePoints() {
+        return routePoints;
     }
 
-    public void setCoordinates(List<String> coordinates) {
-        this.coordinates = coordinates;
+    public void setRoutePoints(List<GeoPoint> routePoints) {
+        this.routePoints = routePoints;
     }
 
     public Double getAverageReviewScore() {
@@ -166,8 +188,7 @@ public class RouteDTO {
     @Override
     public String toString() {
         return "RouteDTO [id=" + id + ", title=" + title + ", description=" + description + ", difficulty=" + difficulty
-                + ", imageUrls=" + imageUrls + ", city=" + city + ", coordinates=" + coordinates
-                + ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", updates=" + updates
-                + "]";
+                + ", imageUrls=" + imageUrls + ", city=" + city + ", routePoints=" + routePoints
+                + ", averageReviewScore=" + averageReviewScore + "]";
     }
 }

@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.util.List;
 
+import com.example.demo.models.GeoPoint;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -22,20 +24,19 @@ public class Workshop {
 	@ElementCollection
 	private List<String> imageUrls;
 
-	@ElementCollection
-	@Column(nullable = false)
-	private List<String> coordinates;
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String location;
 
 	public Workshop() {
 		super();
 	}
 
-	public Workshop(Long id, String name, List<String> imageUrls, List<String> coordinates) {
+	public Workshop(Long id, String name, List<String> imageUrls, GeoPoint location) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.imageUrls = imageUrls;
-		this.coordinates = coordinates;
+		setLocation(location);
 	}
 
 	public Long getId() {
@@ -61,19 +62,18 @@ public class Workshop {
 	public void setImageUrls(List<String> imageUrls) {
 		this.imageUrls = imageUrls;
 	}
-
-	public List<String> getCoordinates() {
-		return coordinates;
+	
+	public GeoPoint getLocation() {
+		return location != null ? GeoPoint.fromString(location) : null;
 	}
-
-	public void setCoordinates(List<String> coordinates) {
-		this.coordinates = coordinates;
+	
+	public void setLocation(GeoPoint location) {
+		this.location = location != null ? location.toString() : null;
 	}
 
 	@Override
 	public String toString() {
-		return "Workshop [id=" + id + ", name=" + name + ", imageUrls=" + imageUrls + ", coordinates=" + coordinates
-				+ "]";
+		return "Workshop [id=" + id + ", name=" + name + ", imageUrls=" + imageUrls + 
+				", location=" + getLocation() + "]";
 	}
-
 }
