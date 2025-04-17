@@ -1,7 +1,7 @@
 package com.example.demo.entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,8 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 @Entity
 public class Bicycle {
@@ -40,8 +38,8 @@ public class Bicycle {
 
     private Double totalKilometers = 0.0;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastMaintenanceDate;
+    @Column(nullable = true)
+    private LocalDate lastMaintenanceDate;
 
     public Bicycle() {
     }
@@ -124,11 +122,11 @@ public class Bicycle {
         this.totalKilometers = totalKilometers;
     }
 
-    public Date getLastMaintenanceDate() {
+    public LocalDate getLastMaintenanceDate() {
         return lastMaintenanceDate;
     }
 
-    public void setLastMaintenanceDate(Date lastMaintenanceDate) {
+    public void setLastMaintenanceDate(LocalDate lastMaintenanceDate) {
         this.lastMaintenanceDate = lastMaintenanceDate;
     }
 

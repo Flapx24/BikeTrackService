@@ -1,7 +1,7 @@
 package com.example.demo.servicesImpl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -192,12 +192,12 @@ public class BicycleServiceImpl implements BicycleService {
     @Override
     @Transactional
     public boolean updateMaintenanceDate(Long bicycleId) {
-        return updateMaintenanceDate(bicycleId, new Date());
+        return updateMaintenanceDate(bicycleId, LocalDate.now());
     }
 
     @Override
     @Transactional
-    public boolean updateMaintenanceDate(Long bicycleId, Date maintenanceDate) {
+    public boolean updateMaintenanceDate(Long bicycleId, LocalDate maintenanceDate) {
         Bicycle bicycle = findById(bicycleId);
         if (bicycle == null) {
             return false;

@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.example.demo.entities.Bicycle;
@@ -34,6 +34,6 @@ public interface BicycleService {
 
     boolean updateMaintenanceDate(Long bicycleId);
     
-    boolean updateMaintenanceDate(Long bicycleId, Date maintenanceDate);
+    boolean updateMaintenanceDate(Long bicycleId, LocalDate maintenanceDate);
     
 }

@@ -1,7 +1,7 @@
 package com.example.demo.dtos;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,7 @@ public class BicycleDTO {
     
     private Double totalKilometers = 0.0;
     
-    private Date lastMaintenanceDate;
+    private LocalDate lastMaintenanceDate;
 
     public BicycleDTO() {
     }
@@ -144,11 +144,11 @@ public class BicycleDTO {
         this.totalKilometers = totalKilometers;
     }
 
-    public Date getLastMaintenanceDate() {
+    public LocalDate getLastMaintenanceDate() {
         return lastMaintenanceDate;
     }
 
-    public void setLastMaintenanceDate(Date lastMaintenanceDate) {
+    public void setLastMaintenanceDate(LocalDate lastMaintenanceDate) {
         this.lastMaintenanceDate = lastMaintenanceDate;
     }
 }

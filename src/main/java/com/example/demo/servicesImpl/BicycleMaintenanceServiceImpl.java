@@ -1,6 +1,6 @@
 package com.example.demo.servicesImpl;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,7 +61,7 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
         component.setMaxKilometers(maxKilometers);
         bicycleComponentService.saveComponent(component);
 
-        bicycle.setLastMaintenanceDate(new Date());
+        bicycle.setLastMaintenanceDate(LocalDate.now());
         bicycleService.saveBicycle(bicycle);
         
         return true;
@@ -75,7 +75,7 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
 
     @Override
     @Transactional
-    public boolean registerMaintenanceWithDate(Long bicycleId, Date maintenanceDate) {
+    public boolean registerMaintenanceWithDate(Long bicycleId, LocalDate maintenanceDate) {
         if (maintenanceDate == null) {
             return false;
         }
@@ -83,7 +83,7 @@ public class BicycleMaintenanceServiceImpl implements BicycleMaintenanceService 
     }
 
     @Override
-    public Date getLastMaintenanceDate(Long bicycleId) {
+    public LocalDate getLastMaintenanceDate(Long bicycleId) {
         Bicycle bicycle = bicycleService.findById(bicycleId);
         return bicycle != null ? bicycle.getLastMaintenanceDate() : null;
     }

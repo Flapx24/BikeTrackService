@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public interface BicycleMaintenanceService {
     
@@ -42,7 +42,7 @@ public interface BicycleMaintenanceService {
      * @param maintenanceDate The specific maintenance date to record
      * @return true if successful, false otherwise
      */
-    boolean registerMaintenanceWithDate(Long bicycleId, Date maintenanceDate);
+    boolean registerMaintenanceWithDate(Long bicycleId, LocalDate maintenanceDate);
     
     /**
      * Get the last maintenance date for a bicycle
@@ -50,6 +50,6 @@ public interface BicycleMaintenanceService {
      * @param bicycleId The bicycle ID
      * @return The last maintenance date or null if not found
      */
-    Date getLastMaintenanceDate(Long bicycleId);
+    LocalDate getLastMaintenanceDate(Long bicycleId);
 
 }
