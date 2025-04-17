@@ -70,21 +70,19 @@ public class BicycleController {
      * Update an existing bicycle
      * 
      * @param authHeader Authorization token
+     * @param bicycleId ID of the bicycle to update
      * @param bicycleDTO Updated bicycle data
      * @return Updated bicycle or 404 if it doesn't exist
      */
-    @PutMapping
+    @PutMapping("/{bicycleId}")
     public ResponseEntity<?> updateBicycle(
             @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long bicycleId,
             @Valid @RequestBody BicycleDTO bicycleDTO) {
         
         User user = jwtService.getUser(authHeader);
         
-        if (bicycleDTO.getId() == null) {
-            return ResponseEntity.badRequest().body("Bicycle ID is required for update");
-        }
-        
-        Bicycle existingBicycle = bicycleService.findById(bicycleDTO.getId());
+        Bicycle existingBicycle = bicycleService.findById(bicycleId);
         if (existingBicycle == null) {
             return ResponseEntity.notFound().build();
         }
@@ -93,6 +91,7 @@ public class BicycleController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
+        bicycleDTO.setId(bicycleId);
         bicycleDTO.setOwnerId(user.getId());
         
         Bicycle updatedBicycle = bicycleDTO.toEntity(user);

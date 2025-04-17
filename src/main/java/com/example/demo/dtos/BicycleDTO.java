@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public class BicycleDTO {
     
@@ -23,7 +22,6 @@ public class BicycleDTO {
     
     private String iconUrl;
     
-    @NotNull(message = "Owner ID is required")
     private Long ownerId;
     
     private List<BicycleComponentDTO> components = new ArrayList<>();
