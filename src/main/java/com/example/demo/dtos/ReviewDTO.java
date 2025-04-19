@@ -25,12 +25,12 @@ public class ReviewDTO {
 
     private ReviewUserDTO user;
 
-    @NotNull(message = "Rating is required")
-    @Min(value = 1, message = "Rating must be between 1 and 5")
-    @Max(value = 5, message = "Rating must be between 1 and 5")
+    @NotNull(message = "La calificación es obligatoria")
+    @Min(value = 1, message = "La calificación debe estar entre 1 y 5")
+    @Max(value = 5, message = "La calificación debe estar entre 1 y 5")
     private Integer rating;
 
-    @NotBlank(message = "Review text is required")
+    @NotBlank(message = "El texto de la reseña es obligatorio")
     private String text;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)

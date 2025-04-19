@@ -17,7 +17,7 @@ public class BicycleDTO {
     
     private Long id;
     
-    @NotBlank(message = "The name of the bike is mandatory")
+    @NotBlank(message = "El nombre de la bicicleta es obligatorio")
     private String name;
     
     private String iconUrl;

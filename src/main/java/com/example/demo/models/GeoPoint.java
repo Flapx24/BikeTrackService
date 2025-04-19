@@ -8,14 +8,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GeoPoint {
-    @NotNull(message = "Latitude is required")
-    @DecimalMin(value = "-90.0", message = "Latitude must be greater than or equal to -90")
-    @DecimalMax(value = "90.0", message = "Latitude must be less than or equal to 90")
+    @NotNull(message = "La latitud es obligatoria")
+    @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
+    @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
     private Double lat;
     
-    @NotNull(message = "Longitude is required")
-    @DecimalMin(value = "-180.0", message = "Longitude must be greater than or equal to -180")
-    @DecimalMax(value = "180.0", message = "Longitude must be less than or equal to 180")
+    @NotNull(message = "La longitud es obligatoria")
+    @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
+    @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
     private Double lng;
 
     public GeoPoint() {
@@ -36,12 +36,12 @@ public class GeoPoint {
      */
     public static GeoPoint fromString(String coordString) {
         if (coordString == null || !coordString.contains(",")) {
-            throw new IllegalArgumentException("Invalid coordinate format. Expected 'lat,lng'");
+            throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng'");
         }
         
         String[] parts = coordString.split(",");
         if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid coordinate format. Expected 'lat,lng'");
+            throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng'");
         }
         
         try {
@@ -49,7 +49,7 @@ public class GeoPoint {
             Double lng = Double.parseDouble(parts[1].trim());
             return new GeoPoint(lat, lng);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid coordinate values. Latitude and longitude must be numeric");
+            throw new IllegalArgumentException("Valores de coordenadas inválidos. La latitud y longitud deben ser numéricas");
         }
     }
     

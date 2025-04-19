@@ -97,10 +97,10 @@ public class RouteController {
             @RequestParam(required = false) Long lastRouteId) {
 
         if (minScore < 0 || minScore > 5) {
-            return ResponseEntity.badRequest().body("Score must be between 0 and 5");
+            return ResponseEntity.badRequest().body("La puntuación debe estar entre 0 y 5");
         }
         if (city == null || city.isBlank()) {
-            return ResponseEntity.badRequest().body("City name is required");
+            return ResponseEntity.badRequest().body("El nombre de la ciudad es obligatorio");
         }
         
         List<Route> routes = routeService.getRoutesByCityAndMinScore(city, minScore, lastRouteId);

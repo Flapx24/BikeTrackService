@@ -71,7 +71,7 @@ public class ReviewController {
         if (!existingReviews.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body("You already have a review for this route. Please update your existing review instead.");
+                .body("Ya tienes una reseña para esta ruta. Por favor, actualiza tu reseña existente.");
         }
         
         reviewDTO.setId(null);
@@ -213,7 +213,7 @@ public class ReviewController {
             return ResponseEntity.ok(reviewDTOs);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error getting reviews: " + e.getMessage());
+                    .body("Error al obtener las reseñas: " + e.getMessage());
         }
     }
 }

@@ -19,16 +19,16 @@ public class RouteUpdateDTO {
 
     private Long id;
 
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "La descripción es obligatoria")
     private String description;
 
-    @NotNull(message = "Date is required")
+    @NotNull(message = "La fecha es obligatoria")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    @NotNull(message = "Update type is required")
+    @NotNull(message = "El tipo de actualización es obligatorio")
     private UpdateType type;
 
     private boolean resolved;

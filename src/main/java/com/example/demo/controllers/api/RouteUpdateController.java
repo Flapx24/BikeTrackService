@@ -55,12 +55,12 @@ public class RouteUpdateController {
             @Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
 
         if (routeUpdateDTO.getRouteId() == null) {
-            return ResponseEntity.badRequest().body("Route ID is required for creating a route update");
+            return ResponseEntity.badRequest().body("El ID de la ruta es obligatorio para crear una actualización de ruta");
         }
 
         Route route = routeService.findById(routeUpdateDTO.getRouteId());
         if (route == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Route not found with ID: " + routeUpdateDTO.getRouteId());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ruta no encontrada con ID: " + routeUpdateDTO.getRouteId());
         }
 
         routeUpdateDTO.setId(null);
@@ -86,7 +86,7 @@ public class RouteUpdateController {
             @Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
 
         if (routeUpdateDTO.getId() == null) {
-            return ResponseEntity.badRequest().body("Route update ID is required for update");
+            return ResponseEntity.badRequest().body("El ID de la actualización de ruta es obligatorio para la actualización");
         }
 
         RouteUpdate existingRouteUpdate = routeUpdateService.findById(routeUpdateDTO.getId());
@@ -96,7 +96,7 @@ public class RouteUpdateController {
 
         Route existingRoute = existingRouteUpdate.getRoute();
         if (existingRoute == null) {
-            return ResponseEntity.badRequest().body("The existing route update has no associated route");
+            return ResponseEntity.badRequest().body("La actualización de ruta existente no tiene una ruta asociada");
         }
         
         RouteUpdate routeUpdate = routeUpdateDTO.toEntity();

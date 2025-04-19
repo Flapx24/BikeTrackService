@@ -22,22 +22,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class RouteDTO {
     private Long id;
     
-    @NotBlank(message = "Route title is required")
+    @NotBlank(message = "El título de la ruta es obligatorio")
     private String title;
     
     private String description;
     
-    @NotNull(message = "Difficulty is required")
+    @NotNull(message = "La dificultad es obligatoria")
     private String difficulty;
     
     private List<String> imageUrls = new ArrayList<>();
     
-    @NotBlank(message = "City is required")
+    @NotBlank(message = "La ciudad es obligatoria")
     private String city;
     
     @Valid
-    @Size(min = 2, message = "At least two route points are required")
-    @NotEmpty(message = "Route points are required")
+    @Size(min = 2, message = "Al menos dos puntos de ruta son necesarios")
+    @NotEmpty(message = "Los puntos de ruta son obligatorios")
     private List<GeoPoint> routePoints = new ArrayList<>();
     
     private Double averageReviewScore;

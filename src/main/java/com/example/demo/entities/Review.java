@@ -29,8 +29,8 @@ public class Review {
 	private User user;
 
 	@Column(nullable = false)
-	@Min(value = 1, message = "Rating must be between 1 and 5")
-	@Max(value = 5, message = "Rating must be between 1 and 5")
+	@Min(value = 1, message = "La calificación debe estar entre 1 y 5")
+	@Max(value = 5, message = "La calificación debe estar entre 1 y 5")
 	private Integer rating;
 
 	@Column(nullable = false)
@@ -46,7 +46,7 @@ public class Review {
 	}
 
 	public Review(Long id, User user,
-			@Min(value = 1, message = "Rating must be between 1 and 5") @Max(value = 5, message = "Rating must be between 1 and 5") Integer rating,
+			@Min(value = 1, message = "La calificación debe estar entre 1 y 5") @Max(value = 5, message = "La calificación debe estar entre 1 y 5") Integer rating,
 			String text, LocalDate date, Route route) {
 		this.id = id;
 		this.user = user;

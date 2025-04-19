@@ -188,7 +188,7 @@ public class BicycleController {
             @RequestParam Double kilometers) {
         
         if (kilometers == null || kilometers <= 0) {
-            return ResponseEntity.badRequest().body("Kilometers must be a positive value");
+            return ResponseEntity.badRequest().body("Los kilómetros deben ser un valor positivo");
         }
         
         User user = jwtService.getUser(authHeader);
@@ -222,7 +222,7 @@ public class BicycleController {
             @RequestParam Double kilometers) {
         
         if (kilometers == null || kilometers <= 0) {
-            return ResponseEntity.badRequest().body("Kilometers must be a positive value");
+            return ResponseEntity.badRequest().body("Los kilómetros deben ser un valor positivo");
         }
         
         User user = jwtService.getUser(authHeader);

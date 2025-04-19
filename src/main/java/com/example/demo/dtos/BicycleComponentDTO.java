@@ -13,14 +13,14 @@ public class BicycleComponentDTO {
     
     private Long id;
     
-    @NotBlank(message = "The component name is required")
+    @NotBlank(message = "El nombre del componente es obligatorio")
     private String name;
     
-    @NotNull(message = "The maximum kilometers is required")
-    @Positive(message = "The maximum kilometers must be greater than zero")
+    @NotNull(message = "El número máximo de kilómetros es obligatorio")
+    @Positive(message = "El número máximo de kilómetros debe ser mayor que cero")
     private Double maxKilometers;
     
-    @NotNull(message = "The current kilometers is required")
+    @NotNull(message = "Los kilómetros actuales son obligatorios")
     private Double currentKilometers;
 
     public BicycleComponentDTO() {

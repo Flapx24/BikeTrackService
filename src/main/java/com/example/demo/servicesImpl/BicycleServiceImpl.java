@@ -43,7 +43,7 @@ public class BicycleServiceImpl implements BicycleService {
     @Override
     public List<Bicycle> findByOwnerId(Long ownerId) {
         if (ownerId == null) {
-            throw new IllegalArgumentException("Owner ID cannot be null");
+            throw new IllegalArgumentException("El ID del propietario no puede ser nulo");
         }
         
         return bicycleRepository.findAll().stream()

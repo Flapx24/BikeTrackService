@@ -16,16 +16,16 @@ public class WorkshopDTO {
 
     private Long id;
 
-    @NotBlank(message = "Workshop name is required")
+    @NotBlank(message = "El nombre del taller es obligatorio")
     private String name;
 
-    @NotBlank(message = "City is required")
+    @NotBlank(message = "La ciudad es obligatoria")
     private String city;
 
     private List<String> imageUrls = new ArrayList<>();
 
     @Valid
-    @NotNull(message = "Location is required")
+    @NotNull(message = "La ubicación es obligatoria")
     private GeoPoint location;
 
     public WorkshopDTO() {
