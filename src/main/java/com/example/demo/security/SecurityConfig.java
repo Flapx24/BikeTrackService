@@ -72,6 +72,7 @@ public class SecurityConfig {
             // Login form configuration
             .formLogin(form -> form
                 .loginPage("/login")
+                .usernameParameter("email")
                 .defaultSuccessUrl("/home", true)
                 .failureHandler(failureHandler)
                 .permitAll()
