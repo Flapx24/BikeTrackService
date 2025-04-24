@@ -139,6 +139,37 @@ public class UserAuthService {
             result.put("message", "Usuario ya registrado");
             return result;
         }
+        
+        String password = user.getPassword();
+        if (password == null || password.length() < 8) {
+            result.put("success", false);
+            result.put("message", "La contraseña debe tener al menos 8 caracteres");
+            return result;
+        }
+        
+        if (!password.matches(".*[A-Z].*")) {
+            result.put("success", false);
+            result.put("message", "La contraseña debe contener al menos una letra mayúscula");
+            return result;
+        }
+        
+        if (!password.matches(".*[a-z].*")) {
+            result.put("success", false);
+            result.put("message", "La contraseña debe contener al menos una letra minúscula");
+            return result;
+        }
+        
+        if (!password.matches(".*\\d.*")) {
+            result.put("success", false);
+            result.put("message", "La contraseña debe contener al menos un número");
+            return result;
+        }
+        
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            result.put("success", false);
+            result.put("message", "La contraseña debe contener al menos un carácter especial");
+            return result;
+        }
 
         user.setRole(Role.ROLE_USER);
         user.setActive(false);
