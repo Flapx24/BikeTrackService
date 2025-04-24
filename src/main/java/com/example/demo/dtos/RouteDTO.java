@@ -36,7 +36,7 @@ public class RouteDTO {
     private String city;
     
     @Valid
-    @Size(min = 2, message = "Al menos dos puntos de ruta son necesarios")
+    @Size(min = 1, message = "Al menos un punto de ruta es necesario")
     @NotEmpty(message = "Los puntos de ruta son obligatorios")
     private List<GeoPoint> routePoints = new ArrayList<>();
     
