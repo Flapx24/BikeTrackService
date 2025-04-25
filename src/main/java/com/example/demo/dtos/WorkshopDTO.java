@@ -24,9 +24,12 @@ public class WorkshopDTO {
 
     private List<String> imageUrls = new ArrayList<>();
 
+    @NotBlank(message = "La dirección es obligatoria")
+    private String address;
+    
     @Valid
-    @NotNull(message = "La ubicación es obligatoria")
-    private GeoPoint location;
+    @NotNull(message = "Las coordenadas son obligatorias")
+    private GeoPoint coordinates;
 
     public WorkshopDTO() {
     }
@@ -36,7 +39,8 @@ public class WorkshopDTO {
             this.id = workshop.getId();
             this.name = workshop.getName();
             this.city = workshop.getCity();
-            this.location = workshop.getLocation();
+            this.address = workshop.getAddress();
+            this.coordinates = workshop.getCoordinates();
 
             if (workshop.getImageUrls() != null) {
                 this.imageUrls = new ArrayList<>(workshop.getImageUrls());
@@ -50,7 +54,8 @@ public class WorkshopDTO {
         workshop.setName(this.name);
         workshop.setCity(this.city);
         workshop.setImageUrls(this.imageUrls);
-        workshop.setLocation(this.location);
+        workshop.setAddress(this.address);
+        workshop.setCoordinates(this.coordinates);
         return workshop;
     }
 
@@ -96,17 +101,25 @@ public class WorkshopDTO {
         this.imageUrls = imageUrls;
     }
 
-    public GeoPoint getLocation() {
-        return location;
+    public String getAddress() {
+        return address;
     }
 
-    public void setLocation(GeoPoint location) {
-        this.location = location;
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public GeoPoint getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(GeoPoint coordinates) {
+        this.coordinates = coordinates;
     }
 
     @Override
     public String toString() {
         return "WorkshopDTO [id=" + id + ", name=" + name + ", city=" + city + 
-                ", imageUrls=" + imageUrls + ", location=" + location + "]";
+                ", imageUrls=" + imageUrls + ", address=" + address + ", coordinates=" + coordinates + "]";
     }
 }

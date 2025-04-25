@@ -29,19 +29,23 @@ public class Workshop {
 	private String city;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
-	private String location;
+	private String address;
+	
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String coordinates;
 
 	public Workshop() {
 		super();
 	}
 
-	public Workshop(Long id, String name, List<String> imageUrls, String city, GeoPoint location) {
+	public Workshop(Long id, String name, List<String> imageUrls, String city, String address, GeoPoint coordinates) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.imageUrls = imageUrls;
 		this.city = city;
-		setLocation(location);
+		this.address = address;
+		setCoordinates(coordinates);
 	}
 
 	public Long getId() {
@@ -76,17 +80,25 @@ public class Workshop {
 		this.imageUrls = imageUrls;
 	}
 	
-	public GeoPoint getLocation() {
-		return location != null ? GeoPoint.fromString(location) : null;
+	public String getAddress() {
+		return address;
 	}
 	
-	public void setLocation(GeoPoint location) {
-		this.location = location != null ? location.toString() : null;
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	public GeoPoint getCoordinates() {
+		return coordinates != null ? GeoPoint.fromString(coordinates) : null;
+	}
+	
+	public void setCoordinates(GeoPoint coordinates) {
+		this.coordinates = coordinates != null ? coordinates.toString() : null;
 	}
 
 	@Override
 	public String toString() {
 		return "Workshop [id=" + id + ", name=" + name + ", city=" + city + ", imageUrls=" + imageUrls + 
-				", location=" + getLocation() + "]";
+				", address=" + address + ", coordinates=" + getCoordinates() + "]";
 	}
 }
