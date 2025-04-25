@@ -15,7 +15,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,7 +29,6 @@ public class ReviewDTO {
     @Max(value = 5, message = "La calificación debe estar entre 1 y 5")
     private Integer rating;
 
-    @NotBlank(message = "El texto de la reseña es obligatorio")
     private String text;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
