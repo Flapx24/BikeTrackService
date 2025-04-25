@@ -93,11 +93,11 @@ public class RouteController {
     public ResponseEntity<?> getRoutesByCityAndScore(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam String city,
-            @RequestParam(defaultValue = "0") Integer minScore,
+            @RequestParam(defaultValue = "1") Integer minScore,
             @RequestParam(required = false) Long lastRouteId) {
 
-        if (minScore < 0 || minScore > 5) {
-            return ResponseEntity.badRequest().body("La puntuación debe estar entre 0 y 5");
+        if (minScore < 1 || minScore > 5) {
+            return ResponseEntity.badRequest().body("La puntuación debe estar entre 1 y 5");
         }
         if (city == null || city.isBlank()) {
             return ResponseEntity.badRequest().body("El nombre de la ciudad es obligatorio");

@@ -91,6 +91,12 @@ public class BicycleController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
+        List<Long> invalidComponentIds = bicycleService.validateComponentsFromDTO(bicycleDTO);
+        if (!invalidComponentIds.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    "Los siguientes componentes no existen: " + invalidComponentIds);
+        }
+        
         bicycleDTO.setId(bicycleId);
         bicycleDTO.setOwnerId(user.getId());
         

@@ -11,8 +11,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dtos.BicycleComponentDTO;
+import com.example.demo.dtos.BicycleDTO;
 import com.example.demo.entities.Bicycle;
 import com.example.demo.entities.BicycleComponent;
+import com.example.demo.repositories.BicycleComponentRepository;
 import com.example.demo.repositories.BicycleRepository;
 import com.example.demo.services.BicycleComponentService;
 import com.example.demo.services.BicycleService;
@@ -28,6 +31,10 @@ public class BicycleServiceImpl implements BicycleService {
     @Lazy
     @Qualifier("bicycleComponentService")
     private BicycleComponentService bicycleComponentService;
+    
+    @Autowired
+    @Qualifier("bicycleComponentRepository")
+    private BicycleComponentRepository bicycleComponentRepository;
 
     @Override
     @Transactional
@@ -206,6 +213,41 @@ public class BicycleServiceImpl implements BicycleService {
         bicycle.setLastMaintenanceDate(maintenanceDate);
         saveBicycle(bicycle);
         return true;
+    }
+
+    @Override
+    public List<Long> validateComponents(List<Long> componentIds) {
+        if (componentIds == null || componentIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        return componentIds.stream()
+                .filter(id -> id != null)
+                .filter(id -> !bicycleComponentRepository.existsById(id))
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Validates all components from a BicycleDTO
+     * 
+     * @param bicycleDTO The DTO containing components to validate
+     * @return List of invalid component IDs, empty if all are valid
+     */
+    public List<Long> validateComponentsFromDTO(BicycleDTO bicycleDTO) {
+        if (bicycleDTO == null || bicycleDTO.getComponents() == null || bicycleDTO.getComponents().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> componentIds = bicycleDTO.getComponents().stream()
+                .filter(component -> component.getId() != null)
+                .map(BicycleComponentDTO::getId)
+                .collect(Collectors.toList());
+        
+        if (componentIds.isEmpty()) {
+            return componentIds;
+        }
+        
+        return validateComponents(componentIds);
     }
 
 }

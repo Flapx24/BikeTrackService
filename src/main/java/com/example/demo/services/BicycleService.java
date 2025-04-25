@@ -3,6 +3,7 @@ package com.example.demo.services;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.example.demo.dtos.BicycleDTO;
 import com.example.demo.entities.Bicycle;
 import com.example.demo.entities.BicycleComponent;
 
@@ -35,5 +36,21 @@ public interface BicycleService {
     boolean updateMaintenanceDate(Long bicycleId);
     
     boolean updateMaintenanceDate(Long bicycleId, LocalDate maintenanceDate);
+    
+    /**
+     * Validates all components in a list to ensure they exist in the database
+     * 
+     * @param componentIds List of component IDs to validate
+     * @return List of invalid component IDs, empty if all are valid
+     */
+    List<Long> validateComponents(List<Long> componentIds);
+    
+    /**
+     * Validates all components from a BicycleDTO
+     * 
+     * @param bicycleDTO The DTO containing components to validate
+     * @return List of invalid component IDs, empty if all are valid
+     */
+    List<Long> validateComponentsFromDTO(BicycleDTO bicycleDTO);
     
 }
