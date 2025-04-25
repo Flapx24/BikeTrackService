@@ -31,7 +31,6 @@ public class RouteUpdate {
     @Column(nullable = false)
     private UpdateType type;
 
-    @Column(nullable = false)
     private boolean isResolved;
     
     @ManyToOne

@@ -23,8 +23,7 @@ public class BicycleComponent {
     @Column(nullable = false)
     private Double maxKilometers;
 
-    @Column(nullable = false)
-    private Double currentKilometers;
+    private Double currentKilometers = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "bicycle_id")

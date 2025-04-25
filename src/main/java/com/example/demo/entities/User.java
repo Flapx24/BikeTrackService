@@ -16,6 +16,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 public class User implements UserDetails {
@@ -24,16 +26,23 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    @NotBlank(message = "El nombre de usuario es obligatorio")
     private String username;
 
+    @Column(nullable = false)
+    @NotBlank(message = "El nombre es obligatorio")
     private String name;
 
     private String surname;
 
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "El correo electrónico es obligatorio")
+    @Email(message = "Por favor, introduce un correo electrónico válido")
     private String email;
 
     @Column(nullable = false)
+    @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.models.GeoPoint;
@@ -22,7 +23,7 @@ public class Workshop {
 	private String name;
 
 	@ElementCollection
-	private List<String> imageUrls;
+	private List<String> imageUrls = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String city;

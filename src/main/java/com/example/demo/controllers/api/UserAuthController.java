@@ -15,6 +15,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -34,7 +35,7 @@ public class UserAuthController {
     private JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@Valid @RequestBody User user) {
         try {
             Map<String, Object> result = userAuthService.register(user);
             
@@ -53,7 +54,7 @@ public class UserAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();

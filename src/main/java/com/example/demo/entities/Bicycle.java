@@ -38,7 +38,6 @@ public class Bicycle {
 
     private Double totalKilometers = 0.0;
 
-    @Column(nullable = true)
     private LocalDate lastMaintenanceDate;
 
     public Bicycle() {

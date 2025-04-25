@@ -33,9 +33,9 @@ public class Review {
 	@Max(value = 5, message = "La calificación debe estar entre 1 y 5")
 	private Integer rating;
 
-	@Column(nullable = false)
 	private String text;
 
+	@Column(nullable = false)
 	private LocalDate date;
 
 	@ManyToOne
