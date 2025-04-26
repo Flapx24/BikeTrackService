@@ -1,10 +1,12 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +50,11 @@ public class RouteController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId
+                ));
         }
 
         RouteDTO routeDTO = RouteDTO.fromEntity(route, RouteDetailLevel.FULL);
@@ -57,7 +63,11 @@ public class RouteController {
             routeDTO.setReviews(routeDTO.getReviews().subList(0, INITIAL_REVIEWS_LIMIT));
         }
         
-        return ResponseEntity.ok(routeDTO);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Ruta recuperada con éxito",
+            "data", routeDTO
+        ));
     }
 
     /**
@@ -77,7 +87,11 @@ public class RouteController {
                 .map(route -> RouteDTO.fromEntity(route, RouteDetailLevel.BASIC))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(routeDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Rutas recuperadas con éxito",
+            "data", routeDTOs
+        ));
     }
 
     /**
@@ -97,10 +111,16 @@ public class RouteController {
             @RequestParam(required = false) Long lastRouteId) {
 
         if (minScore < 1 || minScore > 5) {
-            return ResponseEntity.badRequest().body("La puntuación debe estar entre 1 y 5");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "La puntuación debe estar entre 1 y 5"
+            ));
         }
         if (city == null || city.isBlank()) {
-            return ResponseEntity.badRequest().body("El nombre de la ciudad es obligatorio");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "El nombre de la ciudad es obligatorio"
+            ));
         }
         
         List<Route> routes = routeService.getRoutesByCityAndMinScore(city, minScore, lastRouteId);
@@ -109,7 +129,11 @@ public class RouteController {
                 .map(route -> RouteDTO.fromEntity(route, RouteDetailLevel.BASIC))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(routeDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Rutas filtradas recuperadas con éxito",
+            "data", routeDTOs
+        ));
     }
 
 }

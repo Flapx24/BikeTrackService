@@ -1,6 +1,7 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,10 @@ public class ReviewController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeId
+            ));
         }
         
         reviewDTO.setRouteId(routeId);
@@ -71,7 +75,10 @@ public class ReviewController {
         if (!existingReviews.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body("Ya tienes una reseña para esta ruta. Por favor, actualiza tu reseña existente.");
+                .body(Map.of(
+                    "success", false,
+                    "message", "Ya tienes una reseña para esta ruta. Por favor, actualiza tu reseña existente."
+                ));
         }
         
         reviewDTO.setId(null);
@@ -80,7 +87,11 @@ public class ReviewController {
         
         review = reviewService.saveReview(review, user);
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ReviewDTO(review));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+            "success", true,
+            "message", "Reseña creada con éxito",
+            "data", new ReviewDTO(review)
+        ));
     }
     
     /**
@@ -101,12 +112,18 @@ public class ReviewController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeId
+            ));
         }
         
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "No tienes una reseña existente para esta ruta"
+            ));
         }
         
         Review existingReview = existingReviews.get(0);
@@ -118,7 +135,11 @@ public class ReviewController {
         
         review = reviewService.saveReview(review, user);
         
-        return ResponseEntity.ok(new ReviewDTO(review));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Reseña actualizada con éxito",
+            "data", new ReviewDTO(review)
+        ));
     }
     
     /**
@@ -137,19 +158,32 @@ public class ReviewController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeId
+            ));
         }
         
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "No tienes una reseña para eliminar en esta ruta"
+            ));
         }
         
         Review review = existingReviews.get(0);
         
         boolean deleted = reviewService.deleteReview(review.getId());
         
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "No se pudo eliminar la reseña"
+            ));
+        }
+        
+        return ResponseEntity.noContent().build();
     }
     
     /**
@@ -168,17 +202,27 @@ public class ReviewController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeId
+            ));
         }
         
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "No tienes ninguna reseña para esta ruta"
+            ));
         }
         
         Review review = existingReviews.get(0);
         
-        return ResponseEntity.ok(new ReviewDTO(review));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Reseña recuperada con éxito",
+            "data", new ReviewDTO(review)
+        ));
     }
     
     /**
@@ -198,7 +242,10 @@ public class ReviewController {
         try {
             Route route = routeService.findById(routeId);
             if (route == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId
+                ));
             }
             
             List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId);
@@ -209,10 +256,16 @@ public class ReviewController {
                     .map(ReviewDTO::new)
                     .collect(Collectors.toList());
             
-            return ResponseEntity.ok(reviewDTOs);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Reseñas recuperadas con éxito",
+                "data", reviewDTOs
+            ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al obtener las reseñas: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "Error al obtener las reseñas: " + e.getMessage()
+            ));
         }
     }
 }

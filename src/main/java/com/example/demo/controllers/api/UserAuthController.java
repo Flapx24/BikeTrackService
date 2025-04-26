@@ -133,20 +133,20 @@ public class UserAuthController {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of(
-                            "valid", false,
+                            "success", false,
                             "message", "Token no proporcionado o formato inválido"
                         ));
             }
             
             boolean isValid = userAuthService.isTokenValid(authHeader);
             return ResponseEntity.ok(Map.of(
-                "valid", isValid,
+                "success", isValid,
                 "message", isValid ? "Token válido" : "Token inválido o expirado"
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
-                        "valid", false,
+                        "success", false,
                         "message", "Error al validar token: " + e.getMessage()
                     ));
         }

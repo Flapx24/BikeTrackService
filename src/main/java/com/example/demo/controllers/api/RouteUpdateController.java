@@ -1,6 +1,7 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,15 +54,21 @@ public class RouteUpdateController {
     @PostMapping
     public ResponseEntity<?> createRouteUpdate(
             @RequestHeader("Authorization") String authHeader,
-@Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
+            @Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
 
         if (routeUpdateDTO.getRouteId() == null) {
-            return ResponseEntity.badRequest().body("El ID de la ruta es obligatorio para crear una actualización de ruta");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "El ID de la ruta es obligatorio para crear una actualización de ruta"
+            ));
         }
 
         Route route = routeService.findById(routeUpdateDTO.getRouteId());
         if (route == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ruta no encontrada con ID: " + routeUpdateDTO.getRouteId());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeUpdateDTO.getRouteId()
+            ));
         }
 
         User currentUser = jwtService.getUser(authHeader);
@@ -74,7 +81,11 @@ public class RouteUpdateController {
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RouteUpdateDTO(routeUpdate));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+            "success", true,
+            "message", "Actualización de ruta creada con éxito",
+            "data", new RouteUpdateDTO(routeUpdate)
+        ));
     }
     
     /**
@@ -90,25 +101,36 @@ public class RouteUpdateController {
             @Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
 
         if (routeUpdateDTO.getId() == null) {
-            return ResponseEntity.badRequest().body("El ID de la actualización de ruta es obligatorio para la actualización");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "El ID de la actualización de ruta es obligatorio para la actualización"
+            ));
         }
 
         RouteUpdate existingRouteUpdate = routeUpdateService.findById(routeUpdateDTO.getId());
         if (existingRouteUpdate == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Actualización de ruta no encontrada con ID: " + routeUpdateDTO.getId()
+            ));
         }
 
         Route existingRoute = existingRouteUpdate.getRoute();
         if (existingRoute == null) {
-            return ResponseEntity.badRequest().body("La actualización de ruta existente no tiene una ruta asociada");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "La actualización de ruta existente no tiene una ruta asociada"
+            ));
         }
         
         User currentUser = jwtService.getUser(authHeader);
         
         User owner = existingRouteUpdate.getUser();
         if (owner == null || !owner.getId().equals(currentUser.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("No tienes permiso para modificar esta actualización de ruta");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para modificar esta actualización de ruta"
+            ));
         }
         
         RouteUpdate routeUpdate = routeUpdateDTO.toEntity();
@@ -118,7 +140,11 @@ public class RouteUpdateController {
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
-        return ResponseEntity.ok(new RouteUpdateDTO(routeUpdate));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Actualización de ruta modificada con éxito",
+            "data", new RouteUpdateDTO(routeUpdate)
+        ));
     }
     
     /**
@@ -135,20 +161,32 @@ public class RouteUpdateController {
         
         RouteUpdate routeUpdate = routeUpdateService.findById(routeUpdateId);
         if (routeUpdate == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Actualización de ruta no encontrada con ID: " + routeUpdateId
+            ));
         }
         
         User currentUser = jwtService.getUser(authHeader);
         
         User owner = routeUpdate.getUser();
         if (owner == null || !owner.getId().equals(currentUser.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("No tienes permiso para eliminar esta actualización de ruta");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para eliminar esta actualización de ruta"
+            ));
         }
         
         boolean deleted = routeUpdateService.deleteRouteUpdate(routeUpdateId);
         
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "No se pudo eliminar la actualización de ruta"
+            ));
+        }
+        
+        return ResponseEntity.noContent().build();
     }
     
     /**
@@ -165,10 +203,17 @@ public class RouteUpdateController {
         
         RouteUpdate routeUpdate = routeUpdateService.findById(routeUpdateId);
         if (routeUpdate == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Actualización de ruta no encontrada con ID: " + routeUpdateId
+            ));
         }
         
-        return ResponseEntity.ok(new RouteUpdateDTO(routeUpdate));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Actualización de ruta recuperada con éxito",
+            "data", new RouteUpdateDTO(routeUpdate)
+        ));
     }
     
     /**
@@ -185,7 +230,10 @@ public class RouteUpdateController {
         
         Route route = routeService.findById(routeId);
         if (route == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Ruta no encontrada con ID: " + routeId
+            ));
         }
         
         List<RouteUpdate> routeUpdates = routeUpdateService.findByRouteId(routeId);
@@ -194,6 +242,10 @@ public class RouteUpdateController {
                 .map(RouteUpdateDTO::new)
                 .collect(Collectors.toList());
         
-        return ResponseEntity.ok(routeUpdateDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Actualizaciones de ruta recuperadas con éxito",
+            "data", routeUpdateDTOs
+        ));
     }
 }

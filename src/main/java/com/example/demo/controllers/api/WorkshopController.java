@@ -1,10 +1,12 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,10 +39,17 @@ public class WorkshopController {
         Workshop workshop = workshopService.findById(workshopId);
         
         if (workshop == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Taller no encontrado con ID: " + workshopId
+            ));
         }
         
-        return ResponseEntity.ok(new WorkshopDTO(workshop));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Taller recuperado con éxito",
+            "data", new WorkshopDTO(workshop)
+        ));
     }
     
     /**
@@ -53,16 +62,30 @@ public class WorkshopController {
     public ResponseEntity<?> getWorkshopsByCity(
             @RequestParam String city) {
         
+        if (city == null || city.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "El nombre de la ciudad es obligatorio"
+            ));
+        }
+        
         List<Workshop> workshops = workshopService.findByCity(city);
 
         if(workshops.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "No se encontraron talleres en la ciudad: " + city
+            ));
         }
         
         List<WorkshopDTO> workshopDTOs = workshops.stream()
                 .map(WorkshopDTO::new)
                 .collect(Collectors.toList());
         
-        return ResponseEntity.ok(workshopDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Talleres recuperados con éxito",
+            "data", workshopDTOs
+        ));
     }
 }

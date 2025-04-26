@@ -1,6 +1,7 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,11 @@ public class BicycleController {
         Bicycle bicycle = bicycleDTO.toEntity(user);
         bicycle = bicycleService.saveBicycle(bicycle);
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(new BicycleDTO(bicycle));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+            "success", true,
+            "message", "Bicicleta creada con éxito",
+            "data", new BicycleDTO(bicycle)
+        ));
     }
     
     /**
@@ -84,17 +89,26 @@ public class BicycleController {
         
         Bicycle existingBicycle = bicycleService.findById(bicycleId);
         if (existingBicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
         }
         
         if (!existingBicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No tienes permiso para modificar esta bicicleta"
+                ));
         }
         
         List<Long> invalidComponentIds = bicycleService.validateComponentsFromDTO(bicycleDTO);
         if (!invalidComponentIds.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    "Los siguientes componentes no existen: " + invalidComponentIds);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Los siguientes componentes no existen: " + invalidComponentIds
+            ));
         }
         
         bicycleDTO.setId(bicycleId);
@@ -103,7 +117,11 @@ public class BicycleController {
         Bicycle updatedBicycle = bicycleDTO.toEntity(user);
         updatedBicycle = bicycleService.saveBicycle(updatedBicycle);
         
-        return ResponseEntity.ok(new BicycleDTO(updatedBicycle));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Bicicleta actualizada con éxito",
+            "data", new BicycleDTO(updatedBicycle)
+        ));
     }
     
     /**
@@ -122,11 +140,19 @@ public class BicycleController {
         Bicycle bicycle = bicycleService.findById(bicycleId);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Bicicleta no encontrada con ID: " + bicycleId
+                ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No tienes permiso para eliminar esta bicicleta"
+                ));
         }
         
         bicycleService.deleteBicycle(bicycleId);
@@ -149,14 +175,26 @@ public class BicycleController {
         Bicycle bicycle = bicycleService.findById(bicycleId);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Bicicleta no encontrada con ID: " + bicycleId
+                ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No tienes permiso para ver esta bicicleta"
+                ));
         }
         
-        return ResponseEntity.ok(new BicycleDTO(bicycle));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Bicicleta recuperada con éxito",
+            "data", new BicycleDTO(bicycle)
+        ));
     }
     
     /**
@@ -176,7 +214,11 @@ public class BicycleController {
                 .map(BicycleDTO::new)
                 .collect(Collectors.toList());
         
-        return ResponseEntity.ok(bicycleDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Bicicletas recuperadas con éxito",
+            "data", bicycleDTOs
+        ));
     }
     
     /**
@@ -194,23 +236,37 @@ public class BicycleController {
             @RequestParam Double kilometers) {
         
         if (kilometers == null || kilometers <= 0) {
-            return ResponseEntity.badRequest().body("Los kilómetros deben ser un valor positivo");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Los kilómetros deben ser un valor positivo"
+            ));
         }
         
         User user = jwtService.getUser(authHeader);
         Bicycle bicycle = bicycleService.findById(bicycleId);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No tienes permiso para modificar esta bicicleta"
+                ));
         }
         
         bicycle = bicycleService.addKilometers(bicycleId, kilometers);
         
-        return ResponseEntity.ok(new BicycleDTO(bicycle));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Kilómetros añadidos con éxito",
+            "data", new BicycleDTO(bicycle)
+        ));
     }
     
     /**
@@ -228,22 +284,36 @@ public class BicycleController {
             @RequestParam Double kilometers) {
         
         if (kilometers == null || kilometers <= 0) {
-            return ResponseEntity.badRequest().body("Los kilómetros deben ser un valor positivo");
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Los kilómetros deben ser un valor positivo"
+            ));
         }
         
         User user = jwtService.getUser(authHeader);
         Bicycle bicycle = bicycleService.findById(bicycleId);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "success", false,
+                    "message", "No tienes permiso para modificar esta bicicleta"
+                ));
         }
         
         bicycle = bicycleService.subtractKilometers(bicycleId, kilometers);
         
-        return ResponseEntity.ok(new BicycleDTO(bicycle));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Kilómetros restados con éxito",
+            "data", new BicycleDTO(bicycle)
+        ));
     }
 }

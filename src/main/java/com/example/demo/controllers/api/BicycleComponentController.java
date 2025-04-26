@@ -1,6 +1,7 @@
 package com.example.demo.controllers.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +61,26 @@ public class BicycleComponentController {
         User user = jwtService.getUser(authHeader);
         Bicycle bicycle = bicycleRepository.findById(bicycleId).orElse(null);
         
-        if (bicycle == null || !bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (bicycle == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
+        }
+        
+        if (!bicycle.getOwner().getId().equals(user.getId())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para añadir componentes a esta bicicleta"
+            ));
         }
         
         BicycleComponent component = bicycleComponentService.createComponentFromDTO(componentDTO, bicycleId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new BicycleComponentDTO(component));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+            "success", true,
+            "message", "Componente creado con éxito",
+            "data", new BicycleComponentDTO(component)
+        ));
     }
     
     /**
@@ -86,16 +101,26 @@ public class BicycleComponentController {
         BicycleComponent existingComponent = bicycleComponentService.findById(componentId);
         
         if (existingComponent == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Componente no encontrado con ID: " + componentId
+            ));
         }
         
         Bicycle bicycle = existingComponent.getBicycle();
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para modificar este componente"
+            ));
         }
         
         BicycleComponent updatedComponent = bicycleComponentService.updateComponentFromDTO(componentDTO, componentId);
-        return ResponseEntity.ok(new BicycleComponentDTO(updatedComponent));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Componente actualizado con éxito",
+            "data", new BicycleComponentDTO(updatedComponent)
+        ));
     }
     
     /**
@@ -114,15 +139,29 @@ public class BicycleComponentController {
         BicycleComponent component = bicycleComponentService.findById(componentId);
 
         if (component == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Componente no encontrado con ID: " + componentId
+            ));
         }
 
         if (!component.getBicycle().getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para eliminar este componente"
+            ));
         }
         
         boolean deleted = bicycleComponentService.deleteComponent(componentId);
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "No se pudo eliminar el componente"
+            ));
+        }
+        
+        return ResponseEntity.noContent().build();
     }
     
     /**
@@ -141,14 +180,24 @@ public class BicycleComponentController {
         BicycleComponent component = bicycleComponentService.findById(componentId);
 
         if (component == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Componente no encontrado con ID: " + componentId
+            ));
         }
 
         if (!component.getBicycle().getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para acceder a este componente"
+            ));
         }
         
-        return ResponseEntity.ok(new BicycleComponentDTO(component));
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Componente recuperado con éxito",
+            "data", new BicycleComponentDTO(component)
+        ));
     }
     
     /**
@@ -167,18 +216,28 @@ public class BicycleComponentController {
         Bicycle bicycle = bicycleRepository.findById(bicycleId).orElse(null);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para ver los componentes de esta bicicleta"
+            ));
         }
         
         List<BicycleComponentDTO> componentDTOs = bicycle.getComponents().stream()
                 .map(BicycleComponentDTO::new)
                 .collect(Collectors.toList());
         
-        return ResponseEntity.ok(componentDTOs);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Componentes recuperados con éxito",
+            "data", componentDTOs
+        ));
     }
     
     /**
@@ -197,14 +256,31 @@ public class BicycleComponentController {
         Bicycle bicycle = bicycleRepository.findById(bicycleId).orElse(null);
         
         if (bicycle == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "success", false,
+                "message", "Bicicleta no encontrada con ID: " + bicycleId
+            ));
         }
         
         if (!bicycle.getOwner().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "success", false,
+                "message", "No tienes permiso para reiniciar los componentes de esta bicicleta"
+            ));
         }
         
         boolean reset = bicycleComponentService.resetComponentsCurrentKilometers(bicycleId);
-        return reset ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        
+        if (!reset) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "success", false,
+                "message", "No se pudieron reiniciar los kilómetros de los componentes"
+            ));
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Kilómetros de los componentes reiniciados con éxito"
+        ));
     }
 }
