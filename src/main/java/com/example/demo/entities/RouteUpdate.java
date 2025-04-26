@@ -36,12 +36,16 @@ public class RouteUpdate {
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;
+    
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public RouteUpdate() {
         super();
     }
 
-    public RouteUpdate(Long id, String description, LocalDate date, UpdateType type, boolean isResolved, Route route) {
+    public RouteUpdate(Long id, String description, LocalDate date, UpdateType type, boolean isResolved, Route route, User user) {
         super();
         this.id = id;
         this.description = description;
@@ -49,6 +53,7 @@ public class RouteUpdate {
         this.type = type;
         this.isResolved = isResolved;
         this.route = route;
+        this.user = user;
     }
 
     public Long getId() {
@@ -98,10 +103,18 @@ public class RouteUpdate {
     public void setRoute(Route route) {
         this.route = route;
     }
+    
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Override
     public String toString() {
         return "RouteUpdate [id=" + id + ", description=" + description + ", date=" + date + 
-               ", type=" + type + ", isResolved=" + isResolved + ", route=" + route + "]";
+               ", type=" + type + ", isResolved=" + isResolved + ", route=" + route + ", user=" + user + "]";
     }
 }

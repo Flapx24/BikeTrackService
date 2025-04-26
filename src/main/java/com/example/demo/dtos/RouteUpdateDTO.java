@@ -34,6 +34,8 @@ public class RouteUpdateDTO {
     private boolean resolved;
 
     private Long routeId;
+    
+    private Long userId;
 
     public RouteUpdateDTO() {
     }
@@ -48,6 +50,10 @@ public class RouteUpdateDTO {
 
             if (update.getRoute() != null) {
                 this.routeId = update.getRoute().getId();
+            }
+            
+            if (update.getUser() != null) {
+                this.userId = update.getUser().getId();
             }
         }
     }
@@ -124,5 +130,13 @@ public class RouteUpdateDTO {
 
     public void setRouteId(Long routeId) {
         this.routeId = routeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

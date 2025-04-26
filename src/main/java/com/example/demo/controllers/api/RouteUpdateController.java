@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dtos.RouteUpdateDTO;
 import com.example.demo.entities.Route;
 import com.example.demo.entities.RouteUpdate;
+import com.example.demo.entities.User;
 import com.example.demo.services.RouteService;
 import com.example.demo.services.RouteUpdateService;
 import com.example.demo.servicesImpl.JwtService;
@@ -52,7 +53,7 @@ public class RouteUpdateController {
     @PostMapping
     public ResponseEntity<?> createRouteUpdate(
             @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
+@Valid @RequestBody RouteUpdateDTO routeUpdateDTO) {
 
         if (routeUpdateDTO.getRouteId() == null) {
             return ResponseEntity.badRequest().body("El ID de la ruta es obligatorio para crear una actualización de ruta");
@@ -70,8 +71,8 @@ public class RouteUpdateController {
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RouteUpdateDTO(routeUpdate));
-    }
+            return ResponseEntity.status(HttpStatus.CREATED).body(new RouteUpdateDTO(routeUpdate));
+            }
     
     /**
      * Update an existing route update
@@ -99,9 +100,19 @@ public class RouteUpdateController {
             return ResponseEntity.badRequest().body("La actualización de ruta existente no tiene una ruta asociada");
         }
         
+        // Verificar que el usuario actual sea el propietario de la actualización
+        User currentUser = jwtService.getUser(authHeader);
+        
+        User owner = existingRouteUpdate.getUser();
+        if (owner == null || !owner.getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("No tienes permiso para modificar esta actualización de ruta");
+        }
+        
         RouteUpdate routeUpdate = routeUpdateDTO.toEntity();
         routeUpdate.setId(existingRouteUpdate.getId());
         routeUpdate.setRoute(existingRoute);
+        routeUpdate.setUser(currentUser); // Mantener el mismo usuario
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
@@ -123,6 +134,15 @@ public class RouteUpdateController {
         RouteUpdate routeUpdate = routeUpdateService.findById(routeUpdateId);
         if (routeUpdate == null) {
             return ResponseEntity.notFound().build();
+        }
+        
+        // Verificar que el usuario actual sea el propietario de la actualización
+        User currentUser = jwtService.getUser(authHeader);
+        
+        User owner = routeUpdate.getUser();
+        if (owner == null || !owner.getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("No tienes permiso para eliminar esta actualización de ruta");
         }
         
         boolean deleted = routeUpdateService.deleteRouteUpdate(routeUpdateId);
