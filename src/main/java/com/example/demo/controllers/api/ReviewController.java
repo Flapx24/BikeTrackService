@@ -203,7 +203,6 @@ public class ReviewController {
             
             List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId);
             
-            // Si no hay reseñas, devuelve una lista vacía (200 OK) en lugar de 404
             List<ReviewDTO> reviewDTOs = (reviews == null || reviews.isEmpty()) 
                 ? List.of() 
                 : reviews.stream()

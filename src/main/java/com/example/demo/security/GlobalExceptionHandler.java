@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +28,24 @@ public class GlobalExceptionHandler {
         response.put("success", false);
         response.put("message", "Error de validación");
         response.put("errors", errors);
+        
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        
+        Throwable cause = ex.getCause();
+        if (cause != null && cause.getCause() instanceof IllegalArgumentException) {
+            String errorMessage = cause.getCause().getMessage();
+            response.put("message", "Error de formato");
+            response.put("error", errorMessage);
+        } else {
+            response.put("message", "Error al procesar el JSON");
+            response.put("error", "El formato de la solicitud es inválido");
+        }
         
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

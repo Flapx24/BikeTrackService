@@ -64,15 +64,18 @@ public class RouteUpdateController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ruta no encontrada con ID: " + routeUpdateDTO.getRouteId());
         }
 
+        User currentUser = jwtService.getUser(authHeader);
+
         routeUpdateDTO.setId(null);
 
         RouteUpdate routeUpdate = routeUpdateDTO.toEntity();
         routeUpdate.setRoute(route);
+        routeUpdate.setUser(currentUser);
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
-            return ResponseEntity.status(HttpStatus.CREATED).body(new RouteUpdateDTO(routeUpdate));
-            }
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RouteUpdateDTO(routeUpdate));
+    }
     
     /**
      * Update an existing route update
@@ -100,7 +103,6 @@ public class RouteUpdateController {
             return ResponseEntity.badRequest().body("La actualización de ruta existente no tiene una ruta asociada");
         }
         
-        // Verificar que el usuario actual sea el propietario de la actualización
         User currentUser = jwtService.getUser(authHeader);
         
         User owner = existingRouteUpdate.getUser();
@@ -112,7 +114,7 @@ public class RouteUpdateController {
         RouteUpdate routeUpdate = routeUpdateDTO.toEntity();
         routeUpdate.setId(existingRouteUpdate.getId());
         routeUpdate.setRoute(existingRoute);
-        routeUpdate.setUser(currentUser); // Mantener el mismo usuario
+        routeUpdate.setUser(currentUser);
         
         routeUpdate = routeUpdateService.saveRouteUpdate(routeUpdate);
         
@@ -136,7 +138,6 @@ public class RouteUpdateController {
             return ResponseEntity.notFound().build();
         }
         
-        // Verificar que el usuario actual sea el propietario de la actualización
         User currentUser = jwtService.getUser(authHeader);
         
         User owner = routeUpdate.getUser();
