@@ -1,0 +1,16 @@
+body {
+    background: 
+        url('../images/leaves_texture.png');
+    background-size: cover;
+	font-family: Arial, sans-serif;
+}
+
+:root {
+    --jade-forest: #17623A;
+    --emerald-glade: #2E7D43;
+    --sprout-green: #46A04E;
+    --golden-apple: #7EBF60;
+    --olive-horizon: #81A54E;
+    --neon-lime: #3dff2fc8;
+    --plum-red: #7D2E62;
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar Sesión - Biblioteca</title>
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{/css/nav.css}" rel="stylesheet">
+<link th:href="@{/css/login.css}" rel="stylesheet">
+<link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+	<div th:replace="~{fragments/nav :: navbar(isLoginPage=true)}" th:with="user=${user}"></div>
+
+	<div class="container-fluid d-flex">
+		<div class="row w-100 justify-content-center">
+			<div
+				class="col-md-6 d-flex justify-content-center align-items-center">
+				<div class="card shadow-lg" style="width: 100%; max-width: 600px;">
+					<div class="card-body">
+						<h1 class="text-center mb-4">Iniciar Sesión</h1>
+
+						<!-- Login form -->
+						<form th:action="@{/login}" th:object="${user}" method="POST">
+							<div class="mb-3">
+								<label for="email" class="form-label">Correo Electrónico</label>
+								<input type="email" class="form-control" id="email"
+									name="email" title="Email" th:value="${attemptedUserEmail}" required>
+							</div>
+							<div class="mb-3">
+								<label for="password" class="form-label">Contraseña</label> <input
+									type="password" class="form-control" id="password"
+									name="password" title="Contraseña" required>
+							</div>
+
+							<!-- Error messages -->
+							<div th:if="${notExistingUser != null}"
+								class="alert alert-danger" role="alert alert-danger">
+								<p th:text="${notExistingUser}"></p>
+							</div>
+							<div th:if="${userNotActivated != null}"
+								class="alert alert-danger" role="alert alert-danger">
+								<p th:text="${userNotActivated}"></p>
+							</div>
+							<div th:if="${error != null}" class="alert alert-danger"
+								role="alert">
+								<p th:text="${error}"></p>
+							</div>
+							<div th:if="${roleError != null}" class="alert alert-danger" role="alert">
+								<p th:text="${roleError}"></p>
+							</div>
+
+							<!-- Successful logout message -->
+							<div th:if="${param.logout}" class="alert alert-success">
+								<p>Has cerrado sesión correctamente.</p>
+							</div>
+
+							<button type="submit" class="btn btn-primary w-100">Iniciar
+								Sesión</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
