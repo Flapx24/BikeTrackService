@@ -10,7 +10,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.dtos.UserDTO;
 import com.example.demo.entities.User;
-import com.example.demo.enums.Role;
 import com.example.demo.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;

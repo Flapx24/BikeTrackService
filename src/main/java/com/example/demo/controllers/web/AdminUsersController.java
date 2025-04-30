@@ -46,11 +46,11 @@ public class AdminUsersController {
         }
         
         model.addAttribute("users", users);
-        return "dashboard/users_list";
+        return "admin/users/list";
     }
     
     @PostMapping("/toggleUserStatus")
-    public String toggleUserStatus(@RequestParam("userId") Long userId, RedirectAttributes redirectAttributes) {
+    public String toggleUserStatus(@RequestParam Long userId, RedirectAttributes redirectAttributes) {
         User user = userService.findById(userId);
         
         if (user != null) {
