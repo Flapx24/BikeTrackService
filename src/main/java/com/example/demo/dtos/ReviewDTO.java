@@ -36,6 +36,10 @@ public class ReviewDTO {
     private LocalDate date;
 
     private Long routeId;
+    
+    private String routeTitle;
+    
+    private String routeCity;
 
     public ReviewDTO() {
     }
@@ -53,6 +57,8 @@ public class ReviewDTO {
             this.date = review.getDate();
             if (review.getRoute() != null) {
                 this.routeId = review.getRoute().getId();
+                this.routeTitle = review.getRoute().getTitle();
+                this.routeCity = review.getRoute().getCity();
             }
         }
     }
@@ -143,5 +149,21 @@ public class ReviewDTO {
 
     public void setRouteId(Long routeId) {
         this.routeId = routeId;
+    }
+
+    public String getRouteTitle() {
+        return routeTitle;
+    }
+
+    public void setRouteTitle(String routeTitle) {
+        this.routeTitle = routeTitle;
+    }
+
+    public String getRouteCity() {
+        return routeCity;
+    }
+
+    public void setRouteCity(String routeCity) {
+        this.routeCity = routeCity;
     }
 }
