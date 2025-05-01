@@ -4,6 +4,8 @@ import com.example.demo.entities.User;
 import com.example.demo.enums.Role;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.UserService;
+import com.example.demo.upload.StorageService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,10 @@ public class UserAuthService {
     @Autowired
     @Qualifier("jwtService")
     private JwtService jwtService;
+
+    @Autowired
+    @Qualifier("storageService")
+    private StorageService storageService;
 
     /**
      * Manual login with email and password
@@ -173,12 +179,15 @@ public class UserAuthService {
 
         user.setRole(Role.ROLE_USER);
         user.setActive(false);
-
+        
+        String randomImageUrl = storageService.getRandomUserImage();
+        user.setImageUrl(randomImageUrl);
+        
         userService.saveUser(user);
 
         result.put("success", true);
         result.put("message", "Registro exitoso");
-
+        
         return result;
     }
 }

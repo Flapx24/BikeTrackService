@@ -18,3 +18,11 @@ jwt.secret=your_jwt_secret_key
 # jwt.expiration.short=short_expiration_value
 # Long: 60 days (for "remember me" sessions)
 # jwt.expiration.long=long_expiration_value
+
+# Storage Configuration
+storage.location=src/main/resources/static/images
+storage.base-url=/images
+
+# Maximum file upload size
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB

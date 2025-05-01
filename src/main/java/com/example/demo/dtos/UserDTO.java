@@ -9,6 +9,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String surname;
+    private String imageUrl;
     private String role;
     private Boolean active;
 
@@ -22,6 +23,7 @@ public class UserDTO {
             this.username = user.getUsername();
             this.email = user.getEmail();
             this.surname = user.getSurname();
+            this.imageUrl = user.getImageUrl();
             this.role = user.getRole() != null ? user.getRole().name() : null;
             this.active = user.getActive();
         }
@@ -39,6 +41,7 @@ public class UserDTO {
         user.setName(this.name);
         user.setSurname(this.surname);
         user.setEmail(this.email);
+        user.setImageUrl(this.imageUrl);
         if (this.role != null) {
             user.setRole(Role.valueOf(this.role));
         }
@@ -85,6 +88,14 @@ public class UserDTO {
     public void setSurname(String surname) {
         this.surname = surname;
     }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getRole() {
         return role;
@@ -105,7 +116,7 @@ public class UserDTO {
     @Override
     public String toString() {
         return "UserDTO [id=" + id + ", name=" + name + ", username=" + username +
-                ", email=" + email + ", surname=" + surname + 
+                ", email=" + email + ", surname=" + surname + ", imageUrl=" + imageUrl + 
                 ", role=" + role + ", active=" + active + "]";
     }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ReviewUserDTO {
     private Long id;
     private String username;
+    private String imageUrl;
 
     public ReviewUserDTO() {
     }
@@ -15,12 +16,19 @@ public class ReviewUserDTO {
         if (user != null) {
             this.id = user.getId();
             this.username = user.getUsername();
+            this.imageUrl = user.getImageUrl();
         }
     }
 
     public ReviewUserDTO(Long id, String username) {
         this.id = id;
         this.username = username;
+    }
+
+    public ReviewUserDTO(Long id, String username, String imageUrl) {
+        this.id = id;
+        this.username = username;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -37,5 +45,13 @@ public class ReviewUserDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

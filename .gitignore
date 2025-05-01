@@ -34,3 +34,7 @@ build/
 
 ### Application Properties ###
 src/main/resources/application.properties
+
+### Image Directories ###
+src/main/resources/static/images/routes
+src/main/resources/static/images/workshops

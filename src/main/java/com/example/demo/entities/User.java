@@ -45,6 +45,8 @@ public class User implements UserDetails {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -55,7 +57,7 @@ public class User implements UserDetails {
         super();
     }
 
-    public User(Long id, String username, String name, String surname, String email, String password, Role role,
+    public User(Long id, String username, String name, String surname, String email, String password, String imageUrl, Role role,
             Boolean active) {
         super();
         this.id = id;
@@ -64,6 +66,7 @@ public class User implements UserDetails {
         this.surname = surname;
         this.email = email;
         this.password = password;
+        this.imageUrl = imageUrl;
         this.role = role;
         this.active = active;
     }
@@ -115,6 +118,14 @@ public class User implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public Role getRole() {
         return role;
@@ -135,7 +146,7 @@ public class User implements UserDetails {
     @Override
     public String toString() {
         return "User [id=" + id + ", username=" + username + ", name=" + name + ", surname=" + surname + ", email="
-                + email + ", password=" + password + ", role=" + role + ", active=" + active + "]";
+                + email + ", password=" + password + ", imageUrl=" + imageUrl + ", role=" + role + ", active=" + active + "]";
     }
 
     @Override
