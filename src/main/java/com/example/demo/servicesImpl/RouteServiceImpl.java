@@ -1,7 +1,9 @@
 package com.example.demo.servicesImpl;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,7 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dtos.RouteDTO;
 import com.example.demo.entities.Route;
+import com.example.demo.enums.RouteDetailLevel;
 import com.example.demo.repositories.RouteRepository;
 import com.example.demo.services.RouteService;
 
@@ -59,6 +63,32 @@ public class RouteServiceImpl implements RouteService {
                 normalizedCity, minScoreDouble, lastRouteId, PageRequest.of(0, PAGE_SIZE));
         }
     }
+    
+    @Override
+    public List<RouteDTO> getFilteredRoutes(String city, String title, String sort) {
+        List<Route> routes = new ArrayList<>();
+        
+        switch (sort) {
+            case "asc":
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreDesc(city, title);
+                break;
+            case "desc":
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreAsc(city, title);
+                break;
+            default:
+                routes = routeRepository.findByCityContainingAndTitleContainingIgnoreCase(city, title);
+                break;
+        }
+        
+        return routes.stream()
+                .map(route -> {
+                    RouteDTO dto = RouteDTO.fromEntity(route, RouteDetailLevel.BASIC);
+                    dto.setReviewCount(route.getReviews() != null ? route.getReviews().size() : 0);
+                    dto.setUpdateCount(route.getUpdates() != null ? route.getUpdates().size() : 0);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
 
     @Override
     @Transactional
@@ -76,10 +106,9 @@ public class RouteServiceImpl implements RouteService {
             return "";
         }
         
-        String normalized = city.toLowerCase();
-        
-        normalized = Normalizer.normalize(normalized, Normalizer.Form.NFD)
-            .replaceAll("\\p{InCombiningDiacriticalMarks}", "");
+        String normalized = Normalizer.normalize(city, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}", "")
+                .toLowerCase();
         
         return normalized;
     }

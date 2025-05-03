@@ -46,6 +46,10 @@ public class RouteDTO {
     
     private List<RouteUpdateDTO> updates = new ArrayList<>();
 
+    private Integer reviewCount;
+    
+    private Integer updateCount;
+
     public RouteDTO() {
     }
 
@@ -238,6 +242,22 @@ public class RouteDTO {
 
     public void setUpdates(List<RouteUpdateDTO> updates) {
         this.updates = updates;
+    }
+
+    public Integer getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public Integer getUpdateCount() {
+        return updateCount;
+    }
+
+    public void setUpdateCount(Integer updateCount) {
+        this.updateCount = updateCount;
     }
 
     @Override

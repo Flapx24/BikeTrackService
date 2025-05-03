@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import java.util.List;
 
+import com.example.demo.dtos.RouteDTO;
 import com.example.demo.entities.Route;
 
 public interface RouteService {
@@ -15,6 +16,16 @@ public interface RouteService {
     List<Route> getRoutesByCityAndMinScore(String city, Integer minScore, Long lastRouteId);
     
     boolean deleteRoute(Long id);
+    
+    /**
+     * Gets routes filtered by city, title and ordered by popularity
+     * 
+     * @param city Optional filter by city
+     * @param title Optional filter by title
+     * @param sort Sort direction: 'asc', 'desc' or 'none'
+     * @return List of filtered and ordered routes
+     */
+    List<RouteDTO> getFilteredRoutes(String city, String title, String sort);
     
     /**
      * Normalizes a city name for searching

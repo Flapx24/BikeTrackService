@@ -1,0 +1,90 @@
+/* Style for the parent container */
+.container {
+    margin-top: 2rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+/* Styles for the featured box that displays the number of routes */
+.highlight-box {
+    text-align: center;
+    background-color: rgba(0, 255, 204, 0.8);
+    color: black;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Styles for filters */
+.card-header {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Style for description scrollable content */
+.description-cell {
+    height: 4.5em;
+    max-height: 4.5em;
+    overflow-y: auto;
+    max-width: 300px;
+    line-height: 1.5em;
+}
+
+/* Style for popularity sorting button */
+.sort-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.sort-button:hover {
+    color: #ffc107;
+}
+
+.sort-button.asc .fa-sort-up {
+    display: inline;
+}
+
+.sort-button.asc .fa-sort-down,
+.sort-button.asc .fa-minus {
+    display: none;
+}
+
+.sort-button.desc .fa-sort-down {
+    display: inline;
+}
+
+.sort-button.desc .fa-sort-up,
+.sort-button.desc .fa-minus {
+    display: none;
+}
+
+.sort-button.none .fa-minus {
+    display: inline;
+}
+
+.sort-button.none .fa-sort-up,
+.sort-button.none .fa-sort-down {
+    display: none;
+}
+
+/* Styles for the no results message */
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+}
+
+/* Styles for action buttons */
+.btn-update {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-update:hover {
+    background-color: #0069d9;
+}

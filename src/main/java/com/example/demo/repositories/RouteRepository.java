@@ -14,21 +14,49 @@ import com.example.demo.entities.Route;
 @Repository("routeRepository")
 public interface RouteRepository extends JpaRepository<Route, Serializable>{
     
+    List<Route> findAllByOrderByIdAsc(Pageable pageable);
+    
     @Query("SELECT r FROM Route r WHERE r.id > :lastId ORDER BY r.id ASC")
     List<Route> findAllWithIdGreaterThan(@Param("lastId") Long lastId, Pageable pageable);
     
-    List<Route> findAllByOrderByIdAsc(Pageable pageable);
-    
-    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore AND r.id > :lastId ORDER BY r.id ASC")
+    @Query(value = "SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) " +
+           "AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore " +
+           "AND r.id > :lastId ORDER BY r.id ASC")
     List<Route> findByCityAndMinScoreAndIdGreaterThan(
             @Param("city") String city, 
             @Param("minScore") Double minScore, 
             @Param("lastId") Long lastId,
             Pageable pageable);
     
-    @Query("SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore ORDER BY r.id ASC")
+    @Query(value = "SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) " +
+           "AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore " +
+           "ORDER BY r.id ASC")
     List<Route> findByCityAndMinScore(
             @Param("city") String city, 
             @Param("minScore") Double minScore,
             Pageable pageable);
+    
+    @Query("SELECT r FROM Route r WHERE " +
+           "(:city IS NULL OR :city = '' OR LOWER(r.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
+           "(:title IS NULL OR :title = '' OR LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%')))")
+    List<Route> findByCityContainingAndTitleContainingIgnoreCase(
+            @Param("city") String city,
+            @Param("title") String title);
+    
+    @Query("SELECT r FROM Route r WHERE " +
+           "(:city IS NULL OR :city = '' OR LOWER(r.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
+           "(:title IS NULL OR :title = '' OR LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
+           "ORDER BY r.averageReviewScore ASC")
+    List<Route> findByCityContainingAndTitleContainingOrderByAverageReviewScoreAsc(
+            @Param("city") String city,
+            @Param("title") String title);
+    
+    @Query("SELECT r FROM Route r WHERE " +
+           "(:city IS NULL OR :city = '' OR LOWER(r.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
+           "(:title IS NULL OR :title = '' OR LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
+           "ORDER BY r.averageReviewScore DESC")
+    List<Route> findByCityContainingAndTitleContainingOrderByAverageReviewScoreDesc(
+            @Param("city") String city,
+            @Param("title") String title);
+
 }
