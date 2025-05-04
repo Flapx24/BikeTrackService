@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entities.Workshop;
 import com.example.demo.repositories.WorkshopRepository;
@@ -32,14 +33,34 @@ public class WorkshopServiceImpl implements WorkshopService {
     public Workshop saveWorkshop(Workshop workshop) {
         return workshopRepository.save(workshop);
     }
+    
+    @Override
+    public List<Workshop> findAll() {
+        return workshopRepository.findAll();
+    }
+    
+    @Override
+    @Transactional
+    public boolean deleteWorkshop(Long id) {
+        if (workshopRepository.existsById(id)) {
+            workshopRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public String normalizeCity(String city) {
-        if (city == null) {
+        return normalizeString(city);
+    }
+    
+    @Override
+    public String normalizeString(String text) {
+        if (text == null) {
             return "";
         }
         
-        String normalized = city.toLowerCase();
+        String normalized = text.toLowerCase();
         
         normalized = Normalizer.normalize(normalized, Normalizer.Form.NFD)
             .replaceAll("\\p{InCombiningDiacriticalMarks}", "");

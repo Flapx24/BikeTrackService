@@ -11,6 +11,10 @@ public interface WorkshopService {
     List<Workshop> findByCity(String city);
     
     Workshop saveWorkshop(Workshop workshop);
+
+    List<Workshop> findAll();
+    
+    boolean deleteWorkshop(Long id);
     
     /**
      * Normalizes a city name for searching
@@ -20,4 +24,13 @@ public interface WorkshopService {
      * @return Normalized city name
      */
     String normalizeCity(String city);
+    
+    /**
+     * Normalizes any string for searching/filtering
+     * Converts to lowercase and removes accents
+     * 
+     * @param text Text to normalize
+     * @return Normalized text
+     */
+    String normalizeString(String text);
 }

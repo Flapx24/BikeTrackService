@@ -1,0 +1,134 @@
+/* Style for the parent container */
+.container {
+    margin-top: 2rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+/* Styles for the featured box that displays the number of workshops */
+.highlight-box {
+    text-align: center;
+    background-color: rgba(0, 255, 204, 0.8);
+    color: black;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Styles for filters */
+.card-header {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Style for address content */
+.description-cell {
+    max-height: 2.5em;
+    overflow-y: auto;
+    max-width: 56rem;
+    line-height: 1.2em;
+    padding: 0.2em 0;
+}
+
+/* Form styles */
+#filterForm .input-group {
+    width: 100%;
+}
+
+#filterForm .form-control {
+    width: 100%;
+    height: 38px;
+}
+
+#filterForm .form-label {
+    margin-bottom: 0.25rem;
+}
+
+#filterForm .col-md-5, 
+#filterForm .col-md-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#filterForm .btn-success {
+    height: 38px;
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+/* Styles for the no results message */
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+}
+
+/* Styles for action buttons */
+.btn-update {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-update:hover {
+    background-color: #0069d9;
+}
+
+/* Style for the table */
+.table {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.table-dark th {
+    background-color: #212529;
+}
+
+/* Make table rows more compact */
+.table td, .table th {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Adjust width for actions column */
+.table th:last-child,
+.table td:last-child {
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Modal styles */
+.modal-content {
+    border: 1px solid #444;
+}
+
+.modal-header {
+    border-bottom: 1px solid #2c2c2c;
+}
+
+.modal-footer {
+    border-top: 1px solid #2c2c2c;
+}
+
+/* Filter form */
+.form-label {
+    font-weight: bold;
+}
+
+.input-group {
+    margin-bottom: 0;
+}
+
+/* Workshop name style */
+.workshop-name {
+    font-weight: bold;
+}
+
+/* City text capitalization */
+.city-text {
+    text-transform: capitalize;
+}
