@@ -141,10 +141,10 @@ public class AdminWorkshopsController {
     public String createWorkshop(
             @ModelAttribute("workshop") WorkshopDTO workshopDTO, 
             BindingResult bindingResult,
-            @RequestParam("latitude") String latitude,
-            @RequestParam("longitude") String longitude,
-            @RequestParam(value = "imageUrlsInput", required = false) String imageUrlsInput,
-            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestParam String latitude,
+            @RequestParam String longitude,
+            @RequestParam(required = false) String imageUrlsInput,
+            @RequestParam(required = false) List<MultipartFile> imageFiles,
             Model model,
             RedirectAttributes redirectAttributes) {
         
@@ -227,10 +227,10 @@ public class AdminWorkshopsController {
     public String updateWorkshop(
             @ModelAttribute("workshop") WorkshopDTO workshopDTO,
             BindingResult bindingResult,
-            @RequestParam("latitude") String latitude,
-            @RequestParam("longitude") String longitude,
-            @RequestParam(value = "existingImageUrls", required = false) List<String> existingImageUrls,
-            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestParam String latitude,
+            @RequestParam String longitude,
+            @RequestParam(required = false) List<String> existingImageUrls,
+            @RequestParam(required = false) List<MultipartFile> imageFiles,
             Model model,
             RedirectAttributes redirectAttributes) {
 

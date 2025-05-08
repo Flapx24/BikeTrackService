@@ -54,10 +54,10 @@ public class FileUploadController {
 	 */
 	@PostMapping("/upload")
 	public String handleFileUpload(
-			@RequestParam("file") MultipartFile file,
-			@RequestParam("entityType") String entityType,
-			@RequestParam("entityId") Long entityId,
-			@RequestParam(value = "position", required = false, defaultValue = "0") Integer position,
+			@RequestParam MultipartFile file,
+			@RequestParam String entityType,
+			@RequestParam Long entityId,
+			@RequestParam(required = false, defaultValue = "0") Integer position,
 			RedirectAttributes redirectAttributes) {
 
 		String storedPath = storageService.store(file, entityType, entityId, position);
@@ -77,9 +77,9 @@ public class FileUploadController {
 	 */
 	@PostMapping("/upload-multiple")
 	public String handleMultipleFileUpload(
-			@RequestParam("files") List<MultipartFile> files,
-			@RequestParam("entityType") String entityType,
-			@RequestParam("entityId") Long entityId,
+			@RequestParam List<MultipartFile> files,
+			@RequestParam String entityType,
+			@RequestParam Long entityId,
 			RedirectAttributes redirectAttributes) {
 
 		List<String> storedPaths = storageService.storeMultiple(files, entityType, entityId);
