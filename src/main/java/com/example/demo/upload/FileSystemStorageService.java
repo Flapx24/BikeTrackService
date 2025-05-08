@@ -87,6 +87,10 @@ public class FileSystemStorageService implements StorageService {
 				newFilename = entityId + extension;
 			} else {
 				// For routes and workshops, the name includes position
+				// NOTE: The 'position' acts as a unique identifier for the image
+				// and represents its original position at the moment of upload.
+				// It does not necessarily reflect the current display order, which is maintained
+				// in the imageUrls array of the entity (Workshop/Route)
 				newFilename = entityId + "_" + position + extension;
 			}
 			

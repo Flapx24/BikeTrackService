@@ -16,12 +16,27 @@
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
 
     <div class="container mt-4">
+        <!-- Alert messages -->
         <h2 class="text-center mb-4 text-white">Gestión de Talleres</h2>
+        <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
         <div class="highlight-box">
             Número total de talleres encontrados: <span th:text="${workshops.size()}"></span>
         </div>
-        
+        <!-- Create New Workshop button -->
+        <div class="d-flex justify-content-end mb-3">
+            <a th:href="@{/admin/workshops/create}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Crear Nuevo Taller
+            </a>
+        </div>
         <!-- Filters -->
         <div class="card bg-dark text-white mb-4">
             <div class="card-header">
@@ -41,7 +56,7 @@
                             <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}" placeholder="Nombre de la ciudad">
                         </div>
                     </div>
-                    <div class="col-md-2 d-flex align-items-start">
+                    <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-success">
                             <i class="fa fa-search"></i>
                         </button>
@@ -50,8 +65,8 @@
             </div>
         </div>
 
+        <!-- Message when there are no results -->
         <div class="tab-content mt-4">
-            <!-- Message when there are no results -->
             <div th:if="${workshops.empty}" class="alert alert-danger text-center">
                 No se ha encontrado ningún taller para los filtros seleccionados
             </div>
@@ -97,7 +112,7 @@
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header bg-danger">
                     <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas eliminar el taller <span id="workshopName" class="fw-bold"></span>?</p>
@@ -118,13 +133,13 @@
 
     <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-    
-    <script>
+    <script th:src="@{/js/common/alerts.js}"></script>
+      <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Confirmation modal to delete workshop
+            // Modal for workshop deletion confirmation
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
             
-            // Handle delete buttons
+            // Handle delete button clicks
             document.querySelectorAll('.delete-workshop-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const workshopId = this.getAttribute('data-workshop-id');
