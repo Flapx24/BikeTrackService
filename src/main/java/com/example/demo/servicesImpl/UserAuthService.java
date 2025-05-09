@@ -187,6 +187,7 @@ public class UserAuthService {
 
         result.put("success", true);
         result.put("message", "Registro exitoso");
+        result.put("imageUrl", user.getImageUrl());
         
         return result;
     }

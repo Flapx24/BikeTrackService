@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.example.demo.entities.Review;
 import com.example.demo.entities.Route;
 import com.example.demo.entities.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,9 +37,11 @@ public class ReviewDTO {
     private LocalDate date;
 
     private Long routeId;
-    
+
+    @JsonIgnore
     private String routeTitle;
-    
+
+    @JsonIgnore
     private String routeCity;
 
     public ReviewDTO() {
@@ -50,7 +53,8 @@ public class ReviewDTO {
             if (review.getUser() != null) {
                 this.user = new ReviewUserDTO(
                         review.getUser().getId(),
-                        review.getUser().getUsername());
+                        review.getUser().getUsername(),
+                        review.getUser().getImageUrl());
             }
             this.rating = review.getRating();
             this.text = review.getText();
