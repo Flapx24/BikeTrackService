@@ -62,7 +62,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Public web routes
                 .requestMatchers("/", "/auth/**", "/login", "/logout", 
-                                "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                                "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**").permitAll()
                 
                 // Routes for admin users
                 .requestMatchers("/admin/**").hasRole("ADMIN")
