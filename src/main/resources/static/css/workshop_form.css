@@ -53,6 +53,12 @@ body {
     height: 150px;
     border-radius: 8px;
     overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: grab;
+}
+
+.image-card:active {
+    cursor: grabbing;
 }
 
 .image-card img {
@@ -124,6 +130,20 @@ body {
     color: white;
     padding: 2px 0;
     font-size: 12px;
+}
+
+/* Drag and drop styles */
+.image-card.dragging {
+    opacity: 0.6;
+    transform: scale(0.95);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.image-card.drag-over {
+    border: 2px dashed #00aaff;
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    transform: scale(1.02);
 }
 
 /* Map styles */

@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const DEFAULT_LNG = -3.703790;
     let tempMarker = null;
     let isCoordinateIterationMode = false;
+    let draggedCard = null;
+    let dragOverIndex = -1;
     
     initMap();
     
@@ -19,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cancelButton').addEventListener('click', showCancelConfirmation);
     document.getElementById('confirmSave').addEventListener('click', saveWorkshop);
     document.getElementById('confirmCancel').addEventListener('click', cancelEditing);
-    document.getElementById('confirmReorder').addEventListener('click', reorderImage);
     document.getElementById('confirmCoordinates').addEventListener('click', confirmCoordinateSelection);
     document.getElementById('cancelCoordinates').addEventListener('click', cancelCoordinateSelection);
 
@@ -161,17 +162,17 @@ document.addEventListener('DOMContentLoaded', function() {
             marker = L.marker(latlng).addTo(map);
         }
     }
-    
-    /**
+      /**
      * Loads existing workshop images from the global variable
      * which is defined in the HTML using Thymeleaf
      */
     function loadExistingImages() {
+        const existingImagesStr = document.getElementById('existingImages')?.value;
         if (typeof existingImages !== 'undefined' && existingImages.length > 0) {
             workshopImages = [...existingImages];
             renderImageCards();
-            updateNoImagesMessage();
         }
+        updateNoImagesMessage();
     }
     
     /**
@@ -218,6 +219,14 @@ document.addEventListener('DOMContentLoaded', function() {
         workshopImages.forEach((url, index) => {
             const card = document.createElement('div');
             card.className = 'image-card';
+            card.draggable = true;
+            card.dataset.index = index;
+
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('dragleave', handleDragLeave);
+            card.addEventListener('drop', handleDrop);
 
             const img = document.createElement('img');
             img.src = url;
@@ -231,16 +240,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 showImagePreview(url);
             });
 
-            const reorderBtn = createActionButton('action-reorder', 'fa-arrows-up-down-left-right', () => {
-                showReorderModal(index);
-            });
-
             const deleteBtn = createActionButton('action-delete', 'fa-trash', () => {
                 deleteImage(index);
             });
             
             overlay.appendChild(viewBtn);
-            overlay.appendChild(reorderBtn);
             overlay.appendChild(deleteBtn);
             card.appendChild(overlay);
 
@@ -251,6 +255,74 @@ document.addEventListener('DOMContentLoaded', function() {
             
             container.appendChild(card);
         });
+    }
+
+    /**
+     * Handles the start of dragging an image
+     */
+    function handleDragStart(e) {
+        draggedCard = this;
+        draggedCard.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    /**
+     * Handles the end of dragging an image
+     */
+    function handleDragEnd(e) {
+        draggedCard.classList.remove('dragging');
+        
+        const cards = document.querySelectorAll('.image-card');
+        cards.forEach(card => {
+            card.classList.remove('drag-over');
+        });
+        
+        draggedCard = null;
+        dragOverIndex = -1;
+    }
+
+    /**
+     * Handles when an image is dragged over another image
+     */
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (this !== draggedCard) {
+            this.classList.add('drag-over');
+            dragOverIndex = parseInt(this.dataset.index);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Handles when an image leaves the drop target area
+     */
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    /**
+     * Handles when an image is dropped onto another image
+     */
+    function handleDrop(e) {
+        e.preventDefault();
+        
+        if (draggedCard && this !== draggedCard) {
+            const fromIndex = parseInt(draggedCard.dataset.index);
+            const toIndex = parseInt(this.dataset.index);
+            
+            const [imageUrl] = workshopImages.splice(fromIndex, 1);
+            workshopImages.splice(toIndex, 0, imageUrl);
+            
+            renderImageCards();
+            
+            showToast('Imagen reordenada', `La imagen ha sido movida a la posición ${toIndex + 1}.`);
+        }
+        
+        return false;
     }
     
     /**
@@ -268,14 +340,19 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', clickHandler);
         return button;
     }
-    
-    /**
+      /**
      * Shows/hides the "no images" message
      */
     function updateNoImagesMessage() {
         const noImagesMessage = document.getElementById('noImagesMessage');
-        if (noImagesMessage) {
-            noImagesMessage.style.display = workshopImages.length === 0 ? 'block' : 'none';
+        const dragInstructionMessage = document.getElementById('dragInstructionMessage');
+        
+        if (workshopImages.length === 0) {
+            if (noImagesMessage) noImagesMessage.style.display = 'block';
+            if (dragInstructionMessage) dragInstructionMessage.style.display = 'none';
+        } else {
+            if (noImagesMessage) noImagesMessage.style.display = 'none';
+            if (dragInstructionMessage) dragInstructionMessage.style.display = 'block';
         }
     }
     
@@ -286,45 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
         document.getElementById('previewImage').src = url;
         previewModal.show();
-    }
-    
-    /**
-     * Shows the modal to reorder an image
-     */
-    function showReorderModal(index) {
-        currentImageIndex = index;
-        const reorderModal = new bootstrap.Modal(document.getElementById('reorderModal'));
-        const newPositionInput = document.getElementById('newPosition');
-
-        newPositionInput.value = index + 1;
-        newPositionInput.min = 1;
-        newPositionInput.max = workshopImages.length;
-        
-        reorderModal.show();
-    }
-    
-    /**
-     * Reorders the image to the new position
-     */
-    function reorderImage() {
-        const newPosition = parseInt(document.getElementById('newPosition').value);
-        
-        if (isNaN(newPosition) || newPosition < 1 || newPosition > workshopImages.length) {
-            alert('Por favor, introduce una posición válida.');
-            return;
-        }
-
-        const newIndex = newPosition - 1;
-        
-        if (currentImageIndex !== newIndex) {
-
-            const [imageUrl] = workshopImages.splice(currentImageIndex, 1);
-            workshopImages.splice(newIndex, 0, imageUrl);
-
-            renderImageCards();
-        }
-
-        bootstrap.Modal.getInstance(document.getElementById('reorderModal')).hide();
     }
     
     /**

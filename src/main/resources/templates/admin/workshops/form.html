@@ -67,11 +67,11 @@
                         <input type="file" id="imageUpload" name="imageFiles" accept="image/*" multiple style="display: none;">
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info" id="noImagesMessage" th:if="${workshop.imageUrls == null || workshop.imageUrls.isEmpty()}">
+                <div class="card-body">                    <div class="alert alert-info" id="noImagesMessage" th:if="${workshop.imageUrls == null || workshop.imageUrls.isEmpty()}">
                         No hay imágenes disponibles. Añade nuevas imágenes usando el botón superior.
                     </div>
-                      <div id="imagesContainer" class="images-container">
+                    <p class="text-info mb-3" id="dragInstructionMessage" style="display: none;"><i class="fas fa-info-circle me-2"></i>Arrastra y suelta las imágenes para cambiar su orden.</p>
+                    <div id="imagesContainer" class="images-container">
                         <!-- Is rendered via JavaScript -->
                         <!-- We use a hidden field to send URLs that are modified/added -->
                         <input type="hidden" id="imageUrlsInput" name="imageUrlsInput" value="">
@@ -123,25 +123,6 @@
                 </div>
                 <div class="modal-body text-center">
                     <img id="previewImage" src="" alt="Vista previa" class="img-fluid">
-                </div>
-            </div>
-        </div>
-    </div>
-      <!-- Modal for reordering images -->
-    <div class="modal fade" id="reorderModal" tabindex="-1" aria-labelledby="reorderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reorderModalLabel">Cambiar posición</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Introduce la nueva posición para la imagen (empezando desde 1):</p>
-                    <input type="number" id="newPosition" class="form-control" min="1" value="1">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmReorder">Aceptar</button>
                 </div>
             </div>
         </div>
