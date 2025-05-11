@@ -28,24 +28,24 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     @Qualifier("reviewRepository")
     private ReviewRepository reviewRepository;
-    
+
     @Autowired
     @Qualifier("routeRepository")
     private RouteRepository routeRepository;
-    
+
     @Override
     @Transactional
     public Review saveReview(Review review, User user) {
         if (review.getDate() == null) {
             review.setDate(LocalDate.now());
         }
-        
+
         review.setUser(user);
-        
+
         Review savedReview = reviewRepository.save(review);
-        
+
         updateRouteAverageScore(savedReview.getRoute().getId());
-        
+
         return savedReview;
     }
 
@@ -57,11 +57,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<Review> findReviewsByRouteId(Long routeId, Long lastReviewId) {
         Route route = routeRepository.findById(routeId).orElse(null);
-        
+
         if (route == null) {
             return List.of();
         }
-        
+
         if (lastReviewId == null) {
             return reviewRepository.findByRouteOrderByIdAsc(route, PageRequest.of(0, PAGE_SIZE));
         } else {
@@ -73,28 +73,28 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public boolean deleteReview(Long id) {
         Review review = findById(id);
-        
+
         if (review == null) {
             return false;
         }
-        
+
         Long routeId = review.getRoute().getId();
-        
+
         reviewRepository.deleteById(id);
-        
+
         updateRouteAverageScore(routeId);
-        
+
         return true;
     }
 
     @Override
     public boolean isReviewOwner(Long reviewId, Long userId) {
         Review review = findById(reviewId);
-        
+
         if (review == null || review.getUser() == null) {
             return false;
         }
-        
+
         return review.getUser().getId().equals(userId);
     }
 
@@ -102,13 +102,17 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void updateRouteAverageScore(Long routeId) {
         Route route = routeRepository.findById(routeId).orElse(null);
-        
+
         if (route == null) {
             return;
         }
-        
+
         Double averageScore = reviewRepository.calculateAverageRatingForRoute(route);
-        
+
+        if (averageScore == null) {
+            averageScore = 0.0;
+        }
+
         route.setAverageReviewScore(averageScore);
         routeRepository.save(route);
     }
@@ -122,46 +126,46 @@ public class ReviewServiceImpl implements ReviewService {
     public List<Review> findAllReviews() {
         return reviewRepository.findAll();
     }
-    
+
     @Override
     public boolean filterByCity(Review review, String city) {
         if (city == null || city.trim().isEmpty()) {
             return true;
         }
-        
+
         Route route = review.getRoute();
         if (route == null || route.getCity() == null) {
             return false;
         }
-        
+
         String normalizedRouteCity = normalizeString(route.getCity());
         String normalizedFilterCity = normalizeString(city);
-        
+
         return normalizedRouteCity.contains(normalizedFilterCity);
     }
-    
+
     @Override
     public boolean filterByDate(Review review, String dateString) {
         if (dateString == null || dateString.trim().isEmpty()) {
             return true;
         }
-        
+
         try {
             LocalDate filterDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             LocalDate reviewDate = review.getDate();
-            
+
             return reviewDate != null && reviewDate.equals(filterDate);
         } catch (DateTimeParseException e) {
             return false;
         }
     }
-    
+
     @Override
     public String normalizeString(String input) {
         if (input == null) {
             return "";
         }
-        
+
         return input.toLowerCase()
                 .replace("á", "a")
                 .replace("é", "e")
@@ -171,7 +175,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .replace("ü", "u")
                 .replace("ñ", "n");
     }
-    
+
     @Override
     public ReviewDTO createReviewDTOWithRouteTitle(Review review) {
         ReviewDTO dto = new ReviewDTO(review);
@@ -181,7 +185,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
         return dto;
     }
-    
+
     @Override
     public List<ReviewDTO> getFilteredReviews(String city, String date) {
         List<Review> allReviews = findAllReviews();

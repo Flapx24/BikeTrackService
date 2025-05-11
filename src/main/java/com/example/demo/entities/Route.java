@@ -19,6 +19,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Route {
@@ -26,11 +27,10 @@ public class Route {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	@Column(nullable = false)
 	private String title;
-
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
+	@Size(max = 1500, message = "La descripción no puede exceder los 1500 caracteres")
 	private String description;
 
 	@Enumerated(EnumType.STRING)
@@ -55,7 +55,7 @@ public class Route {
 	private List<RouteUpdate> updates = new ArrayList<>();
 
 	private static final ObjectMapper mapper = new ObjectMapper();
-	
+
 	public Route() {
 	}
 
@@ -120,23 +120,23 @@ public class Route {
 	public void setCity(String city) {
 		this.city = city;
 	}
-	
+
 	public List<GeoPoint> getRoutePoints() {
 		if (routePointsJson == null || routePointsJson.trim().isEmpty()) {
 			return new ArrayList<>();
 		}
-		
+
 		try {
-			return mapper.readValue(routePointsJson, new TypeReference<List<GeoPoint>>() {});
+			return mapper.readValue(routePointsJson, new TypeReference<List<GeoPoint>>() {
+			});
 		} catch (JsonProcessingException e) {
 			return new ArrayList<>();
 		}
 	}
-	
+
 	public void setRoutePoints(List<GeoPoint> routePoints) {
 		try {
-			this.routePointsJson = routePoints != null ? 
-					mapper.writeValueAsString(routePoints) : "[]";
+			this.routePointsJson = routePoints != null ? mapper.writeValueAsString(routePoints) : "[]";
 		} catch (JsonProcessingException e) {
 			this.routePointsJson = "[]";
 		}
@@ -147,7 +147,7 @@ public class Route {
 	}
 
 	public void setAverageReviewScore(Double averageReviewScore) {
-		this.averageReviewScore = averageReviewScore;
+		this.averageReviewScore = averageReviewScore != null ? averageReviewScore : 0.0;
 	}
 
 	public List<Review> getReviews() {

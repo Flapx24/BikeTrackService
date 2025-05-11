@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${route.id != null ? 'Actualizar Ruta' : 'Crear Ruta'}">Ruta</title>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link th:href="@{/css/nav.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/route_form.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+</head>
+
+<body>
+    <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
+
+    <div class="container mt-4 mb-4">
+        <h2 class="text-center mb-4 text-white" th:text="${route.id != null ? 'Actualizar Ruta' : 'Crear Ruta'}">Ruta
+        </h2>
+
+        <!-- Main form -->
+        <form id="routeForm" th:action="@{${route.id != null ? '/admin/routes/update' : '/admin/routes/create'}}"
+            method="post" enctype="multipart/form-data" th:object="${route}">
+
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Basic data -->
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-header">
+                    <h5>Datos básicos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">Título de la ruta*</label>
+                            <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+                                El título es obligatorio
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label">Ciudad*</label>
+                            <input type="text" class="form-control" id="city" th:field="*{city}" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('city')}" th:errors="*{city}">
+                                La ciudad es obligatoria
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="difficulty" class="form-label">Dificultad*</label>
+                            <select class="form-select" id="difficulty" th:field="*{difficulty}" required>
+                                <option value="EASY">Fácil</option>
+                                <option value="MEDIUM">Media</option>
+                                <option value="HARD">Difícil</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('difficulty')}"
+                                th:errors="*{difficulty}">
+                                La dificultad es obligatoria
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="description" class="form-label">Descripción*</label>
+                            <textarea class="form-control" id="description" th:field="*{description}" rows="4"
+                                maxlength="1500" style="resize: none;" required></textarea>
+                            <div class="d-flex justify-content-end mt-1">
+                                <span id="charCount" class="badge bg-info">0/1500 caracteres</span>
+                            </div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}"
+                                th:errors="*{description}">
+                                La descripción es obligatoria
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images management -->
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Imágenes</h5>
+                    <div>
+                        <label for="imageUpload" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Añadir imágenes
+                        </label>
+                        <input type="file" id="imageUpload" name="imageFiles" accept="image/*" multiple
+                            style="display: none;">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" id="noImagesMessage" style="display: none;">
+                        No hay imágenes disponibles. Añade nuevas imágenes usando el botón superior.
+                    </div>
+                    <p class="text-info mb-3" id="dragInstructionMessage" style="display: none;"><i
+                            class="fas fa-info-circle me-2"></i>Arrastra y suelta las imágenes para cambiar su orden.
+                    </p>
+                    <div id="imagesContainer" class="images-container">
+                        <!-- Images and hidden inputs are dynamically generated with JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map for route points -->
+            <div class="card bg-dark text-white mb-4">
+                <div class="card-header">
+                    <h5>Ruta en el mapa</h5>
+                    <p class="text-info text-small mb-0"><i class="fas fa-info-circle me-2"></i>Haz clic izquierdo en el
+                        mapa para añadir puntos a la ruta (mínimo 2, máximo 50). Clic derecho para eliminar puntos.</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="map" style="height: 400px;"></div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <div class="text-muted small">
+                                    Haz clic en el mapa para añadir puntos a la ruta (mínimo 2). Clic derecho para
+                                    eliminar.
+                                </div>
+                                <div>
+                                    <span id="routePointsCount" class="badge bg-info">0/50 puntos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="d-flex justify-content-end">
+                <button type="button" id="cancelButton" class="btn btn-secondary me-2">Cancelar</button>
+                <button type="button" id="saveButton" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Image preview modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagePreviewModalLabel">Vista previa de imagen</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="previewImage" src="" alt="Vista previa" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete point confirmation modal -->
+    <div class="modal fade" id="deletePointModal" tabindex="-1" aria-labelledby="deletePointModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title" id="deletePointModalLabel">Confirmar eliminación de punto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar este punto de la ruta?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeletePoint">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save confirmation modal -->
+    <div class="modal fade" id="saveConfirmModal" tabindex="-1" aria-labelledby="saveConfirmModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saveConfirmModalLabel">Confirmar guardar</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas guardar los cambios?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmSave">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel confirmation modal -->
+    <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-labelledby="cancelConfirmModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelConfirmModalLabel">Confirmar cancelar</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cancelar? Se perderán todos los cambios no guardados.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, seguir editando</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancel">Sí, cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Pass existing images and route coordinates to JavaScript -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Convert the Thymeleaf list to a JS array
+        const existingImages = /*[[${route.imageUrls}]]*/[];
+        const routePoints = /*[[${route.routePoints}]]*/[];
+        /*]]>*/    </script>
+    <script th:src="@{/js/route_form.js}"></script>
+</body>
+
+</html>

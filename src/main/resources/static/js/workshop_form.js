@@ -1,21 +1,21 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Global variables
+document.addEventListener('DOMContentLoaded', function () {    // Global variables
     let map;
     let marker;
     let workshopImages = [];
     let newImageFiles = [];
     let currentImageIndex = -1;
+    let deletedImageUrls = [];
     const DEFAULT_LAT = 40.416775; // Madrid as default point
     const DEFAULT_LNG = -3.703790;
     let tempMarker = null;
     let isCoordinateIterationMode = false;
     let draggedCard = null;
     let dragOverIndex = -1;
-    
+
     initMap();
-    
+
     loadExistingImages();
-    
+
     document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
     document.getElementById('saveButton').addEventListener('click', showSaveConfirmation);
     document.getElementById('cancelButton').addEventListener('click', showCancelConfirmation);
@@ -30,30 +30,30 @@ document.addEventListener('DOMContentLoaded', function() {
     function initMap() {
         const latElement = document.getElementById('latitude');
         const lngElement = document.getElementById('longitude');
-        
+
         const lat = latElement.value ? parseFloat(latElement.value) : DEFAULT_LAT;
         const lng = lngElement.value ? parseFloat(lngElement.value) : DEFAULT_LNG;
-        
+
         map = L.map('map').setView([lat, lng], 13);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-        
+
         if (latElement.value && lngElement.value) {
             marker = L.marker([lat, lng]).addTo(map);
         }
-        
-        map.on('click', function(e) {
+
+        map.on('click', function (e) {
             showCoordinateConfirmation(e.latlng);
         });
-        
+
         setTimeout(() => {
             map.invalidateSize();
         }, 100);
     }
-    
+
     /**
      * Shows a confirmation dialog for the selected coordinates
      */
@@ -61,45 +61,45 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tempMarker) {
             tempMarker.setLatLng(latlng);
         } else {
-            tempMarker = L.marker(latlng, {opacity: 0.6}).addTo(map);
+            tempMarker = L.marker(latlng, { opacity: 0.6 }).addTo(map);
         }
-        
+
         document.getElementById('selectedLatitude').textContent = latlng.lat.toFixed(6);
         document.getElementById('selectedLongitude').textContent = latlng.lng.toFixed(6);
-        
+
         tempMarker.tempLatLng = latlng;
-        
+
         const modalTitle = document.getElementById('coordinateConfirmModalLabel');
         const modalBodyText = document.getElementById('coordinateConfirmModal').querySelector('.modal-body p:last-child');
         const cancelButton = document.getElementById('cancelCoordinates');
-        
 
-    modalTitle.textContent = 'Confirmar coordenadas';
-            modalBodyText.textContent = '¿Deseas confirmar estas coordenadas o elegir otra ubicación?';
-            cancelButton.textContent = 'Elegir otra ubicación';
+
+        modalTitle.textContent = 'Confirmar coordenadas';
+        modalBodyText.textContent = '¿Deseas confirmar estas coordenadas o elegir otra ubicación?';
+        cancelButton.textContent = 'Elegir otra ubicación';
 
         const coordModal = new bootstrap.Modal(document.getElementById('coordinateConfirmModal'));
         coordModal.show();
     }
-    
+
     /**
      * Confirms the coordinate selection
      */
     function confirmCoordinateSelection() {
         if (tempMarker && tempMarker.tempLatLng) {
             setMarkerPosition(tempMarker.tempLatLng);
-            
+
             if (tempMarker !== marker) {
                 map.removeLayer(tempMarker);
                 tempMarker = null;
             }
-            
+
             isCoordinateIterationMode = false;
         }
-        
+
         bootstrap.Modal.getInstance(document.getElementById('coordinateConfirmModal')).hide();
     }
-    
+
     /**
      * Cancels the current coordinate selection and enters iteration mode
      */
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         bootstrap.Modal.getInstance(document.getElementById('coordinateConfirmModal')).hide();
     }
-    
+
     /**
      * Shows a toast message
      */
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         toastContainer.insertAdjacentHTML('beforeend', toastHtml);
 
         const toast = new bootstrap.Toast(document.getElementById(toastId), {
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         toast.show();
     }
-    
+
     /**
      * Sets the marker position on the map
      */
@@ -162,10 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
             marker = L.marker(latlng).addTo(map);
         }
     }
-      /**
-     * Loads existing workshop images from the global variable
-     * which is defined in the HTML using Thymeleaf
-     */
+    /**
+    * Loads existing workshop images from the global variable
+    * which is defined in the HTML using Thymeleaf
+    */
     function loadExistingImages() {
         const existingImagesStr = document.getElementById('existingImages')?.value;
         if (typeof existingImages !== 'undefined' && existingImages.length > 0) {
@@ -174,10 +174,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         updateNoImagesMessage();
     }
-    
     /**
-     * Handles the upload of new images
-     */
+    * Handles the upload of new images
+    */
     function handleImageUpload(event) {
         const files = event.target.files;
         if (!files || files.length === 0) {
@@ -186,11 +185,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            newImageFiles.push(file);
+            newImageFiles.push(file); // Create an object for the image instead of directly modifying the URL
+            const imageObj = {
+                url: URL.createObjectURL(file),
+                isNewImage: true,
+                file: file
+            };
 
-            const tempUrl = URL.createObjectURL(file);
-            tempUrl.isNewImage = true;
-            workshopImages.push(tempUrl);
+            workshopImages.push(imageObj);
         }
 
         renderImageCards();
@@ -198,25 +200,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
         event.target.value = '';
     }
-    
+
     /**
-     * Renders the image cards in the container
-     */
+    * Renders the image cards in the container
+    */
     function renderImageCards() {
         const container = document.getElementById('imagesContainer');
         container.innerHTML = '';
+        // Create a hidden field to send all existing URLs as JSON
+        const imageUrlsInput = document.getElementById('imageUrlsInput');
+        const existingUrls = workshopImages
+            .filter(img => !img.isNewImage && typeof img === 'string')
+            .map(url => url);
 
-        workshopImages.forEach((url) => {
-            if (!url.isNewImage && typeof url === 'string') {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'existingImageUrls';
-                hiddenInput.value = url;
-                container.appendChild(hiddenInput);
-            }
-        });
+        if (imageUrlsInput) {
+            imageUrlsInput.value = JSON.stringify(existingUrls);
+        }
 
-        workshopImages.forEach((url, index) => {
+        workshopImages.forEach((img, index) => {
             const card = document.createElement('div');
             card.className = 'image-card';
             card.draggable = true;
@@ -228,22 +229,30 @@ document.addEventListener('DOMContentLoaded', function() {
             card.addEventListener('dragleave', handleDragLeave);
             card.addEventListener('drop', handleDrop);
 
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = `Imagen ${index + 1}`;
-            card.appendChild(img);
+            const imgElement = document.createElement('img');
+            // Determine the image source based on its type            
+            if (typeof img === 'string') {
+                imgElement.src = img; // Existing URL
+            } else if (img && img.url) {
+                imgElement.src = img.url; // Object with temporary URL
+            }
+
+            imgElement.alt = `Image ${index + 1}`;
+            card.appendChild(imgElement);
 
             const overlay = document.createElement('div');
             overlay.className = 'image-overlay';
 
             const viewBtn = createActionButton('action-view', 'fa-eye', () => {
-                showImagePreview(url);
+                // Determine which URL to use for the preview
+                const previewUrl = typeof img === 'string' ? img : img.url;
+                showImagePreview(previewUrl);
             });
 
             const deleteBtn = createActionButton('action-delete', 'fa-trash', () => {
                 deleteImage(index);
             });
-            
+
             overlay.appendChild(viewBtn);
             overlay.appendChild(deleteBtn);
             card.appendChild(overlay);
@@ -252,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
             position.className = 'image-position';
             position.textContent = `${index + 1}`;
             card.appendChild(position);
-            
+
             container.appendChild(card);
         });
     }
@@ -272,12 +281,12 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function handleDragEnd(e) {
         draggedCard.classList.remove('dragging');
-        
+
         const cards = document.querySelectorAll('.image-card');
         cards.forEach(card => {
             card.classList.remove('drag-over');
         });
-        
+
         draggedCard = null;
         dragOverIndex = -1;
     }
@@ -288,12 +297,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleDragOver(e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        
+
         if (this !== draggedCard) {
             this.classList.add('drag-over');
             dragOverIndex = parseInt(this.dataset.index);
         }
-        
+
         return false;
     }
 
@@ -309,22 +318,22 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function handleDrop(e) {
         e.preventDefault();
-        
+
         if (draggedCard && this !== draggedCard) {
             const fromIndex = parseInt(draggedCard.dataset.index);
             const toIndex = parseInt(this.dataset.index);
-            
+
             const [imageUrl] = workshopImages.splice(fromIndex, 1);
             workshopImages.splice(toIndex, 0, imageUrl);
-            
+
             renderImageCards();
-            
+
             showToast('Imagen reordenada', `La imagen ha sido movida a la posición ${toIndex + 1}.`);
         }
-        
+
         return false;
     }
-    
+
     /**
      * Creates an action button for the image card
      */
@@ -332,21 +341,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const button = document.createElement('button');
         button.className = `image-action-btn ${className}`;
         button.type = 'button';
-        
+
         const icon = document.createElement('i');
         icon.className = `fas ${iconClass}`;
         button.appendChild(icon);
-        
+
         button.addEventListener('click', clickHandler);
         return button;
     }
-      /**
-     * Shows/hides the "no images" message
-     */
+    /**
+    * Shows/hides the "no images" message
+    */
     function updateNoImagesMessage() {
         const noImagesMessage = document.getElementById('noImagesMessage');
         const dragInstructionMessage = document.getElementById('dragInstructionMessage');
-        
+
         if (workshopImages.length === 0) {
             if (noImagesMessage) noImagesMessage.style.display = 'block';
             if (dragInstructionMessage) dragInstructionMessage.style.display = 'none';
@@ -355,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dragInstructionMessage) dragInstructionMessage.style.display = 'block';
         }
     }
-    
+
     /**
      * Shows an image preview in a modal
      */
@@ -363,31 +372,42 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
         document.getElementById('previewImage').src = url;
         previewModal.show();
-    }
-    
-    /**
+    }    /**
      * Deletes an image from the array
      */
     function deleteImage(index) {
         if (confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
             const deletedImage = workshopImages[index];
 
-            if (deletedImage.isNewImage) {
-                const fileIndex = newImageFiles.findIndex((file, i) => 
-                    i === workshopImages.findIndex(img => img === deletedImage) - workshopImages.filter(img => !img.isNewImage).length
-                );
-                
+            if (deletedImage && deletedImage.isNewImage) {
+                // If it's a new image, simply remove it from the array of new files
+                const fileIndex = newImageFiles.findIndex((file) => {
+                    return deletedImage.file === file;
+                });
+
                 if (fileIndex !== -1) {
                     newImageFiles.splice(fileIndex, 1);
+                }
+
+                // Revoke the temporary URL to free memory
+                if (deletedImage.url) {
+                    URL.revokeObjectURL(deletedImage.url);
+                }
+            } else if (typeof deletedImage === 'string') {
+                // If it's an existing image, add it to the list of deleted images
+                if (!deletedImageUrls.includes(deletedImage)) {
+                    deletedImageUrls.push(deletedImage);
                 }
             }
 
             workshopImages.splice(index, 1);
             renderImageCards();
             updateNoImagesMessage();
+
+            showToast('Imagen eliminada', 'La imagen ha sido eliminada correctamente.');
         }
     }
-    
+
     /**
      * Shows the save confirmation modal
      */
@@ -395,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const saveModal = new bootstrap.Modal(document.getElementById('saveConfirmModal'));
         saveModal.show();
     }
-    
+
     /**
      * Shows the cancel confirmation modal
      */
@@ -405,8 +425,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Submits the form to save the workshop
-     */
+    * Submits the form to save the workshop
+    */
     function saveWorkshop() {
         if (!validateForm()) {
             bootstrap.Modal.getInstance(document.getElementById('saveConfirmModal')).hide();
@@ -416,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('workshopForm');
         const fileInput = document.getElementById('imageUpload');
 
+        // Add new files to the file input
         if (newImageFiles.length > 0) {
             const dataTransfer = new DataTransfer();
 
@@ -426,23 +447,52 @@ document.addEventListener('DOMContentLoaded', function() {
             fileInput.files = dataTransfer.files;
         }
 
+        // Clean existing inputs if any
+        document.querySelectorAll('input[name="existingImageUrls"]').forEach(el => el.remove());
+
+        // Only save URLs of existing images (strings), never objects with blob URLs
+        const existingUrls = workshopImages.filter(img => typeof img === 'string');
+        // Add existing URLs as hidden inputs
+        existingUrls.forEach(url => {
+            const existingInput = document.createElement('input');
+            existingInput.type = 'hidden';
+            existingInput.name = 'existingImageUrls';
+            existingInput.value = url;
+            form.appendChild(existingInput);
+        });
+
+        // Add deleted image URLs as hidden inputs
+        if (deletedImageUrls && deletedImageUrls.length > 0) {
+            // Remove old inputs if they exist
+            document.querySelectorAll('input[name="deletedImageUrls"]').forEach(el => el.remove());
+
+            // Add inputs for each deleted URL
+            deletedImageUrls.forEach(url => {
+                const deletedInput = document.createElement('input');
+                deletedInput.type = 'hidden';
+                deletedInput.name = 'deletedImageUrls';
+                deletedInput.value = url;
+                form.appendChild(deletedInput);
+            });
+        }
+
         form.submit();
     }
-    
+
     /**
      * Cancels the editing and redirects to the workshops list
      */
     function cancelEditing() {
         window.location.href = '/admin/workshops';
     }
-    
+
     /**
      * Validates that the form has all the required fields
      */
     function validateForm() {
         const requiredFields = ['name', 'city', 'address', 'latitude', 'longitude'];
         let isValid = true;
-        
+
         requiredFields.forEach(field => {
             const element = document.getElementById(field);
             if (!element.value.trim()) {
@@ -452,11 +502,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.classList.remove('is-invalid');
             }
         });
-        
+
         if (!isValid) {
             alert('Por favor, completa todos los campos obligatorios.');
         }
-        
+
         return isValid;
     }
 });

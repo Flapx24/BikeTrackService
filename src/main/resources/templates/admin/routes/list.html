@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,16 +12,34 @@
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/routes_list.css}" rel="stylesheet">
 </head>
+
 <body>
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
 
     <div class="container mt-4">
         <h2 class="text-center mb-4 text-white">Gestión de Rutas</h2>
 
+        <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <div class="highlight-box">
             Número total de rutas encontradas: <span th:text="${routes.size()}"></span>
         </div>
-        
+
+        <!-- Create New Route button -->
+        <div class="d-flex justify-content-end mb-3">
+            <a th:href="@{/admin/routes/create}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Crear Nueva Ruta
+            </a>
+        </div>
+
         <!-- Filters -->
         <div class="card bg-dark text-white mb-4">
             <div class="card-header">
@@ -32,13 +50,15 @@
                     <div class="col-md-5">
                         <label for="title" class="form-label">Título de la ruta:</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="title" name="title" th:value="${titleFilter}" placeholder="Título de la ruta">
+                            <input type="text" class="form-control" id="title" name="title" th:value="${titleFilter}"
+                                placeholder="Título de la ruta">
                         </div>
                     </div>
                     <div class="col-md-5">
                         <label for="city" class="form-label">Ciudad:</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}" placeholder="Nombre de la ciudad">
+                            <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}"
+                                placeholder="Nombre de la ciudad">
                         </div>
                     </div>
                     <input type="hidden" name="sort" th:value="${sortBy}">
@@ -56,9 +76,10 @@
             <div th:if="${routes.empty}" class="alert alert-danger text-center">
                 No se ha encontrado ninguna ruta para los filtros seleccionados
             </div>
-            
+
             <!-- Results table -->
-            <div th:if="${!routes.empty}" class="tab-pane fade show active" id="routes" role="tabpanel" aria-labelledby="routes-tab">
+            <div th:if="${!routes.empty}" class="tab-pane fade show active" id="routes" role="tabpanel"
+                aria-labelledby="routes-tab">
                 <table class="table table-striped table-bordered text-white">
                     <thead class="table-dark">
                         <tr>
@@ -67,8 +88,9 @@
                             <th>Dificultad</th>
                             <th>Ciudad</th>
                             <th>
-                                Valoración 
-                                <button id="sort-button" class="sort-button" th:classappend="${sortBy == 'asc' ? 'asc' : (sortBy == 'desc' ? 'desc' : 'none')}">
+                                Valoración
+                                <button id="sort-button" class="sort-button"
+                                    th:classappend="${sortBy == 'asc' ? 'asc' : (sortBy == 'desc' ? 'desc' : 'none')}">
                                     <i class="fas fa-sort-up"></i>
                                     <i class="fas fa-sort-down"></i>
                                     <i class="fas fa-minus"></i>
@@ -85,18 +107,25 @@
                             <td>
                                 <div class="description-cell" th:text="${route.description}"></div>
                             </td>
-                            <td th:text="${route.difficulty == 'EASY' ? 'Fácil' : (route.difficulty == 'MEDIUM' ? 'Media' : (route.difficulty == 'HARD' ? 'Difícil' : route.difficulty))}"></td>
+                            <td
+                                th:text="${route.difficulty == 'EASY' ? 'Fácil' : (route.difficulty == 'MEDIUM' ? 'Media' : (route.difficulty == 'HARD' ? 'Difícil' : route.difficulty))}">
+                            </td>
                             <td th:text="${#strings.capitalize(route.city)}"></td>
-                            <td th:text="${#numbers.formatDecimal(route.averageReviewScore, 1, 1)}"></td>
-                            <td th:text="${route.reviewCount}"></td>
+
+                            <td th:if="${route.reviewCount == null || route.reviewCount == 0}">-</td>
+                            <td th:unless="${route.reviewCount == null || route.reviewCount == 0}"
+                                th:text="${#numbers.formatDecimal(route.averageReviewScore != null ? route.averageReviewScore : 0.0, 1, 1)}">
+                            </td>
+
+                            <td th:text="${route.reviewCount != null ? route.reviewCount : 0}"></td>
                             <td th:text="${route.updateCount}"></td>
                             <td>
-                                <a th:href="@{'/admin/routes/update/' + ${route.id}}" class="btn btn-sm btn-update me-1">
+                                <a th:href="@{'/admin/routes/update/' + ${route.id}}"
+                                    class="btn btn-sm btn-update me-1">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-danger delete-route-btn" 
-                                        th:data-route-id="${route.id}" 
-                                        th:data-route-title="${route.title}">
+                                <button type="button" class="btn btn-sm btn-danger delete-route-btn"
+                                    th:data-route-id="${route.id}" th:data-route-title="${route.title}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -108,7 +137,8 @@
     </div>
 
     <!-- Confirmation modal to delete route -->
-    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header bg-danger">
@@ -117,7 +147,8 @@
                 </div>
                 <div class="modal-body">
                     <p>¿Estás seguro de que deseas eliminar la ruta <span id="routeTitle" class="fw-bold"></span>?</p>
-                    <p class="text-danger"><strong>Esta acción no se puede deshacer y eliminará todas las reseñas asociadas a esta ruta.</strong></p>
+                    <p class="text-danger"><strong>Esta acción no se puede deshacer y eliminará todas las reseñas
+                            asociadas a esta ruta.</strong></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -132,50 +163,10 @@
             </div>
         </div>
     </div>
-
     <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/js/common/alerts.js}"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sorting functionality
-            const sortButton = document.getElementById('sort-button');
-            const filterForm = document.getElementById('filterForm');
-            let currentSort = sortButton.classList.contains('asc') ? 'asc' : 
-                             (sortButton.classList.contains('desc') ? 'desc' : 'none');
-            
-            sortButton.addEventListener('click', function() {
-                // Toggle sort state: none -> asc -> desc -> none
-                if (currentSort === 'none') {
-                    currentSort = 'asc';
-                } else if (currentSort === 'asc') {
-                    currentSort = 'desc';
-                } else {
-                    currentSort = 'none';
-                }
-                
-                // Update hidden sort input and submit form
-                document.querySelector('input[name="sort"]').value = currentSort;
-                filterForm.submit();
-            });
-            
-            // Confirmation modal to delete route
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-            
-            // Handle delete buttons
-            document.querySelectorAll('.delete-route-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const routeId = this.getAttribute('data-route-id');
-                    const routeTitle = this.getAttribute('data-route-title');
-                    
-                    document.getElementById('routeTitle').textContent = routeTitle;
-                    document.getElementById('routeIdInput').value = routeId;
-                    
-                    deleteModal.show();
-                });
-            });
-        });
-    </script>
+    <script th:src="@{/js/route_list.js}"></script>
 </body>
+
 </html>
