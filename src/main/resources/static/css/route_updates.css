@@ -1,0 +1,80 @@
+/* Style for the parent container */
+.container {
+    margin-top: 2rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+/* Style for description scrollable content */
+.description-cell {
+    max-height: 4.5em;
+    min-height: auto;
+    overflow-y: auto;
+    width: 100%;
+    max-width: none;
+    line-height: 1.5em;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    display: block;
+    box-sizing: border-box;
+    padding: 0 2px;
+}
+
+/* Styles for the featured box that displays the number of updates */
+.highlight-box {
+    text-align: center;
+    background-color: rgba(0, 255, 204, 0.8);
+    color: black;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.status-badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+    white-space: nowrap;
+}
+
+/* Styles for the update type icons */
+.fa-exclamation-triangle {
+    color: #ffc107;
+    /* Yellow for incidents */
+}
+
+.fa-info-circle {
+    color: #0dcaf0;
+    /* Light blue for information */
+}
+
+.fa-tools {
+    color: #adb5bd;
+    /* Gray for maintenance */
+}
+
+.fa-ban {
+    color: #dc3545;
+    /* Red for closures */
+}
+
+.fa-question-circle {
+    color: #6610f2;
+    /* Purple for others */
+}
+
+/* Delete button */
+.delete-update-btn {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    transition: all 0.3s;
+}
+
+.delete-update-btn:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}

@@ -26,17 +26,17 @@ public class RouteUpdate {
 
     @Column(nullable = false)
     private LocalDate date;
-    
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private UpdateType type;
 
-    private boolean isResolved;
-    
+    @Column(nullable = false)
+    private Boolean isResolved;
+
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;
-    
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -45,7 +45,8 @@ public class RouteUpdate {
         super();
     }
 
-    public RouteUpdate(Long id, String description, LocalDate date, UpdateType type, boolean isResolved, Route route, User user) {
+    public RouteUpdate(Long id, String description, LocalDate date, UpdateType type, boolean isResolved, Route route,
+            User user) {
         super();
         this.id = id;
         this.description = description;
@@ -103,7 +104,7 @@ public class RouteUpdate {
     public void setRoute(Route route) {
         this.route = route;
     }
-    
+
     public User getUser() {
         return user;
     }
@@ -114,7 +115,7 @@ public class RouteUpdate {
 
     @Override
     public String toString() {
-        return "RouteUpdate [id=" + id + ", description=" + description + ", date=" + date + 
-               ", type=" + type + ", isResolved=" + isResolved + ", route=" + route + ", user=" + user + "]";
+        return "RouteUpdate [id=" + id + ", description=" + description + ", date=" + date +
+                ", type=" + type + ", isResolved=" + isResolved + ", route=" + route + ", user=" + user + "]";
     }
 }

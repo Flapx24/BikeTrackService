@@ -88,13 +88,15 @@
                             <th>Dificultad</th>
                             <th>Ciudad</th>
                             <th>
-                                Valoración
-                                <button id="sort-button" class="sort-button"
-                                    th:classappend="${sortBy == 'asc' ? 'asc' : (sortBy == 'desc' ? 'desc' : 'none')}">
-                                    <i class="fas fa-sort-up"></i>
-                                    <i class="fas fa-sort-down"></i>
-                                    <i class="fas fa-minus"></i>
-                                </button>
+                                <span style="display: inline-flex; align-items: center;">
+                                    Valoración
+                                    <button id="sort-button" class="sort-button"
+                                        th:classappend="${sortBy == 'asc' ? 'asc' : (sortBy == 'desc' ? 'desc' : 'none')}">
+                                        <i class="fas fa-sort-up"></i>
+                                        <i class="fas fa-sort-down"></i>
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </span>
                             </th>
                             <th>Reseñas</th>
                             <th>Actualizaciones</th>
@@ -111,14 +113,20 @@
                                 th:text="${route.difficulty == 'EASY' ? 'Fácil' : (route.difficulty == 'MEDIUM' ? 'Media' : (route.difficulty == 'HARD' ? 'Difícil' : route.difficulty))}">
                             </td>
                             <td th:text="${#strings.capitalize(route.city)}"></td>
-
+                            <!-- Puntuación media: Muestra guión si no hay reseñas -->
                             <td th:if="${route.reviewCount == null || route.reviewCount == 0}">-</td>
                             <td th:unless="${route.reviewCount == null || route.reviewCount == 0}"
                                 th:text="${#numbers.formatDecimal(route.averageReviewScore != null ? route.averageReviewScore : 0.0, 1, 1)}">
                             </td>
-
+                            <!-- Número total de reseñas -->
                             <td th:text="${route.reviewCount != null ? route.reviewCount : 0}"></td>
-                            <td th:text="${route.updateCount}"></td>
+                            <td>
+                                <span th:text="${route.updateCount}"></span>
+                                <a th:href="@{'/admin/routes/' + ${route.id} + '/updates'}"
+                                    class="btn btn-sm btn-info ms-2" title="Ver actualizaciones">
+                                    <i class="fas fa-bell"></i>
+                                </a>
+                            </td>
                             <td>
                                 <a th:href="@{'/admin/routes/update/' + ${route.id}}"
                                     class="btn btn-sm btn-update me-1">
@@ -163,10 +171,12 @@
             </div>
         </div>
     </div>
+
     <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/js/common/alerts.js}"></script>
     <script th:src="@{/js/route_list.js}"></script>
+
 </body>
 
 </html>
