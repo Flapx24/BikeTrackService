@@ -46,7 +46,14 @@ public class Route {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String routePointsJson;
 
+	@Column(columnDefinition = "TEXT")
+	private String calculatedRoutePointsJson;
+
 	private Double averageReviewScore = 0.0;
+
+	private Integer calculatedEstimatedTimeMinutes;
+
+	private Double calculatedTotalDistanceKm;
 
 	@OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Review> reviews = new ArrayList<>();
@@ -142,12 +149,50 @@ public class Route {
 		}
 	}
 
+	public List<GeoPoint> getCalculatedRoutePoints() {
+		if (calculatedRoutePointsJson == null || calculatedRoutePointsJson.trim().isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		try {
+			return mapper.readValue(calculatedRoutePointsJson, new TypeReference<List<GeoPoint>>() {
+			});
+		} catch (JsonProcessingException e) {
+			return new ArrayList<>();
+		}
+	}
+
+	public void setCalculatedRoutePoints(List<GeoPoint> calculatedRoutePoints) {
+		try {
+			this.calculatedRoutePointsJson = calculatedRoutePoints != null
+					? mapper.writeValueAsString(calculatedRoutePoints)
+					: "[]";
+		} catch (JsonProcessingException e) {
+			this.calculatedRoutePointsJson = "[]";
+		}
+	}
+
 	public Double getAverageReviewScore() {
 		return averageReviewScore;
 	}
 
 	public void setAverageReviewScore(Double averageReviewScore) {
 		this.averageReviewScore = averageReviewScore != null ? averageReviewScore : 0.0;
+	}
+	public Integer getCalculatedEstimatedTimeMinutes() {
+		return calculatedEstimatedTimeMinutes;
+	}
+
+	public void setCalculatedEstimatedTimeMinutes(Integer calculatedEstimatedTimeMinutes) {
+		this.calculatedEstimatedTimeMinutes = calculatedEstimatedTimeMinutes;
+	}
+
+	public Double getCalculatedTotalDistanceKm() {
+		return calculatedTotalDistanceKm;
+	}
+
+	public void setCalculatedTotalDistanceKm(Double calculatedTotalDistanceKm) {
+		this.calculatedTotalDistanceKm = calculatedTotalDistanceKm;
 	}
 
 	public List<Review> getReviews() {

@@ -10,15 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
     const MAX_ROUTE_POINTS = 50;
     const DEFAULT_LAT = 40.416775; // Madrid as default point
     const DEFAULT_LNG = -3.703790;
+    let calculatedRouteLine;
 
     initMap();
 
-    loadExistingImages();
-
-    document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+    loadExistingImages(); document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
     document.getElementById('saveButton').addEventListener('click', showSaveConfirmation);
-    document.getElementById('cancelButton').addEventListener('click', showCancelConfirmation);
-    document.getElementById('confirmSave').addEventListener('click', saveRoute);
+    document.getElementById('cancelButton').addEventListener('click', showCancelConfirmation); document.getElementById('confirmSave').addEventListener('click', saveRoute);
     document.getElementById('confirmCancel').addEventListener('click', cancelEditing);
     document.getElementById('confirmDeletePoint').addEventListener('click', confirmDeletePoint);
     /**
@@ -50,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
                 addRouteMarker(L.latLng(point.lat, point.lng), index + 1);
             });
             drawRouteLine();
+            updateRoutePointsCount(); // Update counter to reflect existing points
         }
 
         // Add click event to add points
@@ -62,8 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
         }, 100);
     }
     /**
-   * Adds a point to the route
-   */
+    * Adds a point to the route
+    */
     function addRoutePoint(latlng) {
         if (routePoints.length >= MAX_ROUTE_POINTS) {
             return;
@@ -120,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
         const deleteModal = new bootstrap.Modal(document.getElementById('deletePointModal'));
         deleteModal.show();
     }
-
     /**
      * Deletes the currently selected route point
      */
@@ -151,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
     }
 
     /**
-   * Updates the route points counter
-   */    function updateRoutePointsCount() {
+     * Updates the route points counter
+     */    function updateRoutePointsCount() {
         const countElement = document.getElementById('routePointsCount');
         countElement.textContent = `${routePoints.length}/${MAX_ROUTE_POINTS} puntos`;
 
@@ -229,23 +227,44 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
             errorElement.textContent = '';
         }, 3000);
     }
-
     /**
-     * Shows a toast message
+     * Shows a toast message with animation
      */
-    function showToast(title, message) {
+    function showToast(title, message, type = 'info') {
         let toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) {
             toastContainer = document.createElement('div');
             toastContainer.id = 'toastContainer';
             toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '1100'; // Make sure it appears above other elements
             document.body.appendChild(toastContainer);
         }
 
         const toastId = 'toast-' + Date.now();
+
+        // Determine toast background color based on type
+        let bgClass = 'bg-info';
+        let iconClass = 'fa-info-circle';
+
+        switch (type) {
+            case 'success':
+                bgClass = 'bg-success';
+                iconClass = 'fa-check-circle';
+                break;
+            case 'error':
+                bgClass = 'bg-danger';
+                iconClass = 'fa-exclamation-circle';
+                break;
+            case 'warning':
+                bgClass = 'bg-warning';
+                iconClass = 'fa-exclamation-triangle';
+                break;
+        }
+
         const toastHtml = `
-            <div id="${toastId}" class="toast bg-dark text-white" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-dark text-white">
+            <div id="${toastId}" class="toast ${bgClass} text-white toast-animated" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header ${bgClass} text-white">
+                    <i class="fas ${iconClass} me-2"></i>
                     <strong class="me-auto">${title}</strong>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
@@ -259,9 +278,22 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
 
         const toast = new bootstrap.Toast(document.getElementById(toastId), {
             autohide: true,
-            delay: 3000
+            delay: 5000 // Display for 5 seconds
         });
+
         toast.show();
+
+        // Add class for disappear animation before hiding
+        document.getElementById(toastId).addEventListener('hide.bs.toast', function () {
+            this.classList.add('hide');
+        });
+
+        // Remove the toast element after it's hidden
+        document.getElementById(toastId).addEventListener('hidden.bs.toast', function () {
+            setTimeout(() => {
+                this.remove();
+            }, 300);
+        });
     }
 
     /**
@@ -507,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
             renderImageCards();
             updateNoImagesMessage();
 
-            // Mostrar un mensaje de confirmación
+            // Display a confirmation message
             showToast('Imagen eliminada', 'La imagen ha sido eliminada correctamente.');
         }
     }
@@ -530,11 +562,99 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
     function showCancelConfirmation() {
         const cancelModal = new bootstrap.Modal(document.getElementById('cancelConfirmModal'));
         cancelModal.show();
-    }    /**
+    }
+    /**
      * Submits the form to save the route
      */
 
     function saveRoute() {
+        const form = document.getElementById('routeForm');
+
+        if (!validateForm()) {
+            return;
+        }
+
+        // Check if we need to calculate the route first (if route points exist but calculated route doesn't)
+        if (routePoints.length >= 2 && (!window.calculatedRoutePoints || !document.getElementById('routeInfoPanel'))) {
+            const saveBtn = document.getElementById('confirmSave');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Calculando ruta...';
+            saveBtn.disabled = true;
+
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+
+            try {
+                const csrfToken = document.querySelector("meta[name='_csrf']");
+                const csrfHeader = document.querySelector("meta[name='_csrf_header']");
+
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader.getAttribute("content")] = csrfToken.getAttribute("content");
+                }
+            } catch (error) {
+                console.log("CSRF token not found, proceeding without it");
+            }
+
+            // Calculate route before saving
+            fetch('/admin/routes/calculate', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    points: routePoints.map(point => ({
+                        lat: point.lat,
+                        lng: point.lng
+                    }))
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Error del servidor: ${response.status} - ${text || response.statusText}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+
+                    if (data.success && data.data) {
+                        window.calculatedRoutePoints = data.data.routePoints;
+                        window.calculatedEstimatedTimeMinutes = data.data.estimatedTimeMinutes;
+                        window.calculatedTotalDistanceKm = data.data.totalDistanceKm;
+
+                        // Continue with form submission after successful calculation
+                        submitFormWithCalculatedRoute();
+                    } else {
+                        showToast('Error', data.message || 'Error al calcular la ruta', 'error');
+                        // Hide the confirmation modal if it's still open
+                        const saveModal = bootstrap.Modal.getInstance(document.getElementById('saveConfirmModal'));
+                        if (saveModal) {
+                            saveModal.hide();
+                        }
+                    }
+                })
+                .catch(error => {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                    showToast('Error', 'Error al calcular la ruta: ' + error.message, 'error');
+                    // Hide the confirmation modal if it's still open
+                    const saveModal = bootstrap.Modal.getInstance(document.getElementById('saveConfirmModal'));
+                    if (saveModal) {
+                        saveModal.hide();
+                    }
+                });
+        } else {
+            // Route already calculated or not enough points, proceed with form submission
+            submitFormWithCalculatedRoute();
+        }
+    }
+
+    /**
+     * Helper function to actually submit the form with all data
+     */
+    function submitFormWithCalculatedRoute() {
         const form = document.getElementById('routeForm');
         const fileInput = document.getElementById('imageUpload');
 
@@ -548,6 +668,7 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
 
             fileInput.files = dataTransfer.files;
         }
+
         // Create hidden fields for existing images (not new or deleted ones)
         document.querySelectorAll('input[name="existingImageUrls"]').forEach(el => el.remove());
 
@@ -576,7 +697,6 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
                 deletedInput.value = url;
                 form.appendChild(deletedInput);
             });
-            console.log('Sending deleted image URLs:', deletedImageUrls);
         }
 
         // Create a hidden field for route points coordinates if it doesn't exist
@@ -595,6 +715,65 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
             lng: point.lng
         })));
         coordinatesInput.value = routePointsJson;
+
+        // Add calculated route data if available
+        if (window.calculatedRoutePoints) {
+            // Add calculated route points
+            let calculatedRouteInput = document.getElementById('calculatedRouteInput');
+            if (!calculatedRouteInput) {
+                calculatedRouteInput = document.createElement('input');
+                calculatedRouteInput.type = 'hidden';
+                calculatedRouteInput.id = 'calculatedRouteInput';
+                calculatedRouteInput.name = 'calculatedRouteInput';
+                form.appendChild(calculatedRouteInput);
+            }
+
+            // Ensure that the calculated waypoints are formatted correctly
+            // If they are [lng, lat] arrays, we convert them to {lat, lng} objects
+            const formattedPoints = window.calculatedRoutePoints.map(point => {
+                if (Array.isArray(point)) {
+                    // Convert from GeoJSON format [lng, lat] to {lat, lng} format
+                    return {
+                        lat: point[1],
+                        lng: point[0]
+                    };
+                } else if (point.lat !== undefined && point.lng !== undefined) {
+                    return {
+                        lat: point.lat,
+                        lng: point.lng
+                    };
+                }
+                return null;
+            }).filter(point => point !== null);
+
+            calculatedRouteInput.value = JSON.stringify(formattedPoints);
+
+            // Add estimated time
+            if (window.calculatedEstimatedTimeMinutes) {
+                let timeInput = document.getElementById('calculatedTimeInput');
+                if (!timeInput) {
+                    timeInput = document.createElement('input');
+                    timeInput.type = 'hidden';
+                    timeInput.id = 'calculatedTimeInput';
+                    timeInput.name = 'calculatedEstimatedTimeMinutes';
+                    form.appendChild(timeInput);
+                }
+                timeInput.value = window.calculatedEstimatedTimeMinutes;
+            }
+
+            // Add total distance
+            if (window.calculatedTotalDistanceKm) {
+                let distanceInput = document.getElementById('calculatedDistanceInput');
+                if (!distanceInput) {
+                    distanceInput = document.createElement('input');
+                    distanceInput.type = 'hidden';
+                    distanceInput.id = 'calculatedDistanceInput';
+                    distanceInput.name = 'calculatedTotalDistanceKm';
+                    form.appendChild(distanceInput);
+                }
+                distanceInput.value = window.calculatedTotalDistanceKm;
+            }
+        }
 
         // Submit the form
         form.submit();
@@ -632,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
 
         return isValid;
     }
-    
+
     // Description field handling
     const descriptionElement = document.getElementById('description');
     const charCountElement = document.getElementById('charCount');
@@ -677,5 +856,219 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
     });
 
     // Also handle size changes when window resizes
-    window.addEventListener('resize', autoResize);
+    window.addEventListener('resize', autoResize);    /**
+     * Calculates a realistic route based on the current points
+     */    function calculateRoute() {
+        if (routePoints.length < 2) {
+            showToast('Error', 'Se necesitan al menos 2 puntos para calcular una ruta', 'error');
+            return;
+        }
+
+        if (routePoints.length > 50) {
+            showToast('Error', 'Máximo 50 puntos permitidos para calcular una ruta', 'error');
+            return;
+        }
+
+        // Show loading indicator
+        const calculateBtn = document.getElementById('calculateRouteButton');
+        const originalText = calculateBtn.innerHTML;
+        calculateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Calculando...';
+        calculateBtn.disabled = true;
+
+        // Build headers with CSRF token
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // More robust CSRF token handling
+        let csrfToken = null;
+        let csrfHeaderName = null;
+
+        // First try to get it from meta tags
+        try {
+            const metaToken = document.querySelector("meta[name='_csrf']");
+            const metaHeader = document.querySelector("meta[name='_csrf_header']");
+
+            if (metaToken && metaHeader) {
+                csrfToken = metaToken.getAttribute("content");
+                csrfHeaderName = metaHeader.getAttribute("content");
+                console.log("CSRF Token found in meta tags:", csrfToken ? "yes" : "no");
+            }
+        } catch (error) {
+            console.warn("Error getting CSRF token from meta tags:", error);
+        }
+
+        // If not found in meta, try to find it in form inputs
+        if (!csrfToken) {
+            try {
+                const inputToken = document.querySelector("input[name='_csrf']");
+                if (inputToken) {
+                    csrfToken = inputToken.value;
+                    csrfHeaderName = "X-CSRF-TOKEN"; // Default header name in Spring Security
+                    console.log("CSRF Token found in form input");
+                }
+            } catch (error) {
+                console.warn("Error getting CSRF token from form inputs:", error);
+            }
+        }
+
+        // Add token to headers if found
+        if (csrfToken && csrfHeaderName) {
+            headers[csrfHeaderName] = csrfToken;
+        } else {
+            console.warn("CSRF tokens not found, proceeding without CSRF protection");
+        }
+
+        // Log headers for debugging
+        console.log("Request headers:", Object.keys(headers).join(", "));
+
+        // Send request to the server to calculate the route
+        fetch('/admin/routes/calculate', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                points: routePoints.map(point => ({
+                    lat: point.lat,
+                    lng: point.lng
+                }))
+            }),
+            // Include credentials for CSRF
+            credentials: 'same-origin'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        // Try to parse as JSON first
+                        try {
+                            const errorJson = JSON.parse(text);
+                            throw new Error(`Error: ${errorJson.message || response.statusText}`);
+                        } catch (e) {
+                            // If not JSON, use as text
+                            throw new Error(`Error del servidor: ${response.status} - ${text || response.statusText}`);
+                        }
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Reset button state
+                calculateBtn.innerHTML = originalText;
+                calculateBtn.disabled = false;
+
+                if (data.success && data.data && data.data.routePoints && data.data.routePoints.length > 0) {
+                    // Store calculated data for form submission
+                    window.calculatedRoutePoints = data.data.routePoints;
+                    window.calculatedEstimatedTimeMinutes = data.data.estimatedTimeMinutes;
+                    window.calculatedTotalDistanceKm = data.data.totalDistanceKm;
+
+                    // Display route info
+                    displayCalculatedRouteInfo(data.data);
+
+                    // Draw the calculated route on the map
+                    drawCalculatedRoute(data.data.routePoints);
+
+                    showToast('Ruta calculada', 'La ruta ha sido calculada exitosamente', 'success');
+                } else {
+                    showToast('Error', data.message || 'Error al calcular la ruta', 'error');
+                }
+            })
+            .catch(error => {
+                console.error("Route calculation error:", error);
+                // Always reset button state on error
+                calculateBtn.innerHTML = originalText;
+                calculateBtn.disabled = false;
+                showToast('Error', 'Error al calcular la ruta: ' + error.message, 'error');
+            });
+    }/**
+     * Displays the route information panel with time and distance
+     */
+    function displayCalculatedRouteInfo(routeData) {
+        // Remove existing panel if there is one
+        const existingPanel = document.getElementById('routeInfoPanel');
+        if (existingPanel) {
+            existingPanel.remove();
+        }
+
+        // Create the panel to show calculated route information
+        const panel = document.createElement('div');
+        panel.id = 'routeInfoPanel';
+        panel.className = 'route-info-panel mt-3';
+
+        const timeInMinutes = routeData.estimatedTimeMinutes;
+        let displayTime = '';
+
+        if (timeInMinutes >= 60) {
+            const hours = Math.floor(timeInMinutes / 60);
+            const minutes = Math.round(timeInMinutes % 60);
+            displayTime = `${hours} h ${minutes} min`;
+        } else {
+            displayTime = `${Math.round(timeInMinutes)} min`;
+        }
+
+        const distanceInKm = routeData.totalDistanceKm.toFixed(2);
+
+        panel.innerHTML = `
+            <div class="route-info-content">
+                <div class="route-info-detail">
+                    <i class="fas fa-clock"></i>
+                    <span>Tiempo estimado: ${displayTime}</span>
+                </div>
+                <div class="route-info-detail">
+                    <i class="fas fa-route"></i>
+                    <span>Distancia total: ${distanceInKm} km</span>
+                </div>
+            </div>
+        `;
+        // Add it after the map card
+        const mapElement = document.getElementById('map');
+        const mapCard = mapElement ? mapElement.closest('.card') : null;
+        if (mapCard) {
+            mapCard.parentNode.insertBefore(panel, mapCard.nextSibling);
+        }
+    }
+
+    /**
+     * Draws the calculated route as a dashed green line on the map
+     */
+    function drawCalculatedRoute(routePoints) {
+        // Remove existing calculated route line
+        if (calculatedRouteLine) {
+            map.removeLayer(calculatedRouteLine);
+        }
+
+        if (!routePoints || routePoints.length < 2) {
+            return;
+        }
+
+        try {
+            // Convert the GeoJSON coordinates [lng, lat] format to Leaflet's [lat, lng] format
+            const leafletLatLngs = routePoints.map(point => {
+                // Check if this is a GeoJSON [lng, lat] format or if it already has lat/lng properties
+                if (Array.isArray(point)) {
+                    return [point[1], point[0]]; // Convert [lng, lat] to [lat, lng]
+                } else if (point.lat !== undefined && point.lng !== undefined) {
+                    return [point.lat, point.lng];
+                }
+                return null;
+            }).filter(point => point !== null);
+
+            // Create the polyline
+            calculatedRouteLine = L.polyline(leafletLatLngs, {
+                color: 'green',
+                weight: 5,
+                opacity: 0.7,
+                className: 'calculated-route-line'
+            }).addTo(map);
+
+            // Ensure the whole route is visible
+            map.fitBounds(calculatedRouteLine.getBounds(), {
+                padding: [30, 30]
+            });
+        } catch (error) {
+            console.error('Error drawing calculated route:', error);
+            showToast('Error', 'Error al dibujar la ruta calculada', 'error');
+        }
+    }
+    // Global event listener for the calculate route button
+    document.getElementById('calculateRouteButton').addEventListener('click', calculateRoute);
 });

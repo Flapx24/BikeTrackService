@@ -49,6 +49,10 @@ public class RouteDTO {
 
     private Integer updateCount;
 
+    private List<GeoPoint> calculatedRoutePoints = new ArrayList<>();
+    private Integer calculatedEstimatedTimeMinutes;
+    private Double calculatedTotalDistanceKm;
+
     public RouteDTO() {
     }
 
@@ -96,6 +100,9 @@ public class RouteDTO {
         dto.setCity(route.getCity());
         dto.setAverageReviewScore(route.getAverageReviewScore() != null ? route.getAverageReviewScore() : 0.0);
         dto.setDescription(route.getDescription());
+        dto.setCalculatedRoutePoints(route.getCalculatedRoutePoints());
+        dto.setCalculatedEstimatedTimeMinutes(route.getCalculatedEstimatedTimeMinutes());
+        dto.setCalculatedTotalDistanceKm(route.getCalculatedTotalDistanceKm());
 
         if (detailLevel == RouteDetailLevel.FULL) {
             dto.setRoutePoints(route.getRoutePoints());
@@ -153,6 +160,9 @@ public class RouteDTO {
         route.setImageUrls(this.imageUrls);
         route.setCity(this.city);
         route.setRoutePoints(this.routePoints);
+        route.setCalculatedRoutePoints(this.calculatedRoutePoints);
+        route.setCalculatedEstimatedTimeMinutes(this.calculatedEstimatedTimeMinutes);
+        route.setCalculatedTotalDistanceKm(this.calculatedTotalDistanceKm);
 
         if (existingRoute != null) {
 
@@ -289,10 +299,36 @@ public class RouteDTO {
         this.updateCount = updateCount;
     }
 
+    public List<GeoPoint> getCalculatedRoutePoints() {
+        return calculatedRoutePoints;
+    }
+
+    public void setCalculatedRoutePoints(List<GeoPoint> calculatedRoutePoints) {
+        this.calculatedRoutePoints = calculatedRoutePoints;
+    }    public Integer getCalculatedEstimatedTimeMinutes() {
+        return calculatedEstimatedTimeMinutes;
+    }
+
+    public void setCalculatedEstimatedTimeMinutes(Integer calculatedEstimatedTimeMinutes) {
+        this.calculatedEstimatedTimeMinutes = calculatedEstimatedTimeMinutes;
+    }
+
+    public Double getCalculatedTotalDistanceKm() {
+        return calculatedTotalDistanceKm;
+    }
+
+    public void setCalculatedTotalDistanceKm(Double calculatedTotalDistanceKm) {
+        this.calculatedTotalDistanceKm = calculatedTotalDistanceKm;
+    }
+
     @Override
     public String toString() {
         return "RouteDTO [id=" + id + ", title=" + title + ", description=" + description + ", difficulty=" + difficulty
                 + ", imageUrls=" + imageUrls + ", city=" + city + ", routePoints=" + routePoints
-                + ", averageReviewScore=" + averageReviewScore + "]";
+                + ", averageReviewScore=" + averageReviewScore + ", reviews=" + reviews + ", updates=" + updates
+                + ", reviewCount=" + reviewCount + ", updateCount=" + updateCount + ", calculatedRoutePoints="
+                + calculatedRoutePoints + ", calculatedEstimatedTimeMinutes=" + calculatedEstimatedTimeMinutes
+                + ", calculatedTotalDistanceKm=" + calculatedTotalDistanceKm + "]";
     }
+
 }

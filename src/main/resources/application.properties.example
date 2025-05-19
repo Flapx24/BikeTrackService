@@ -26,3 +26,7 @@ storage.base-url=/images
 # Maximum file upload size
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
+
+# OpenRouteService API Configuration
+openrouteservice.api.key=YOUR_API_KEY_HERE
+openrouteservice.api.url=https://api.openrouteservice.org/v2

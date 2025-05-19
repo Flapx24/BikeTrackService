@@ -1,4 +1,5 @@
-/* General styles */
+/* GENERAL STYLES - Base layout and structure */
+
 body {
     min-height: 100vh;
 }
@@ -28,12 +29,16 @@ body {
 }
 
 /* Input styles */
-.form-control, .form-select, textarea {
+.form-control,
+.form-select,
+textarea {
     background-color: rgba(255, 255, 255, 0.9);
     border: 1px solid #6c757d;
 }
 
-.form-control:focus, .form-select:focus, textarea:focus {
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
     background-color: #fff;
     border-color: #80bdff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
@@ -231,4 +236,165 @@ body {
 /* Small helper text */
 .text-small {
     font-size: 0.9rem;
+}
+
+/* TOAST NOTIFICATION STYLES - Toast messages animation */
+
+/* Toast base styles */
+.toast-container {
+    z-index: 1100;
+}
+
+.toast {
+    min-width: 300px;
+    opacity: 1 !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 6px;
+}
+
+.toast-header {
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.toast-body {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 12px;
+}
+
+/* Toast entrance animation */
+@keyframes toast-in-right {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.toast {
+    animation: toast-in-right 0.3s ease-in-out;
+}
+
+
+/* ROUTE CALCULATION STYLES - Calculated route display */
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}
+
+.calculated-route-line {
+    stroke-dasharray: 10, 15;
+    animation: dash 30s linear infinite;
+    stroke-linecap: round;
+}
+
+/* Route information panel styles */
+.route-info-panel {
+    position: relative;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: rgba(33, 37, 41, 0.9);
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease-in-out;
+}
+
+.route-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.route-info-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.route-info-detail i {
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Warning message styles in modal dialogs */
+.modal-body .alert-warning {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #ffc107;
+    border-radius: 4px;
+}
+
+/* Emphasis on the "TODOS" (ALL) text */
+.modal-body p strong {
+    font-weight: bold;
+    color: #ffc107;
+}
+
+
+/* TOAST ANIMATIONS - Animations for toast notifications */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeOutDown {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+}
+
+.toast-animated {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    animation-name: fadeInUp;
+}
+
+.toast-animated.hide {
+    animation-name: fadeOutDown;
+}
+
+/* Styling for toast container */
+#toastContainer {
+    z-index: 9999;
+}
+
+/* DELETE POINTS ANIMATION - Animations for deleting route points */
+
+/* Styles for the warning message in the modal */
+.modal-body .text-warning {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #ffc107;
+    border-radius: 4px;
+}
+
+/* Emphasis on text "ALL" */
+.modal-body p strong {
+    font-weight: bold;
+    color: #ffc107;
 }

@@ -2,10 +2,14 @@ package com.example.demo.controllers.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,17 +20,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.dtos.CalculatedRouteDTO;
 import com.example.demo.dtos.RouteDTO;
+import com.example.demo.dtos.RoutePointsRequestDTO;
 import com.example.demo.dtos.UserDTO;
 import com.example.demo.entities.Route;
 import com.example.demo.entities.User;
 import com.example.demo.enums.RouteDetailLevel;
 import com.example.demo.models.GeoPoint;
+import com.example.demo.services.RouteCalculationService;
 import com.example.demo.services.RouteService;
 import com.example.demo.services.UserService;
 import com.example.demo.upload.StorageService;
@@ -39,6 +47,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminRoutesController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminRoutesController.class);
+
     @Autowired
     @Qualifier("userService")
     private UserService userService;
@@ -50,6 +60,9 @@ public class AdminRoutesController {
     @Autowired
     @Qualifier("storageService")
     private StorageService storageService;
+
+    @Autowired
+    private RouteCalculationService routeCalculationService;
 
     @GetMapping("/routes")
     public String listRoutes(
@@ -129,15 +142,58 @@ public class AdminRoutesController {
         return "admin/routes/form";
     }
 
+    @PostMapping("/routes/calculate")
+    public ResponseEntity<?> calculateRoutePreview(@RequestBody RoutePointsRequestDTO request) {
+        logger.info("Received route calculation request with {} points", request.getPoints().size());
+
+        try {
+            if (request.getPoints() == null || request.getPoints().isEmpty()) {
+                logger.error("No points received in the request");
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "No se recibieron puntos de ruta"));
+            }
+
+            logger.info("Processing {} points for route calculation", request.getPoints().size());
+            CalculatedRouteDTO calculatedRoute = routeCalculationService.calculateRoute(
+                    request.getPoints(), "BICYCLE");
+
+            if (calculatedRoute.isSuccess()) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Ruta calculada con éxito",
+                        "data", calculatedRoute));
+            } else {
+                logger.warn("Error in route calculation: {}", calculatedRoute.getMessage());
+                return ResponseEntity.ok(Map.of(
+                        "success", false,
+                        "message", calculatedRoute.getMessage()));
+            }
+        } catch (Exception e) {
+            logger.error("Error processing route calculation request", e);
+            return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "Error en el servidor: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/routes/create")
-    public String createRoute(
-            @ModelAttribute("route") RouteDTO routeDTO,
+    public String createRoute(            @ModelAttribute("route") RouteDTO routeDTO,
             BindingResult bindingResult,
             @RequestParam(required = false) String coordinatesInput,
-            @RequestParam(required = false) String imageUrlsInput,
+            @RequestParam(required = false) String calculatedRouteInput,
+            @RequestParam(required = false) Integer calculatedEstimatedTimeMinutes,
+            @RequestParam(required = false) Double calculatedTotalDistanceKm,
             @RequestParam(required = false) List<MultipartFile> imageFiles,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        logger.info(
+                "Received data to create route: title={}, city={}, description={}, difficulty={}, coordinatesInput={}, calculatedRouteInput={}, calculatedEstimatedTimeMinutes={}, calculatedTotalDistanceKm={}",
+                routeDTO.getTitle(), routeDTO.getCity(), routeDTO.getDescription(), routeDTO.getDifficulty(),
+                coordinatesInput != null ? "present(" + coordinatesInput.length() + " chars)" : "null",
+                calculatedRouteInput != null ? "present(" + calculatedRouteInput.length() + " chars)" : "null",
+                calculatedEstimatedTimeMinutes, calculatedTotalDistanceKm);
 
         try {
             if (coordinatesInput != null && !coordinatesInput.isEmpty()) {
@@ -145,9 +201,27 @@ public class AdminRoutesController {
                 List<GeoPoint> coordinates = mapper.readValue(coordinatesInput, new TypeReference<List<GeoPoint>>() {
                 });
                 routeDTO.setRoutePoints(coordinates);
+                logger.info("Parsed route points: {} points", coordinates.size());
             }
         } catch (JsonProcessingException e) {
             bindingResult.rejectValue("routePoints", "error.routePoints", "Formato de coordenadas inválido");
+            logger.error("Error parsing coordinatesInput", e);
+        }
+
+        if (calculatedRouteInput != null && !calculatedRouteInput.isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                List<GeoPoint> calculatedPoints = mapper.readValue(calculatedRouteInput,
+                        new TypeReference<List<GeoPoint>>() {
+                        });
+                routeDTO.setCalculatedRoutePoints(calculatedPoints);
+                routeDTO.setCalculatedEstimatedTimeMinutes(calculatedEstimatedTimeMinutes);
+                routeDTO.setCalculatedTotalDistanceKm(calculatedTotalDistanceKm);
+                logger.info("Parsed calculated route: {} points, {} km, {} min",
+                        calculatedPoints.size(), calculatedTotalDistanceKm, calculatedEstimatedTimeMinutes);
+            } catch (Exception e) {
+                logger.error("Error parsing calculated route data", e);
+            }
         }
 
         validateRouteData(routeDTO, bindingResult);
@@ -164,22 +238,9 @@ public class AdminRoutesController {
             return "admin/routes/form";
         }
 
-        List<String> imageUrls = new ArrayList<>();
-
-        if (imageUrlsInput != null && !imageUrlsInput.isEmpty()) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                imageUrls = mapper.readValue(imageUrlsInput, new TypeReference<List<String>>() {
-                });
-            } catch (JsonProcessingException e) {
-                imageUrls = new ArrayList<>();
-            }
-        }
-        routeDTO.setImageUrls(imageUrls);
-
         routeDTO.setAverageReviewScore(0.0);
 
-        Route route = routeDTO.toEntity();
+        Route route = routeDTO.toEntity(null);
         Route savedRoute = routeService.saveRoute(route);
 
         // Process new uploaded images with the route ID
@@ -215,14 +276,24 @@ public class AdminRoutesController {
 
     @PostMapping("/routes/update")
     public String updateRoute(
-            @ModelAttribute("route") RouteDTO routeDTO,
-            BindingResult bindingResult,
+            @ModelAttribute("route") RouteDTO routeDTO,            BindingResult bindingResult,
             @RequestParam(required = false) String coordinatesInput,
+            @RequestParam(required = false) String calculatedRouteInput,
+            @RequestParam(required = false) Integer calculatedEstimatedTimeMinutes,
+            @RequestParam(required = false) Double calculatedTotalDistanceKm,
             @RequestParam(required = false) List<String> existingImageUrls,
             @RequestParam(required = false) List<String> deletedImageUrls,
             @RequestParam(required = false) List<MultipartFile> imageFiles,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        logger.info(
+                "Received data to update route: id={}, title={}, city={}, description={}, difficulty={}, coordinatesInput={}, calculatedRouteInput={}, calculatedEstimatedTimeMinutes={}, calculatedTotalDistanceKm={}",
+                routeDTO.getId(), routeDTO.getTitle(), routeDTO.getCity(), routeDTO.getDescription(),
+                routeDTO.getDifficulty(),
+                coordinatesInput != null ? "present(" + coordinatesInput.length() + " chars)" : "null",
+                calculatedRouteInput != null ? "present(" + calculatedRouteInput.length() + " chars)" : "null",
+                calculatedEstimatedTimeMinutes, calculatedTotalDistanceKm);
 
         try {
             if (coordinatesInput != null && !coordinatesInput.isEmpty()) {
@@ -230,9 +301,27 @@ public class AdminRoutesController {
                 List<GeoPoint> coordinates = mapper.readValue(coordinatesInput, new TypeReference<List<GeoPoint>>() {
                 });
                 routeDTO.setRoutePoints(coordinates);
+                logger.info("Parsed route points: {} points", coordinates.size());
             }
         } catch (JsonProcessingException e) {
             bindingResult.rejectValue("routePoints", "error.routePoints", "Formato de coordenadas inválido");
+            logger.error("Error parsing coordinatesInput", e);
+        }
+
+        if (calculatedRouteInput != null && !calculatedRouteInput.isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                List<GeoPoint> calculatedPoints = mapper.readValue(calculatedRouteInput,
+                        new TypeReference<List<GeoPoint>>() {
+                        });
+                routeDTO.setCalculatedRoutePoints(calculatedPoints);
+                routeDTO.setCalculatedEstimatedTimeMinutes(calculatedEstimatedTimeMinutes);
+                routeDTO.setCalculatedTotalDistanceKm(calculatedTotalDistanceKm);
+                logger.info("Parsed calculated route: {} points, {} km, {} min",
+                        calculatedPoints.size(), calculatedTotalDistanceKm, calculatedEstimatedTimeMinutes);
+            } catch (Exception e) {
+                logger.error("Error parsing calculated route data", e);
+            }
         }
 
         validateRouteData(routeDTO, bindingResult);
@@ -285,7 +374,6 @@ public class AdminRoutesController {
         Route route = routeDTO.toEntity(existingRoute);
 
         // Process new images with the path ID
-
         Route updatedRoute = routeService.saveRoute(route);
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<MultipartFile> nonEmptyFiles = imageFiles.stream()
@@ -340,6 +428,10 @@ public class AdminRoutesController {
         if (routeDTO.getRoutePoints() == null || routeDTO.getRoutePoints().isEmpty()) {
             bindingResult.rejectValue("routePoints", "NotEmpty", "Debe añadir al menos un punto a la ruta");
         }
+
+        if (routeDTO.getRoutePoints() != null && routeDTO.getRoutePoints().size() > 50) {
+            bindingResult.rejectValue("routePoints", "Size", "El número máximo de puntos permitidos es 50");
+        }
     }
 
     @PostMapping("/deleteRoute")
@@ -383,5 +475,26 @@ public class AdminRoutesController {
         }
 
         return "redirect:" + redirectUrl.toString();
+    }
+
+    @GetMapping("/routes/{id}/updates")
+    public String showRouteUpdates(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Route route = routeService.findById(id);
+
+        if (route == null) {
+            redirectAttributes.addFlashAttribute("error", "La ruta solicitada no existe.");
+            return "redirect:/admin/routes";
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            User currentUser = (User) auth.getPrincipal();
+            model.addAttribute("currentUser", new UserDTO(currentUser));
+        }
+
+        model.addAttribute("route", RouteDTO.fromEntity(route, RouteDetailLevel.BASIC));
+        model.addAttribute("routeUpdates", route.getUpdates());
+
+        return "admin/routes/updates";
     }
 }

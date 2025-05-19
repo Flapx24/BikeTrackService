@@ -1,27 +1,39 @@
-{"properties": [
-  {
-    "name": "jwt.secret",
-    "type": "java.lang.String",
-    "description": "JWT authentication secret key. Used to sign the JWT token. This should be a long, random string."
-  },
-  {
-    "name": "jwt.expiration.short",
-    "type": "java.lang.Long",
-    "description": "Time in milliseconds for the short-lived token to expire. Used when rememberMe = false."
-  },
-  {
-    "name": "jwt.expiration.long",
-    "type": "java.lang.Long",
-    "description": "Time in milliseconds for the long-lived token to expire. Used when rememberMe = true."
-  },
-  {
-    "name": "storage.location",
-    "type": "java.lang.String",
-    "description": "Base directory for storing images (relative to project root)"
-  },
-  {
-    "name": "storage.base-url",
-    "type": "java.lang.String",
-    "description": "Base URL for accessing images (from web)"
-  }
-]}
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT authentication secret key. Used to sign the JWT token. This should be a long, random string."
+    },
+    {
+      "name": "jwt.expiration.short",
+      "type": "java.lang.Long",
+      "description": "Time in milliseconds for the short-lived token to expire. Used when rememberMe = false."
+    },
+    {
+      "name": "jwt.expiration.long",
+      "type": "java.lang.Long",
+      "description": "Time in milliseconds for the long-lived token to expire. Used when rememberMe = true."
+    },
+    {
+      "name": "storage.location",
+      "type": "java.lang.String",
+      "description": "Base directory for storing images (relative to project root)."
+    },
+    {
+      "name": "storage.base-url",
+      "type": "java.lang.String",
+      "description": "Base URL for accessing images (from web)."
+    },
+    {
+      "name": "openrouteservice.api.key",
+      "type": "java.lang.String",
+      "description": "Open Route Service API key."
+    },
+    {
+      "name": "openrouteservice.api.url",
+      "type": "java.lang.String",
+      "description": "Open Route Service API URL."
+    }
+  ]
+}
