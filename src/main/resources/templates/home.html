@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - BikeTrack</title>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/nav.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/home.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Navigation bar -->
+    <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
+
+    <!-- Main content with animation -->
+    <div class="container mt-5 content-container">
+        <!-- Welcome container -->
+        <div class="welcome-container">
+            <h1 class="welcome-text">Bienvenido, <span
+                    th:text="${currentUser != null ? currentUser.name : 'Usuario'}"></span></h1>
+            <p class="date-display" id="currentDate">Fecha actual</p>
+            <div class="clock" id="currentTime">00:00:00</div>
+        </div>
+
+        <!-- Menu cards -->
+        <div class="card-container">
+            <!-- Routes card -->
+            <a th:href="@{/admin/routes}" class="text-decoration-none">
+                <div class="menu-card">
+                    <i class="fas fa-route"></i>
+                    <h3>Rutas</h3>
+                </div>
+            </a>
+
+            <!-- Workshops card -->
+            <a th:href="@{/admin/workshops}" class="text-decoration-none">
+                <div class="menu-card">
+                    <i class="fas fa-tools"></i>
+                    <h3>Talleres</h3>
+                </div>
+            </a>
+
+            <!-- Reviews card -->
+            <a th:href="@{/admin/reviews}" class="text-decoration-none">
+                <div class="menu-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Reseñas</h3>
+                </div>
+            </a>
+
+            <!-- Users card -->
+            <a th:href="@{/admin/users}" class="text-decoration-none">
+                <div class="menu-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Usuarios</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/home.js}"></script>
+</body>
+
+</html>
