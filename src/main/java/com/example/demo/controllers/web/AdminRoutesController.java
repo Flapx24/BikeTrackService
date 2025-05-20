@@ -178,7 +178,7 @@ public class AdminRoutesController {
     }
 
     @PostMapping("/routes/create")
-    public String createRoute(            @ModelAttribute("route") RouteDTO routeDTO,
+    public String createRoute(@ModelAttribute("route") RouteDTO routeDTO,
             BindingResult bindingResult,
             @RequestParam(required = false) String coordinatesInput,
             @RequestParam(required = false) String calculatedRouteInput,
@@ -276,7 +276,7 @@ public class AdminRoutesController {
 
     @PostMapping("/routes/update")
     public String updateRoute(
-            @ModelAttribute("route") RouteDTO routeDTO,            BindingResult bindingResult,
+            @ModelAttribute("route") RouteDTO routeDTO, BindingResult bindingResult,
             @RequestParam(required = false) String coordinatesInput,
             @RequestParam(required = false) String calculatedRouteInput,
             @RequestParam(required = false) Integer calculatedEstimatedTimeMinutes,
@@ -475,26 +475,5 @@ public class AdminRoutesController {
         }
 
         return "redirect:" + redirectUrl.toString();
-    }
-
-    @GetMapping("/routes/{id}/updates")
-    public String showRouteUpdates(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Route route = routeService.findById(id);
-
-        if (route == null) {
-            redirectAttributes.addFlashAttribute("error", "La ruta solicitada no existe.");
-            return "redirect:/admin/routes";
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
-            User currentUser = (User) auth.getPrincipal();
-            model.addAttribute("currentUser", new UserDTO(currentUser));
-        }
-
-        model.addAttribute("route", RouteDTO.fromEntity(route, RouteDetailLevel.BASIC));
-        model.addAttribute("routeUpdates", route.getUpdates());
-
-        return "admin/routes/updates";
     }
 }
