@@ -1,11 +1,16 @@
 .navbar {
 	padding: 1rem 3rem;
-	background-color: #003366;
+	background-color: rgba(0, 0, 0, 0.7) !important;
 }
 
 .navbar-brand {
 	font-size: 1.8rem;
 	font-weight: bold;
+	color: #FFFFFF !important;
+}
+
+.navbar .nav-link,
+.navbar .btn-link.nav-link {
 	color: #FFFFFF !important;
 }
 

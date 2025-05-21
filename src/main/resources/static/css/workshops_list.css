@@ -9,8 +9,8 @@
 /* Styles for the featured box that displays the number of workshops */
 .highlight-box {
     text-align: center;
-    background-color: rgba(0, 255, 204, 0.8);
-    color: black;
+    background-color: #198754;
+    color: white;
     padding: 1rem;
     margin-bottom: 1.5rem;
     border-radius: 10px;
@@ -46,7 +46,7 @@
     margin-bottom: 0.25rem;
 }
 
-#filterForm .col-md-5, 
+#filterForm .col-md-5,
 #filterForm .col-md-2 {
     display: flex;
     flex-direction: column;
@@ -86,7 +86,8 @@
 }
 
 /* Make table rows more compact */
-.table td, .table th {
+.table td,
+.table th {
     padding: 0.5rem;
     vertical-align: middle;
 }

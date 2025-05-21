@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios</title>
+    <title>Gestión de usuarios - BikeTrack</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/css/nav.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/users_list.css}" rel="stylesheet">
+    <link th:href="@{/css/back-button.css}" rel="stylesheet">
 </head>
+
 <body>
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
-
+    <div th:replace="~{fragments/backButton :: backButton('/admin/home')}"></div>
     <div class="container mt-4">
-        <h2 class="text-center mb-4 text-white">Gestión de Usuarios</h2>
-
-        <div class="highlight-box">
+        <h2 class="text-center mb-4 text-white">Gestión de usuarios</h2>
+        <div class="highlight-box bg-success text-white fw-bold">
             Número total de usuarios registrados: <span th:text="${users.size()}"></span>
         </div>
         <div class="tab-content mt-4">
@@ -43,9 +45,9 @@
                             <td>
                                 <form th:action="@{/admin/toggleUserStatus}" method="post">
                                     <input type="hidden" name="userId" th:value="${user.id}" />
-                                    <button type="submit" class="btn btn-sm" 
-                                            th:classappend="${user.active ? 'btn-danger' : 'btn-success'}" 
-                                            th:text="${user.active ? 'Desactivar' : 'Activar'}"></button>
+                                    <button type="submit" class="btn btn-sm"
+                                        th:classappend="${user.active ? 'btn-danger' : 'btn-success'}"
+                                        th:text="${user.active ? 'Desactivar' : 'Activar'}"></button>
                                 </form>
                             </td>
                         </tr>
@@ -59,4 +61,5 @@
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/js/common/alerts.js}"></script>
 </body>
+
 </html>

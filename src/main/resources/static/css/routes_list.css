@@ -9,8 +9,8 @@
 /* Styles for the featured box that displays the number of routes */
 .highlight-box {
     text-align: center;
-    background-color: rgba(0, 255, 204, 0.8);
-    color: black;
+    background-color: #198754;
+    color: white;
     padding: 1rem;
     margin-bottom: 1.5rem;
     border-radius: 10px;

@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function () {    // Global variabl
     let calculatedRouteLine;
 
     initMap();
+    
+    // Ensure counter has correct color from start
+    updateRoutePointsCount();
 
     loadExistingImages(); document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
     document.getElementById('saveButton').addEventListener('click', showSaveConfirmation);

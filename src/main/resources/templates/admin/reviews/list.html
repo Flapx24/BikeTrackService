@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Reseñas</title>
+    <title>Gestión de reseñas - BikeTrack</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/css/nav.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/reviews_list.css}" rel="stylesheet">
+    <link th:href="@{/css/back-button.css}" rel="stylesheet">
 </head>
+
 <body>
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
 
+    <div th:replace="~{fragments/backButton :: backButton('/admin/home')}"></div>
     <div class="container mt-4">
-        <h2 class="text-center mb-4 text-white">Gestión de Reseñas de Usuarios</h2>
-
-        <div class="highlight-box">
+        <h2 class="text-center mb-4 text-white">Gestión de reseñas de usuarios</h2>
+        <div class="highlight-box bg-success text-white fw-bold">
             Número total de reseñas encontradas: <span th:text="${reviews.size()}"></span>
         </div>
-        
+
         <!-- Filters -->
         <div class="card bg-dark text-white mb-4">
             <div class="card-header">
@@ -29,22 +31,23 @@
             </div>
             <div class="card-body">
                 <form th:action="@{/admin/reviews}" method="get" class="row g-3" id="filterForm">
-                    <div class="col-md-5">
+                    <div class="col">
                         <label for="city" class="form-label">Ciudad de la ruta:</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}" placeholder="Nombre de la ciudad">
+                            <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}"
+                                placeholder="Nombre de la ciudad">
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col">
                         <label for="date" class="form-label">Fecha de la reseña:</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="date" name="date" th:value="${dateFilter}" placeholder="DD/MM/YYYY" readonly>
-                            <button type="button" class="btn btn-outline-secondary" id="datePickerBtn">
+                        <div class="input-group"> <input type="text" class="form-control" id="date" name="date"
+                                th:value="${dateFilter}" placeholder="DD/MM/YYYY" readonly>
+                            <button type="button" class="btn btn-success" id="datePickerBtn">
                                 <i class="far fa-calendar"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-auto d-flex align-items-end justify-content-end">
                         <button type="submit" class="btn btn-success">
                             <i class="fa fa-search"></i>
                         </button>
@@ -54,13 +57,14 @@
         </div>
 
         <div class="tab-content mt-4">
-        <!-- Message when there are no results -->
+            <!-- Message when there are no results -->
             <div th:if="${reviews.empty}" class="alert alert-danger text-center">
                 No se ha encontrado ninguna ruta para los filtros seleccionados
             </div>
-            
+
             <!-- Results table -->
-            <div th:if="${!reviews.empty}" class="tab-pane fade show active" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+            <div th:if="${!reviews.empty}" class="tab-pane fade show active" id="reviews" role="tabpanel"
+                aria-labelledby="reviews-tab">
                 <table class="table table-striped table-bordered text-white">
                     <thead class="table-dark">
                         <tr>
@@ -78,9 +82,8 @@
                             <td th:text="${review.user.username}"></td>
                             <td>
                                 <div class="star-rating">
-                                    <i th:each="i : ${#numbers.sequence(1, 5)}" 
-                                       class="fas fa-star" 
-                                       th:classappend="${i <= review.rating} ? 'text-warning' : 'text-muted'"></i>
+                                    <i th:each="i : ${#numbers.sequence(1, 5)}" class="fas fa-star"
+                                        th:classappend="${i <= review.rating} ? 'text-warning' : 'text-muted'"></i>
                                 </div>
                             </td>
                             <td th:text="${review.text}"></td>
@@ -88,10 +91,9 @@
                             <td th:text="${review.routeTitle}"></td>
                             <td th:text="${#strings.capitalize(review.routeCity)}"></td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-danger delete-review-btn" 
-                                        th:data-review-id="${review.id}" 
-                                        th:data-username="${review.user.username}"
-                                        th:data-route="${review.routeTitle}">
+                                <button type="button" class="btn btn-sm btn-danger delete-review-btn"
+                                    th:data-review-id="${review.id}" th:data-username="${review.user.username}"
+                                    th:data-route="${review.routeTitle}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -103,7 +105,8 @@
     </div>
 
     <!-- Confirmation modal to delete review -->
-    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header bg-danger">
@@ -111,7 +114,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas eliminar la reseña del usuario <span id="reviewUsername" class="fw-bold"></span> para la ruta <span id="reviewRouteName" class="fw-bold"></span>?</p>
+                    <p>¿Estás seguro de que deseas eliminar la reseña del usuario <span id="reviewUsername"
+                            class="fw-bold"></span> para la ruta <span id="reviewRouteName" class="fw-bold"></span>?</p>
                     <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
                 </div>
                 <div class="modal-footer">
@@ -132,43 +136,44 @@
     <script th:src="@{/js/common/alerts.js}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Date Picker Settings
             const dateInput = document.getElementById('date');
             const datePickerBtn = document.getElementById('datePickerBtn');
-            
+
             // Configuring flatpickr with custom options
             const datePicker = flatpickr(dateInput, {
                 dateFormat: "d/m/Y",
                 allowInput: false,
                 disableMobile: true
             });
-            
+
             // Open the calendar when the button is clicked
-            datePickerBtn.addEventListener('click', function() {
+            datePickerBtn.addEventListener('click', function () {
                 datePicker.open();
             });
-            
+
             // Confirmation modal to delete review
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-            
+
             // Handle delete buttons
             document.querySelectorAll('.delete-review-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const reviewId = this.getAttribute('data-review-id');
                     const username = this.getAttribute('data-username');
                     const route = this.getAttribute('data-route');
-                    
+
                     document.getElementById('reviewUsername').textContent = username;
                     document.getElementById('reviewRouteName').textContent = route;
                     document.getElementById('reviewIdInput').value = reviewId;
-                    
+
                     deleteModal.show();
                 });
             });
         });
     </script>
 </body>
+
 </html>

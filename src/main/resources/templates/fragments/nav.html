@@ -1,4 +1,4 @@
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <!-- App logo -->
         <a class="navbar-brand" sec:authorize="isAuthenticated() and hasRole('ADMIN')"

@@ -5,19 +5,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Rutas</title>
+    <title>Gestión de rutas - BikeTrack</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/css/nav.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/routes_list.css}" rel="stylesheet">
+    <link th:href="@{/css/back-button.css}" rel="stylesheet">
 </head>
 
 <body>
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
-
+    <div th:replace="~{fragments/backButton :: backButton('/admin/home')}"></div>
     <div class="container mt-4">
-        <h2 class="text-center mb-4 text-white">Gestión de Rutas</h2>
+        <h2 class="text-center mb-4 text-white">Gestión de rutas</h2>
 
         <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show" role="alert">
             <span th:text="${message}"></span>
@@ -28,15 +29,13 @@
             <span th:text="${error}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-
-        <div class="highlight-box">
+        <div class="highlight-box bg-success text-white fw-bold">
             Número total de rutas encontradas: <span th:text="${routes.size()}"></span>
         </div>
 
-        <!-- Create New Route button -->
-        <div class="d-flex justify-content-end mb-3">
+        <!-- Create New Route button -->        <div class="d-flex justify-content-end mb-3">
             <a th:href="@{/admin/routes/create}" class="btn btn-success">
-                <i class="fas fa-plus me-1"></i> Crear Nueva Ruta
+                <i class="fas fa-plus me-1"></i> Crear nueva ruta
             </a>
         </div>
 
@@ -47,14 +46,14 @@
             </div>
             <div class="card-body">
                 <form th:action="@{/admin/routes}" method="get" class="row g-3" id="filterForm">
-                    <div class="col-md-5">
+                    <div class="col">
                         <label for="title" class="form-label">Título de la ruta:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="title" name="title" th:value="${titleFilter}"
                                 placeholder="Título de la ruta">
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col">
                         <label for="city" class="form-label">Ciudad:</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="city" name="city" th:value="${cityFilter}"
@@ -62,7 +61,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="sort" th:value="${sortBy}">
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-auto d-flex align-items-end justify-content-end">
                         <button type="submit" class="btn btn-success">
                             <i class="fa fa-search"></i>
                         </button>
@@ -121,8 +120,7 @@
                             <!-- Número total de reseñas -->
                             <td th:text="${route.reviewCount != null ? route.reviewCount : 0}"></td>
                             <td>
-                                <span th:text="${route.updateCount}"></span>
-                                <a th:href="@{'/admin/routes/' + ${route.id} + '/updates'}"
+                                <span th:text="${route.updateCount}"></span>                                <a th:href="@{'/admin/routes/' + ${route.id} + '/updates'}"
                                     class="btn btn-sm btn-info ms-2" title="Ver actualizaciones">
                                     <i class="fas fa-bell"></i>
                                 </a>
@@ -157,8 +155,7 @@
                     <p>¿Estás seguro de que deseas eliminar la ruta <span id="routeTitle" class="fw-bold"></span>?</p>
                     <p class="text-danger"><strong>Esta acción no se puede deshacer y eliminará todas las reseñas
                             asociadas a esta ruta.</strong></p>
-                </div>
-                <div class="modal-footer">
+                </div>                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <form id="deleteRouteForm" th:action="@{/admin/deleteRoute}" method="post">
                         <input type="hidden" id="routeIdInput" name="routeId" value="" />

@@ -5,19 +5,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualizaciones de Ruta</title>
+    <title>Actualizaciones de Ruta - BikeTrack</title>
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/css/nav.css}" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <link th:href="@{/css/route_updates.css}" rel="stylesheet">
+    <link th:href="@{/css/back-button.css}" rel="stylesheet">
 </head>
 
 <body>
     <div th:replace="~{fragments/nav :: navbar}" th:with="currentUser=${currentUser}"></div>
 
+    <div th:replace="~{fragments/backButton :: backButton('/admin/routes')}"></div>
     <div class="container mt-4">
-        <h2 class="text-center mb-4 text-white">Actualizaciones de la Ruta: <span th:text="${route.title}"></span></h2>
+        <h2 class="text-center mb-4 text-white">Actualizaciones de la ruta: <span th:text="${route.title}"></span></h2>
 
         <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show" role="alert">
             <span th:text="${message}"></span>
@@ -27,22 +29,10 @@
         <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
             <span th:text="${error}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-
-        <div class="highlight-box">
+        </div>        <div class="highlight-box bg-success text-white fw-bold">
             Número total de actualizaciones: <span th:text="${routeUpdates.size()}"></span>
-        </div>
-
-        <!-- Back to routes button -->
-        <div class="d-flex justify-content-end mb-3">
-            <a th:href="@{/admin/routes}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Volver a Rutas
-            </a>
-        </div>
-
-        <div class="tab-content mt-4">
-            <!-- Message when there are no results -->
-            <div th:if="${routeUpdates.empty}" class="alert alert-info text-center">
+        </div> <!-- Back button now handled by the fragment -->        <div class="tab-content mt-4">            <!-- Message when there are no results -->
+            <div th:if="${routeUpdates.empty}" class="alert alert-danger text-center">
                 No hay actualizaciones para esta ruta
             </div>
 

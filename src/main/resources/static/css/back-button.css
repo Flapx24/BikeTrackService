@@ -1,0 +1,31 @@
+.back-button-container {
+    position: fixed;
+    top: 110px;
+    left: 20px;
+    z-index: 100;
+}
+
+.back-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.back-button i {
+    font-size: 1.2rem;
+}
