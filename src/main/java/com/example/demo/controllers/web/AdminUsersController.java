@@ -25,45 +25,59 @@ import com.example.demo.services.UserService;
 @RequestMapping("/admin")
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminUsersController {
-    
+
     @Autowired
     @Qualifier("userService")
     private UserService userService;
-    
+
     @GetMapping("/users")
-    public String listUsers(Model model) {
-        List<User> userEntities = userService.getAllUsers();
-        
+    public String listUsers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            Model model) {
+
+        List<User> userEntities;
+
+        if (username != null && !username.isEmpty()) {
+            userEntities = userService.findByUsername(username);
+        } else if (email != null && !email.isEmpty()) {
+            userEntities = userService.findByEmailIgnoreCase(email);
+        } else {
+            userEntities = userService.getAllUsers();
+        }
+
         List<UserDTO> users = userEntities.stream()
                 .filter(user -> user.getRole() != Role.ROLE_ADMIN)
                 .map(UserDTO::new)
                 .collect(Collectors.toList());
-        
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             User currentUser = (User) auth.getPrincipal();
             model.addAttribute("currentUser", new UserDTO(currentUser));
         }
-        
         model.addAttribute("users", users);
+        model.addAttribute("usernameFilter", username != null ? username : "");
+        model.addAttribute("emailFilter", email != null ? email : "");
+
         return "admin/users/list";
     }
-    
+
     @PostMapping("/toggleUserStatus")
     public String toggleUserStatus(@RequestParam Long userId, RedirectAttributes redirectAttributes) {
         User user = userService.findById(userId);
-        
+
         if (user != null) {
             user.setActive(!user.getActive());
             userService.saveUser(user);
-            
+
             String status = user.getActive() ? "activado" : "desactivado";
-            redirectAttributes.addFlashAttribute("message", 
+            redirectAttributes.addFlashAttribute("message",
                     "Usuario " + user.getUsername() + " " + status + " correctamente.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
         }
-        
+
         return "redirect:/admin/users";
     }
 }

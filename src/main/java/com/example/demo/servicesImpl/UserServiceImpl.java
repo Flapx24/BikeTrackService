@@ -1,7 +1,6 @@
 package com.example.demo.servicesImpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +61,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    public List<String> findEmailsByQuery(String query) {
-        List<User> users = userRepository.findByEmailContainingIgnoreCase(query);
-        return users.stream()
-                .map(User::getEmail)
-                .collect(Collectors.toList());
+    public List<User> findByUsername(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
+    public List<User> findByEmailIgnoreCase(String email) {
+        return userRepository.findByEmailIgnoreCase(email);
     }
 }

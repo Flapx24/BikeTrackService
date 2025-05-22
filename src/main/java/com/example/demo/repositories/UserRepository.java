@@ -10,14 +10,15 @@ import com.example.demo.entities.User;
 
 @Repository("userRepository")
 public interface UserRepository extends JpaRepository<User, Serializable> {
-	
+
     boolean existsByEmail(String email);
 
     User findByEmail(String email);
-    
+
     List<User> findAll();
 
-    List<User> findByEmailContainingIgnoreCase(String email);
+    List<User> findByEmailIgnoreCase(String email);
+
+    List<User> findByUsernameContainingIgnoreCase(String username);
 
 }
-
