@@ -29,6 +29,15 @@ public class UserServiceImpl implements UserService {
         if (!user.getPassword().startsWith("$2a$10$")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+
+        if (user.getUsername() != null) {
+            user.setUsername(user.getUsername().toLowerCase());
+        }
+
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().toLowerCase());
+        }
+
         return userRepository.save(user);
     }
 
@@ -39,16 +48,25 @@ public class UserServiceImpl implements UserService {
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        if (email == null) {
+            return null;
+        }
+
+        List<User> users = userRepository.findByEmailIgnoreCase(email);
+        return users.isEmpty() ? null : users.get(0);
     }
 
     public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByEmailIgnoreCase(email);
+    }
+
+    public boolean existsByEmailIgnoreCase(String email) {
+        return userRepository.existsByEmailIgnoreCase(email);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
+        User user = findByEmail(username);
         if (user == null)
             throw new UsernameNotFoundException("Usuario no encontrado");
         if (!user.getActive()) {
@@ -63,6 +81,10 @@ public class UserServiceImpl implements UserService {
 
     public List<User> findByUsername(String username) {
         return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
+    public boolean existsByUsernameIgnoreCase(String username) {
+        return userRepository.existsByUsernameIgnoreCase(username);
     }
 
     public List<User> findByEmailIgnoreCase(String email) {

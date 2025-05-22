@@ -45,6 +45,11 @@ public class UserAuthService {
      * @return Map with user's nickname and token
      */
     public Map<String, Object> login(String email, String password, boolean rememberMe) {
+        // Normalizar email a minúsculas
+        if (email != null) {
+            email = email.toLowerCase();
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password));
 
@@ -133,44 +138,55 @@ public class UserAuthService {
 
     public Map<String, Object> register(User user) throws RuntimeException {
         Map<String, Object> result = new HashMap<>();
-
         if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
             result.put("success", false);
             result.put("message", "El nombre de usuario es obligatorio");
             return result;
         }
 
-        if (userService.findByEmail(user.getEmail()) != null) {
+        user.setUsername(user.getUsername().toLowerCase());
+
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().toLowerCase());
+        }
+
+        if (userService.existsByUsernameIgnoreCase(user.getUsername())) {
             result.put("success", false);
-            result.put("message", "Usuario ya registrado");
+            result.put("message", "El nombre de usuario ya está en uso");
             return result;
         }
-        
+
+        if (userService.existsByEmailIgnoreCase(user.getEmail())) {
+            result.put("success", false);
+            result.put("message", "El correo electrónico ya está registrado");
+            return result;
+        }
+
         String password = user.getPassword();
         if (password == null || password.length() < 8) {
             result.put("success", false);
             result.put("message", "La contraseña debe tener al menos 8 caracteres");
             return result;
         }
-        
+
         if (!password.matches(".*[A-Z].*")) {
             result.put("success", false);
             result.put("message", "La contraseña debe contener al menos una letra mayúscula");
             return result;
         }
-        
+
         if (!password.matches(".*[a-z].*")) {
             result.put("success", false);
             result.put("message", "La contraseña debe contener al menos una letra minúscula");
             return result;
         }
-        
+
         if (!password.matches(".*\\d.*")) {
             result.put("success", false);
             result.put("message", "La contraseña debe contener al menos un número");
             return result;
         }
-        
+
         if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
             result.put("success", false);
             result.put("message", "La contraseña debe contener al menos un carácter especial");
@@ -178,17 +194,17 @@ public class UserAuthService {
         }
 
         user.setRole(Role.ROLE_USER);
-        user.setActive(false);
-        
+        user.setActive(true);
+
         String randomImageUrl = storageService.getRandomUserImage();
         user.setImageUrl(randomImageUrl);
-        
+
         userService.saveUser(user);
 
         result.put("success", true);
         result.put("message", "Registro exitoso");
         result.put("imageUrl", user.getImageUrl());
-        
+
         return result;
     }
 }

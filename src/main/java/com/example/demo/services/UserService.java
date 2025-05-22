@@ -16,9 +16,13 @@ public interface UserService extends UserDetailsService {
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailIgnoreCase(String email);
+
     List<User> getAllUsers();
 
     List<User> findByUsername(String username);
+
+    boolean existsByUsernameIgnoreCase(String username);
 
     List<User> findByEmailIgnoreCase(String email);
 
