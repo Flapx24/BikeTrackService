@@ -5,14 +5,16 @@ import java.util.List;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entities.User;
+import com.example.demo.enums.Role;
 import com.example.demo.repositories.UserRepository;
 
 @Service("userService")
@@ -89,5 +91,11 @@ public class UserServiceImpl implements UserService {
 
     public List<User> findByEmailIgnoreCase(String email) {
         return userRepository.findByEmailIgnoreCase(email);
+    }
+
+    @Override
+    public Page<User> getFilteredUsersPaginated(String username, String email, Pageable pageable) {
+        return userRepository.findByUsernameContainingAndEmailContainingAndRoleNotPaginated(
+                username, email, Role.ROLE_ADMIN, pageable);
     }
 }

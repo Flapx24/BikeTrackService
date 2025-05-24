@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.dtos.UserDTO;
 import com.example.demo.entities.User;
-import com.example.demo.enums.Role;
 import com.example.demo.services.UserService;
 
 @Controller
@@ -34,29 +35,36 @@ public class AdminUsersController {
     public String listUsers(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             Model model) {
 
-        List<User> userEntities;
-
-        if (username != null && !username.isEmpty()) {
-            userEntities = userService.findByUsername(username);
-        } else if (email != null && !email.isEmpty()) {
-            userEntities = userService.findByEmailIgnoreCase(email);
-        } else {
-            userEntities = userService.getAllUsers();
+        if (size <= 0 || size > 20) {
+            size = 10;
         }
 
-        List<UserDTO> users = userEntities.stream()
-                .filter(user -> user.getRole() != Role.ROLE_ADMIN)
-                .map(UserDTO::new)
-                .collect(Collectors.toList());
+        if (page < 0) {
+            page = 0;
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<User> usersPage = userService.getFilteredUsersPaginated(username, email, pageRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             User currentUser = (User) auth.getPrincipal();
             model.addAttribute("currentUser", new UserDTO(currentUser));
         }
-        model.addAttribute("users", users);
+
+        List<UserDTO> userDTOs = usersPage.getContent().stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
+
+        model.addAttribute("users", userDTOs);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", usersPage.getTotalPages());
+        model.addAttribute("totalItems", usersPage.getTotalElements());
+        model.addAttribute("pageSize", size);
         model.addAttribute("usernameFilter", username != null ? username : "");
         model.addAttribute("emailFilter", email != null ? email : "");
 
@@ -64,7 +72,14 @@ public class AdminUsersController {
     }
 
     @PostMapping("/toggleUserStatus")
-    public String toggleUserStatus(@RequestParam Long userId, RedirectAttributes redirectAttributes) {
+    public String toggleUserStatus(
+            @RequestParam Long userId,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            RedirectAttributes redirectAttributes) {
+
         User user = userService.findById(userId);
 
         if (user != null) {
@@ -78,6 +93,24 @@ public class AdminUsersController {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
         }
 
-        return "redirect:/admin/users";
+        StringBuilder redirectUrl = new StringBuilder("/admin/users");
+        boolean hasParam = false;
+
+        if (username != null && !username.isEmpty()) {
+            redirectUrl.append(hasParam ? "&" : "?").append("username=").append(username);
+            hasParam = true;
+        }
+
+        if (email != null && !email.isEmpty()) {
+            redirectUrl.append(hasParam ? "&" : "?").append("email=").append(email);
+            hasParam = true;
+        }
+
+        redirectUrl.append(hasParam ? "&" : "?").append("page=").append(page);
+        hasParam = true;
+
+        redirectUrl.append(hasParam ? "&" : "?").append("size=").append(size);
+
+        return "redirect:" + redirectUrl.toString();
     }
 }

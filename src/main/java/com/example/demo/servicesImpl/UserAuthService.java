@@ -45,7 +45,7 @@ public class UserAuthService {
      * @return Map with user's nickname and token
      */
     public Map<String, Object> login(String email, String password, boolean rememberMe) {
-        // Normalizar email a minúsculas
+        // Normalize email to lowercase
         if (email != null) {
             email = email.toLowerCase();
         }

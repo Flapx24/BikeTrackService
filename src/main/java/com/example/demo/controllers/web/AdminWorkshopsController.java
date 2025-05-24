@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,24 +56,20 @@ public class AdminWorkshopsController {
     public String listWorkshops(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String name,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             Model model) {
 
-        List<Workshop> allWorkshops = workshopService.findAll();
+        if (size <= 0 || size > 20) {
+            size = 10;
+        }
 
-        List<WorkshopDTO> filteredWorkshops = allWorkshops.stream()
-                .filter(workshop -> {
-                    boolean cityMatch = city == null || city.isEmpty() ||
-                            workshopService.normalizeString(workshop.getCity())
-                                    .contains(workshopService.normalizeString(city));
+        if (page < 0) {
+            page = 0;
+        }
 
-                    boolean nameMatch = name == null || name.isEmpty() ||
-                            workshopService.normalizeString(workshop.getName())
-                                    .contains(workshopService.normalizeString(name));
-
-                    return cityMatch && nameMatch;
-                })
-                .map(WorkshopDTO::new)
-                .collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Workshop> workshopsPage = workshopService.getFilteredWorkshopsPaginated(city, name, pageRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
@@ -79,7 +77,11 @@ public class AdminWorkshopsController {
             model.addAttribute("currentUser", new UserDTO(currentUser));
         }
 
-        model.addAttribute("workshops", filteredWorkshops);
+        model.addAttribute("workshops", workshopsPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", workshopsPage.getTotalPages());
+        model.addAttribute("totalItems", workshopsPage.getTotalElements());
+        model.addAttribute("pageSize", size);
         model.addAttribute("cityFilter", city != null ? city : "");
         model.addAttribute("nameFilter", name != null ? name : "");
 
@@ -332,6 +334,8 @@ public class AdminWorkshopsController {
             @RequestParam Long workshopId,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String name,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             RedirectAttributes redirectAttributes) {
 
         Workshop workshop = workshopService.findById(workshopId);
@@ -359,7 +363,13 @@ public class AdminWorkshopsController {
 
         if (name != null && !name.isEmpty()) {
             redirectUrl.append(hasParam ? "&" : "?").append("name=").append(name);
+            hasParam = true;
         }
+
+        redirectUrl.append(hasParam ? "&" : "?").append("page=").append(page);
+        hasParam = true;
+
+        redirectUrl.append(hasParam ? "&" : "?").append("size=").append(size);
 
         return "redirect:" + redirectUrl.toString();
     }

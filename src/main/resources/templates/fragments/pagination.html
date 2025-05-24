@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<!-- Reusable pagination fragment -->
+<div th:fragment="pagination(currentPage, totalPages, pageSize, totalItems, items)"
+    class="card bg-dark text-white mt-3">
+    <div class="card-body pagination-container">
+        <!-- Total pages (left) -->
+        <div class="pagination-left text-white">
+            Páginas totales: <span th:text="${totalPages}"></span> </div>
+
+        <!-- Pagination navigation (center) -->
+        <div class="pagination-center d-flex align-items-center">
+            <button class="btn btn-sm btn-outline-light me-2" id="prevPageBtn" th:data-current-page="${currentPage}"
+                th:disabled="${currentPage == 0}">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="d-flex align-items-center">
+                <input type="number" class="form-control form-control-sm text-center bg-dark text-white"
+                    id="currentPageInput" th:value="${currentPage + 1}" th:data-actual-page="${currentPage}" min="1"
+                    th:max="${totalPages}">
+            </div>
+            <button class="btn btn-sm btn-outline-light ms-2" id="nextPageBtn" th:data-current-page="${currentPage}"
+                th:disabled="${currentPage + 1 >= totalPages}">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Page size selector and information (right) -->
+        <div class="pagination-right d-flex align-items-center">
+            <div class="me-3">
+                <label for="pageSizeSelect" class="me-2">Tamaño de página:</label>
+                <select id="pageSizeSelect" class="form-select form-select-sm bg-dark text-white">
+                    <option value="10" th:selected="${pageSize == 10}">10</option>
+                    <option value="20" th:selected="${pageSize == 20}">20</option>
+                </select>
+            </div>
+            <div class="text-white">
+                Mostrando
+                <span th:text="${currentPage * pageSize + 1}"></span>-<span
+                    th:text="${currentPage * pageSize + items.size()}"></span>
+                de <span th:text="${totalItems}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

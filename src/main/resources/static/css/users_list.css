@@ -40,7 +40,6 @@
 .card.bg-dark {
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -60,19 +59,19 @@
 }
 
 /* Input styling */
-.form-control {
+.form-control:not(#currentPageInput):not(#pageSizeSelect) {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 5px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 8px 12px;
 }
 
-.form-control:focus {
+.form-control:not(#currentPageInput):not(#pageSizeSelect):focus {
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
     border-color: rgba(25, 135, 84, 0.5);
 }
 
-.form-control:disabled {
+.form-control:not(#currentPageInput):not(#pageSizeSelect):disabled {
     background-color: rgba(200, 200, 200, 0.5);
     cursor: not-allowed;
     color: #6c757d;

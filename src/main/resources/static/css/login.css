@@ -2,7 +2,7 @@ body {
 	color: white;
 }
 
-/* Tarjeta del formulario */
+/* Form card */
 .card {
 	border: none;
 	border-radius: 15px;
@@ -16,7 +16,7 @@ body {
 	color: white;
 }
 
-/* Botón de inicio de sesión */
+/* Login button */
 .btn-primary {
 	background-color: var(--emerald-glade);
 	border: none;
@@ -27,7 +27,7 @@ body {
 	background-color: var(--plum-red);
 }
 
-/* Ajustes para la estructura del contenedor */
+/* Adjustments for container structure */
 .container-fluid {
 	padding: 0 0px;
 }
@@ -47,13 +47,14 @@ body {
 }
 
 .form-control:focus {
-    color: white !important;
+	color: white !important;
 	background-color: #ffffff1a;
 	border-color: var(--emerald-glade);
 	box-shadow: 0 0 5px #00ffccb3;
 }
 
-.form-label, .form-check-label {
+.form-label,
+.form-check-label {
 	color: var(--neon-lime) !important;
 }
 

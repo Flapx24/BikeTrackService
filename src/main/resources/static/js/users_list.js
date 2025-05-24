@@ -1,7 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    
+    const emailInput = document.getElementById('email'); const filterForm = document.getElementById('filterForm');
+
+    // Ensure when filtering we always go to the first page
+    if (filterForm) {
+        filterForm.addEventListener('submit', function () {
+            document.getElementById('pageInput').value = 0;
+        });
+    }
+
     // Function to check inputs and disable/enable as needed
     function checkInputs() {
         if (usernameInput.value.trim() !== '') {
@@ -15,12 +22,12 @@ document.addEventListener('DOMContentLoaded', function() {
             usernameInput.disabled = false;
         }
     }
-    
+
     // Initial check when page loads
     checkInputs();
-    
+
     // Add event listeners for input changes
-    usernameInput.addEventListener('input', function() {
+    usernameInput.addEventListener('input', function () {
         if (this.value.trim() === '') {
             emailInput.disabled = false;
         } else {
@@ -28,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
             emailInput.value = '';
         }
     });
-    
-    emailInput.addEventListener('input', function() {
+
+    emailInput.addEventListener('input', function () {
         if (this.value.trim() === '') {
             usernameInput.disabled = false;
         } else {

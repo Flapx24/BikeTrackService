@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,34 +54,36 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public List<Route> getRoutesByCityAndMinScore(String city, Integer minScore, Long lastRouteId) {
         double minScoreDouble = minScore != null ? minScore.doubleValue() : 0.0;
-        
+
         String normalizedCity = normalizeCity(city);
-        
+
         if (lastRouteId == null) {
             return routeRepository.findByCityAndMinScore(
-                normalizedCity, minScoreDouble, PageRequest.of(0, PAGE_SIZE));
+                    normalizedCity, minScoreDouble, PageRequest.of(0, PAGE_SIZE));
         } else {
             return routeRepository.findByCityAndMinScoreAndIdGreaterThan(
-                normalizedCity, minScoreDouble, lastRouteId, PageRequest.of(0, PAGE_SIZE));
+                    normalizedCity, minScoreDouble, lastRouteId, PageRequest.of(0, PAGE_SIZE));
         }
     }
-    
+
     @Override
     public List<RouteDTO> getFilteredRoutes(String city, String title, String sort) {
         List<Route> routes = new ArrayList<>();
-        
+
         switch (sort) {
             case "asc":
-                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreDesc(city, title);
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreDesc(city,
+                        title);
                 break;
             case "desc":
-                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreAsc(city, title);
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreAsc(city,
+                        title);
                 break;
             default:
                 routes = routeRepository.findByCityContainingAndTitleContainingIgnoreCase(city, title);
                 break;
         }
-        
+
         return routes.stream()
                 .map(route -> {
                     RouteDTO dto = RouteDTO.fromEntity(route, RouteDetailLevel.BASIC);
@@ -88,6 +92,33 @@ public class RouteServiceImpl implements RouteService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<RouteDTO> getFilteredRoutesPaginated(String city, String title, String sort, Pageable pageable) {
+        Page<Route> routes;
+
+        switch (sort) {
+            case "asc":
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreDescPaginated(
+                        city, title, pageable);
+                break;
+            case "desc":
+                routes = routeRepository.findByCityContainingAndTitleContainingOrderByAverageReviewScoreAscPaginated(
+                        city, title, pageable);
+                break;
+            default:
+                routes = routeRepository.findByCityContainingAndTitleContainingIgnoreCasePaginated(city, title,
+                        pageable);
+                break;
+        }
+
+        return routes.map(route -> {
+            RouteDTO dto = RouteDTO.fromEntity(route, RouteDetailLevel.BASIC);
+            dto.setReviewCount(route.getReviews() != null ? route.getReviews().size() : 0);
+            dto.setUpdateCount(route.getUpdates() != null ? route.getUpdates().size() : 0);
+            return dto;
+        });
     }
 
     @Override
@@ -105,11 +136,11 @@ public class RouteServiceImpl implements RouteService {
         if (city == null) {
             return "";
         }
-        
+
         String normalized = Normalizer.normalize(city, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}", "")
                 .toLowerCase();
-        
+
         return normalized;
     }
 }

@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -69,9 +71,20 @@ public class AdminRoutesController {
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String title,
             @RequestParam(required = false, defaultValue = "none") String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             Model model) {
 
-        List<RouteDTO> filteredRoutes = routeService.getFilteredRoutes(city, title, sort);
+        if (size <= 0 || size > 20) {
+            size = 10;
+        }
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<RouteDTO> routesPage = routeService.getFilteredRoutesPaginated(city, title, sort, pageRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
@@ -79,7 +92,11 @@ public class AdminRoutesController {
             model.addAttribute("currentUser", new UserDTO(currentUser));
         }
 
-        model.addAttribute("routes", filteredRoutes);
+        model.addAttribute("routes", routesPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", routesPage.getTotalPages());
+        model.addAttribute("totalItems", routesPage.getTotalElements());
+        model.addAttribute("pageSize", size);
         model.addAttribute("cityFilter", city != null ? city : "");
         model.addAttribute("titleFilter", title != null ? title : "");
         model.addAttribute("sortBy", sort);
@@ -243,7 +260,6 @@ public class AdminRoutesController {
         Route route = routeDTO.toEntity(null);
         Route savedRoute = routeService.saveRoute(route);
 
-        // Process new uploaded images with the route ID
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<MultipartFile> nonEmptyFiles = imageFiles.stream()
                     .filter(file -> file != null && !file.isEmpty())
@@ -342,12 +358,12 @@ public class AdminRoutesController {
             redirectAttributes.addFlashAttribute("error", "La ruta que intenta actualizar no existe.");
             return "redirect:/admin/routes";
         }
-        // Process deleted images first
+
         if (deletedImageUrls != null && !deletedImageUrls.isEmpty()) {
 
             for (String imageUrl : deletedImageUrls) {
                 try {
-                    // Extract the filename from the URL
+
                     String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
                     String entityType = "route";
                     String[] parts = filename.split("_");
@@ -356,7 +372,6 @@ public class AdminRoutesController {
                         Long entityId = Long.parseLong(parts[0]);
                         Integer position = Integer.parseInt(parts[1].split("\\.")[0]);
 
-                        // Delete the file from the file system
                         storageService.delete(entityType, entityId, position);
 
                     } else {
@@ -373,7 +388,6 @@ public class AdminRoutesController {
         routeDTO.setImageUrls(imageUrls);
         Route route = routeDTO.toEntity(existingRoute);
 
-        // Process new images with the path ID
         Route updatedRoute = routeService.saveRoute(route);
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<MultipartFile> nonEmptyFiles = imageFiles.stream()
@@ -440,6 +454,8 @@ public class AdminRoutesController {
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String title,
             @RequestParam(required = false, defaultValue = "none") String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
             RedirectAttributes redirectAttributes) {
 
         Route route = routeService.findById(routeId);
@@ -472,7 +488,13 @@ public class AdminRoutesController {
 
         if (sort != null && !sort.isEmpty() && !sort.equals("none")) {
             redirectUrl.append(hasParam ? "&" : "?").append("sort=").append(sort);
+            hasParam = true;
         }
+
+        redirectUrl.append(hasParam ? "&" : "?").append("page=").append(page);
+        hasParam = true;
+
+        redirectUrl.append(hasParam ? "&" : "?").append("size=").append(size);
 
         return "redirect:" + redirectUrl.toString();
     }

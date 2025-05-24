@@ -5,9 +5,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Sorting functionality
     const sortButton = document.getElementById('sort-button');
-    const filterForm = document.getElementById('filterForm');
-    let currentSort = sortButton.classList.contains('asc') ? 'asc' :
+    const filterForm = document.getElementById('filterForm'); let currentSort = sortButton.classList.contains('asc') ? 'asc' :
         (sortButton.classList.contains('desc') ? 'desc' : 'none');
+
+    // Ensure when filtering we always go to the first page
+    filterForm.addEventListener('submit', function () {
+        document.getElementById('pageInput').value = 0;
+    });
 
     sortButton.addEventListener('click', function () {
         // Toggle sort state: none -> asc -> desc -> none
@@ -21,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Update hidden sort input and submit form
         document.querySelector('input[name="sort"]').value = currentSort;
+        // Reset to first page when sorting
+        document.getElementById('pageInput').value = 0;
         filterForm.submit();
     });
 

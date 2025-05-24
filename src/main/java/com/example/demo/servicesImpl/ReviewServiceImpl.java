@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -194,5 +196,13 @@ public class ReviewServiceImpl implements ReviewService {
                 .filter(review -> filterByDate(review, date))
                 .map(this::createReviewDTOWithRouteTitle)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ReviewDTO> getFilteredReviewsPaginated(String city, String date, Pageable pageable) {
+
+        Page<Review> reviewPage = reviewRepository.findByCityContainingAndDatePaginated(city, date, pageable);
+
+        return reviewPage.map(this::createReviewDTOWithRouteTitle);
     }
 }
