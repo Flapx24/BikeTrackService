@@ -2,7 +2,8 @@
  * Reviews list management functionality
  * Handles review deletion confirmation and date picker
  */
-document.addEventListener('DOMContentLoaded', function () {    // Confirmation modal to delete review
+document.addEventListener('DOMContentLoaded', function () {
+    // Confirmation modal to delete review
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
 
     const filterForm = document.getElementById('filterForm');
@@ -28,10 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {    // Confirmation m
             deleteModal.show();
         });
     });
-
     // Date picker
     const dateInput = document.getElementById('date');
     const datePickerBtn = document.getElementById('datePickerBtn');
+    const clearDateBtn = document.getElementById('clearDateBtn');
 
     if (dateInput && datePickerBtn) {
         const datePicker = flatpickr(dateInput, {
@@ -43,5 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {    // Confirmation m
         datePickerBtn.addEventListener('click', function () {
             datePicker.open();
         });
+        // Clear date button functionality
+        if (clearDateBtn) {
+            clearDateBtn.addEventListener('click', function () {
+                datePicker.clear(); // Clear the flatpickr instance
+                dateInput.value = ''; // Clear the input field
+            });
+        }
     }
 });

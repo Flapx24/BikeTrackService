@@ -189,9 +189,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewDTO> getFilteredReviews(String city, String date) {
+    public List<ReviewDTO> getFilteredReviews(String routeName, String city, String date) {
         List<Review> allReviews = findAllReviews();
         return allReviews.stream()
+                .filter(review -> filterByRouteName(review, routeName))
                 .filter(review -> filterByCity(review, city))
                 .filter(review -> filterByDate(review, date))
                 .map(this::createReviewDTOWithRouteTitle)
@@ -199,10 +200,27 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Page<ReviewDTO> getFilteredReviewsPaginated(String city, String date, Pageable pageable) {
+    public Page<ReviewDTO> getFilteredReviewsPaginated(String routeName, String city, String date, Pageable pageable) {
 
-        Page<Review> reviewPage = reviewRepository.findByCityContainingAndDatePaginated(city, date, pageable);
+        Page<Review> reviewPage = reviewRepository.findByRouteNameContainingAndCityContainingAndDatePaginated(routeName,
+                city, date, pageable);
 
         return reviewPage.map(this::createReviewDTOWithRouteTitle);
+    }
+
+    @Override
+    public boolean filterByRouteName(Review review, String routeName) {
+        if (routeName == null || routeName.trim().isEmpty()) {
+            return true;
+        }
+
+        if (review.getRoute() == null || review.getRoute().getTitle() == null) {
+            return false;
+        }
+
+        String normalizedRouteTitle = normalizeString(review.getRoute().getTitle());
+        String normalizedFilterRouteName = normalizeString(routeName.trim());
+
+        return normalizedRouteTitle.contains(normalizedFilterRouteName);
     }
 }

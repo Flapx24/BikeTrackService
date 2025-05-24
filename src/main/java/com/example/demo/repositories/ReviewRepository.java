@@ -56,4 +56,16 @@ public interface ReviewRepository extends JpaRepository<Review, Serializable> {
                         @Param("city") String city,
                         @Param("date") String date,
                         Pageable pageable);
+
+        @Query("SELECT r FROM Review r WHERE " +
+                        "(:routeName IS NULL OR :routeName = '' OR LOWER(r.route.title) LIKE LOWER(CONCAT('%', :routeName, '%'))) AND "
+                        +
+                        "(:city IS NULL OR :city = '' OR LOWER(r.route.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND "
+                        +
+                        "(:date IS NULL OR :date = '' OR FUNCTION('DATE_FORMAT', r.date, '%d/%m/%Y') = :date)")
+        Page<Review> findByRouteNameContainingAndCityContainingAndDatePaginated(
+                        @Param("routeName") String routeName,
+                        @Param("city") String city,
+                        @Param("date") String date,
+                        Pageable pageable);
 }

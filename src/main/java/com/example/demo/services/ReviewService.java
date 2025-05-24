@@ -36,7 +36,9 @@ public interface ReviewService {
 
     ReviewDTO createReviewDTOWithRouteTitle(Review review);
 
-    List<ReviewDTO> getFilteredReviews(String city, String date);
+    List<ReviewDTO> getFilteredReviews(String routeName, String city, String date);
 
-    Page<ReviewDTO> getFilteredReviewsPaginated(String city, String date, Pageable pageable);
+    Page<ReviewDTO> getFilteredReviewsPaginated(String routeName, String city, String date, Pageable pageable);
+
+    boolean filterByRouteName(Review review, String routeName);
 }

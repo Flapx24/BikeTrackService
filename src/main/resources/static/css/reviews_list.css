@@ -39,3 +39,21 @@
     color: white;
     border: none;
 }
+
+/* Clear date button styling */
+#clearDateBtn {
+    border-left: none;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+#clearDateBtn:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+/* Date picker button adjustments */
+#datePickerBtn {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+}

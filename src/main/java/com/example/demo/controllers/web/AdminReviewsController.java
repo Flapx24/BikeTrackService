@@ -42,6 +42,7 @@ public class AdminReviewsController {
 
     @GetMapping("/reviews")
     public String listReviews(
+            @RequestParam(required = false) String routeName,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String date,
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -57,7 +58,7 @@ public class AdminReviewsController {
         }
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<ReviewDTO> reviewsPage = reviewService.getFilteredReviewsPaginated(city, date, pageRequest);
+        Page<ReviewDTO> reviewsPage = reviewService.getFilteredReviewsPaginated(routeName, city, date, pageRequest);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
@@ -70,6 +71,7 @@ public class AdminReviewsController {
         model.addAttribute("totalPages", reviewsPage.getTotalPages());
         model.addAttribute("totalItems", reviewsPage.getTotalElements());
         model.addAttribute("pageSize", size);
+        model.addAttribute("routeNameFilter", routeName != null ? routeName : "");
         model.addAttribute("cityFilter", city != null ? city : "");
         model.addAttribute("dateFilter", date != null ? date : "");
 
@@ -79,6 +81,7 @@ public class AdminReviewsController {
     @PostMapping("/deleteReview")
     public String deleteReview(
             @RequestParam Long reviewId,
+            @RequestParam(required = false) String routeName,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String date,
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -99,9 +102,13 @@ public class AdminReviewsController {
         } else {
             redirectAttributes.addFlashAttribute("error", "Reseña no encontrada.");
         }
-
         StringBuilder redirectUrl = new StringBuilder("/admin/reviews");
         boolean hasParam = false;
+
+        if (routeName != null && !routeName.isEmpty()) {
+            redirectUrl.append(hasParam ? "&" : "?").append("routeName=").append(routeName);
+            hasParam = true;
+        }
 
         if (city != null && !city.isEmpty()) {
             redirectUrl.append(hasParam ? "&" : "?").append("city=").append(city);
