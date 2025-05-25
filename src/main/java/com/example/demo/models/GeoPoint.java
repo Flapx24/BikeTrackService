@@ -28,39 +28,54 @@ public class GeoPoint {
     }
     
     /**
-     * Creates a GeoPoint from a String with format "lat,lng"
+     * Creates a GeoPoint from a String with format "lat,lng" or JSON format
      * 
-     * @param coordString String in format "lat,lng"
+     * @param coordString String in format "lat,lng" or JSON format {"lat": value, "lng": value}
      * @return GeoPoint
      * @throws IllegalArgumentException if the format is invalid
      */
     public static GeoPoint fromString(String coordString) {
-        if (coordString == null || !coordString.contains(",")) {
-            throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng'");
+        if (coordString == null) {
+            throw new IllegalArgumentException("Coordenadas no pueden ser nulas");
         }
         
-        String[] parts = coordString.split(",");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng'");
+        // Check if it's in JSON format
+        if (coordString.trim().startsWith("{")) {
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                return objectMapper.readValue(coordString, GeoPoint.class);
+            } catch (Exception e) {
+                // If JSON format fails, text format is attempted
+            }
         }
         
-        try {
-            Double lat = Double.parseDouble(parts[0].trim());
-            Double lng = Double.parseDouble(parts[1].trim());
-            return new GeoPoint(lat, lng);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Valores de coordenadas inválidos. La latitud y longitud deben ser numéricas");
+        // "lat,lng" format
+        if (coordString.contains(",")) {
+            String[] parts = coordString.split(",");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng'");
+            }
+            
+            try {
+                Double lat = Double.parseDouble(parts[0].trim());
+                Double lng = Double.parseDouble(parts[1].trim());
+                return new GeoPoint(lat, lng);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Valores de coordenadas inválidos. La latitud y longitud deben ser numéricas");
+            }
         }
+        
+        throw new IllegalArgumentException("Formato de coordenadas inválido. Se esperaba 'lat,lng' o formato JSON");
     }
     
     /**
-     * Converts this GeoPoint to a String in format "lat,lng"
+     * Converts this GeoPoint to a JSON String in format {"lat": value, "lng": value}
      * 
-     * @return String representing the coordinates
+     * @return JSON String representing the coordinates
      */
     @Override
     public String toString() {
-        return lat + "," + lng;
+        return "{\"lat\": " + lat + ", \"lng\": " + lng + "}";
     }
     
     public Double getLat() {
