@@ -100,12 +100,12 @@ public class RouteDTO {
         dto.setCity(route.getCity());
         dto.setAverageReviewScore(route.getAverageReviewScore() != null ? route.getAverageReviewScore() : 0.0);
         dto.setDescription(route.getDescription());
-        dto.setCalculatedRoutePoints(route.getCalculatedRoutePoints());
         dto.setCalculatedEstimatedTimeMinutes(route.getCalculatedEstimatedTimeMinutes());
         dto.setCalculatedTotalDistanceKm(route.getCalculatedTotalDistanceKm());
 
         if (detailLevel == RouteDetailLevel.FULL) {
             dto.setRoutePoints(route.getRoutePoints());
+            dto.setCalculatedRoutePoints(route.getCalculatedRoutePoints());
 
             if (route.getReviews() != null) {
                 dto.setReviews(route.getReviews().stream()
@@ -305,7 +305,9 @@ public class RouteDTO {
 
     public void setCalculatedRoutePoints(List<GeoPoint> calculatedRoutePoints) {
         this.calculatedRoutePoints = calculatedRoutePoints;
-    }    public Integer getCalculatedEstimatedTimeMinutes() {
+    }
+
+    public Integer getCalculatedEstimatedTimeMinutes() {
         return calculatedEstimatedTimeMinutes;
     }
 
