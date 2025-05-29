@@ -1,5 +1,5 @@
-# Example configuration for BikeTrack
-spring.application.name=BikeTrack
+# Example configuration for BikeTrackService
+spring.application.name=BikeTrackService
 server.port=8080
 
 # Database Configuration

@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>BikeRouteApi</artifactId>
+	<artifactId>BikeTrackService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>BikeRouteApi</name>
-	<description>BikeRoute Api</description>
+	<name>BikeTrackService</name>
+	<description>BikeTrack Api and Web</description>
 	<url />
 	<licenses>
 		<license />
