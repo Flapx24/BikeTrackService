@@ -34,6 +34,26 @@
       "name": "openrouteservice.api.url",
       "type": "java.lang.String",
       "description": "Open Route Service API URL."
+    },
+    {
+      "name": "admin.email",
+      "type": "java.lang.String",
+      "description": "Admin email address. Used for admin login."
+    },
+    {
+      "name": "admin.username",
+      "type": "java.lang.String",
+      "description": "Admin username."
+    },
+    {
+      "name": "admin.name",
+      "type": "java.lang.String",
+      "description": "Admin name."
+    },
+    {
+      "name": "admin.password",
+      "type": "java.lang.String",
+      "description": "Admin password."
     }
   ]
 }

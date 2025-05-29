@@ -13,6 +13,12 @@ spring.jpa.show-sql=true
 # JWT Configuration
 jwt.secret=your_jwt_secret_key
 
+# Admin User Configuration (uncomment to change the default admin user values)
+# admin.email=admin@admin.com
+# admin.username=admin
+# admin.name=admin
+# admin.password=admin
+
 # JWT token expiration times in milliseconds (modify only if you want to override the default values defined in JwtConfig class)
 # Short: 3 hours (for normal sessions)
 # jwt.expiration.short=short_expiration_value
