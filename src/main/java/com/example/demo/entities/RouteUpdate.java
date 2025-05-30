@@ -26,11 +26,11 @@ public class RouteUpdate {
 
     @Column(nullable = false)
     private LocalDate date;
-
+    
     @Enumerated(EnumType.STRING)
     private UpdateType type;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private Boolean isResolved;
 
     @ManyToOne
