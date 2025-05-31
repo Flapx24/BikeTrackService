@@ -32,25 +32,25 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
-    
+
     @Autowired
     @Qualifier("reviewService")
     private ReviewService reviewService;
-    
+
     @Autowired
     @Qualifier("routeService")
     private RouteService routeService;
-    
+
     @Autowired
     @Qualifier("jwtService")
     private JwtService jwtService;
-    
+
     /**
      * Create a review for a route
      * 
      * @param authHeader Authorization token
-     * @param routeId ID of the route to review
-     * @param reviewDTO Review data to create
+     * @param routeId    ID of the route to review
+     * @param reviewDTO  Review data to create
      * @return Created review with 201 status code
      */
     @PostMapping("/route/{routeId}")
@@ -58,48 +58,46 @@ public class ReviewController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId,
             @Valid @RequestBody ReviewDTO reviewDTO) {
-        
+
         User user = jwtService.getUser(authHeader);
-        
+
         Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "Ruta no encontrada con ID: " + routeId
-            ));
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId));
         }
-        
+
         reviewDTO.setRouteId(routeId);
-        
+
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (!existingReviews.isEmpty()) {
             return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(Map.of(
-                    "success", false,
-                    "message", "Ya tienes una reseña para esta ruta. Por favor, actualiza tu reseña existente."
-                ));
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of(
+                            "success", false,
+                            "message",
+                            "Ya tienes una reseña para esta ruta. Por favor, actualiza tu reseña existente."));
         }
-        
+
         reviewDTO.setId(null);
-        
+
         Review review = reviewDTO.toEntity(user, route);
-        
+
         review = reviewService.saveReview(review, user);
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-            "success", true,
-            "message", "Reseña creada con éxito",
-            "data", new ReviewDTO(review)
-        ));
+                "success", true,
+                "message", "Reseña creada con éxito",
+                "data", new ReviewDTO(review)));
     }
-    
+
     /**
      * Update the current user's review for a specific route
      * 
      * @param authHeader Authorization token
-     * @param routeId ID of the route
-     * @param reviewDTO Updated review data (rating and text)
+     * @param routeId    ID of the route
+     * @param reviewDTO  Updated review data (rating and text)
      * @return Updated review or 404 if the user hasn't reviewed this route
      */
     @PutMapping("/route/{routeId}")
@@ -107,165 +105,157 @@ public class ReviewController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId,
             @Valid @RequestBody ReviewDTO reviewDTO) {
-        
+
         User user = jwtService.getUser(authHeader);
-        
+
         Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "Ruta no encontrada con ID: " + routeId
-            ));
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId));
         }
-        
+
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "No tienes una reseña existente para esta ruta"
-            ));
+                    "success", false,
+                    "message", "No tienes una reseña existente para esta ruta"));
         }
-        
+
         Review existingReview = existingReviews.get(0);
-        
+
         reviewDTO.setId(existingReview.getId());
         reviewDTO.setRouteId(routeId);
-        
+
         Review review = reviewDTO.toEntity(user, route);
-        
+
         review = reviewService.saveReview(review, user);
-        
+
         return ResponseEntity.ok(Map.of(
-            "success", true,
-            "message", "Reseña actualizada con éxito",
-            "data", new ReviewDTO(review)
-        ));
+                "success", true,
+                "message", "Reseña actualizada con éxito",
+                "data", new ReviewDTO(review)));
     }
-    
+
     /**
      * Delete the current user's review for a specific route
      * 
      * @param authHeader Authorization token
-     * @param routeId ID of the route
-     * @return Empty response with appropriate status (204 if deleted, 404 if not found)
+     * @param routeId    ID of the route
+     * @return Empty response with appropriate status (204 if deleted, 404 if not
+     *         found)
      */
     @DeleteMapping("/route/{routeId}")
     public ResponseEntity<?> deleteReview(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId) {
-        
+
         User user = jwtService.getUser(authHeader);
-        
+
         Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "Ruta no encontrada con ID: " + routeId
-            ));
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId));
         }
-        
+
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "No tienes una reseña para eliminar en esta ruta"
-            ));
+                    "success", false,
+                    "message", "No tienes una reseña para eliminar en esta ruta"));
         }
-        
+
         Review review = existingReviews.get(0);
-        
+
         boolean deleted = reviewService.deleteReview(review.getId());
-        
+
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "success", false,
-                "message", "No se pudo eliminar la reseña"
-            ));
+                    "success", false,
+                    "message", "No se pudo eliminar la reseña"));
         }
-        
+
         return ResponseEntity.noContent().build();
     }
-    
+
     /**
      * Get the current user's review for a specific route
      * 
      * @param authHeader Authorization token
-     * @param routeId ID of the route
+     * @param routeId    ID of the route
      * @return The user's review or 404 if not found
      */
     @GetMapping("/route/{routeId}/mine")
     public ResponseEntity<?> getMyReview(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId) {
-        
+
         User user = jwtService.getUser(authHeader);
-        
+
         Route route = routeService.findById(routeId);
         if (route == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "Ruta no encontrada con ID: " + routeId
-            ));
+                    "success", false,
+                    "message", "Ruta no encontrada con ID: " + routeId));
         }
-        
+
         List<Review> existingReviews = reviewService.findByUserAndRoute(user, route);
         if (existingReviews.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "success", false,
-                "message", "No tienes ninguna reseña para esta ruta"
-            ));
+                    "success", false,
+                    "message", "No tienes ninguna reseña para esta ruta"));
         }
-        
+
         Review review = existingReviews.get(0);
-        
+
         return ResponseEntity.ok(Map.of(
-            "success", true,
-            "message", "Reseña recuperada con éxito",
-            "data", new ReviewDTO(review)
-        ));
+                "success", true,
+                "message", "Reseña recuperada con éxito",
+                "data", new ReviewDTO(review)));
     }
-    
+
     /**
      * Get all reviews for a route with pagination
      * 
-     * @param authHeader Authorization token
-     * @param routeId ID of the route
+     * @param authHeader   Authorization token
+     * @param routeId      ID of the route
      * @param lastReviewId ID of the last review received (optional, for pagination)
-     * @return List of reviews (empty list if no reviews exist)
+     * @return List of reviews for the route with logged user's review first if
+     *         review exists (empty list if no reviews exist)
      */
     @GetMapping("/route/{routeId}")
     public ResponseEntity<?> getRouteReviews(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long routeId,
             @RequestParam(required = false) Long lastReviewId) {
-        
+
         try {
+            User requestingUser = jwtService.getUser(authHeader);
+
             Route route = routeService.findById(routeId);
             if (route == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                    "success", false,
-                    "message", "Ruta no encontrada con ID: " + routeId
-                ));
+                        "success", false,
+                        "message", "Ruta no encontrada con ID: " + routeId));
             }
-            
-            List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId);
-            
-            List<ReviewDTO> reviewDTOs = (reviews == null || reviews.isEmpty()) 
-                ? List.of() 
-                : reviews.stream()
-                    .map(ReviewDTO::new)
-                    .collect(Collectors.toList());
-            
+
+            List<Review> reviews = reviewService.findReviewsByRouteId(routeId, lastReviewId, requestingUser);
+
+            List<ReviewDTO> reviewDTOs = (reviews == null || reviews.isEmpty())
+                    ? List.of()
+                    : reviews.stream()
+                            .map(ReviewDTO::new)
+                            .collect(Collectors.toList());
+
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Reseñas recuperadas con éxito",
-                "data", reviewDTOs
-            ));
+                    "success", true,
+                    "message", "Reseñas recuperadas con éxito",
+                    "data", reviewDTOs));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "success", false,
-                "message", "Error al obtener las reseñas: " + e.getMessage()
-            ));
+                    "success", false,
+                    "message", "Error al obtener las reseñas: " + e.getMessage()));
         }
     }
 }

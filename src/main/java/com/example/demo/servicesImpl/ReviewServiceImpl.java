@@ -3,6 +3,7 @@ package com.example.demo.servicesImpl;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,18 +58,45 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> findReviewsByRouteId(Long routeId, Long lastReviewId) {
+    public List<Review> findReviewsByRouteId(Long routeId, Long lastReviewId, User requestingUser) {
         Route route = routeRepository.findById(routeId).orElse(null);
 
         if (route == null) {
             return List.of();
         }
 
-        if (lastReviewId == null) {
-            return reviewRepository.findByRouteOrderByIdAsc(route, PageRequest.of(0, PAGE_SIZE));
+        List<Review> result = new ArrayList<>();
+        Pageable pageable = PageRequest.of(0, PAGE_SIZE);
+
+        // First page: check if user has a review and include it first
+        if (lastReviewId == null && requestingUser != null) {
+            List<Review> userReviews = reviewRepository.findByUserAndRoute(requestingUser, route);
+            if (!userReviews.isEmpty()) {
+                result.add(userReviews.get(0)); // Add user's review first
+
+                // Get remaining reviews excluding user's review
+                List<Review> otherReviews = reviewRepository.findByRouteExcludingUserOrderByIdDesc(
+                        route, requestingUser, PageRequest.of(0, PAGE_SIZE - 1));
+                result.addAll(otherReviews);
+            } else {
+                // No user review, get all reviews in descending order
+                result = reviewRepository.findByRouteOrderByIdDesc(route, pageable);
+            }
+        } else if (lastReviewId == null) {
+            // No user specified, get all reviews in descending order
+            result = reviewRepository.findByRouteOrderByIdDesc(route, pageable);
         } else {
-            return reviewRepository.findByRouteAndIdGreaterThan(route, lastReviewId, PageRequest.of(0, PAGE_SIZE));
+            // Pagination: exclude user's review from subsequent pages
+            if (requestingUser != null) {
+                result = reviewRepository.findByRouteExcludingUserAndIdLessThanOrderByIdDesc(
+                        route, requestingUser, lastReviewId, pageable);
+            } else {
+                result = reviewRepository.findByRouteAndIdLessThanOrderByIdDesc(
+                        route, lastReviewId, pageable);
+            }
         }
+
+        return result;
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface ReviewService {
 
     Review findById(Long id);
 
-    List<Review> findReviewsByRouteId(Long routeId, Long lastReviewId);
+    List<Review> findReviewsByRouteId(Long routeId, Long lastReviewId, User requestingUser);
 
     boolean deleteReview(Long id);
 

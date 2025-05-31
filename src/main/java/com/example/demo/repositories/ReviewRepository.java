@@ -19,15 +19,30 @@ public interface ReviewRepository extends JpaRepository<Review, Serializable> {
 
         List<Review> findByRoute(Route route);
 
-        List<Review> findByRouteOrderByIdAsc(Route route, Pageable pageable);
+        List<Review> findByUserAndRoute(User user, Route route);
 
-        @Query("SELECT r FROM Review r WHERE r.route = :route AND r.id > :lastId ORDER BY r.id ASC")
-        List<Review> findByRouteAndIdGreaterThan(
+        // Methods for descending order with user review exclusion
+        @Query("SELECT r FROM Review r WHERE r.route = :route ORDER BY r.id DESC")
+        List<Review> findByRouteOrderByIdDesc(@Param("route") Route route, Pageable pageable);
+
+        @Query("SELECT r FROM Review r WHERE r.route = :route AND r.id < :lastId ORDER BY r.id DESC")
+        List<Review> findByRouteAndIdLessThanOrderByIdDesc(
                         @Param("route") Route route,
                         @Param("lastId") Long lastId,
                         Pageable pageable);
 
-        List<Review> findByUserAndRoute(User user, Route route);
+        @Query("SELECT r FROM Review r WHERE r.route = :route AND r.user != :user ORDER BY r.id DESC")
+        List<Review> findByRouteExcludingUserOrderByIdDesc(
+                        @Param("route") Route route,
+                        @Param("user") User user,
+                        Pageable pageable);
+
+        @Query("SELECT r FROM Review r WHERE r.route = :route AND r.user != :user AND r.id < :lastId ORDER BY r.id DESC")
+        List<Review> findByRouteExcludingUserAndIdLessThanOrderByIdDesc(
+                        @Param("route") Route route,
+                        @Param("user") User user,
+                        @Param("lastId") Long lastId,
+                        Pageable pageable);
 
         /**
          * Calculate the average rating for a route
