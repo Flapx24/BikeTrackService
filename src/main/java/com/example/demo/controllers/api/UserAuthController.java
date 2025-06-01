@@ -111,7 +111,7 @@ public class UserAuthController {
             if ((boolean) fullResult.get("success")) {
                 Map<String, Object> response = Map.of(
                     "success", true,
-                    "nickname", fullResult.get("nickname"),
+                    "name", fullResult.get("name"),
                     "message", "Autenticación válida"
                 );
                 return ResponseEntity.ok(response);

@@ -42,7 +42,7 @@ public class UserAuthService {
      * Manual login with email and password
      * Generates a token based on the rememberMe option
      * 
-     * @return Map with user's nickname and token
+     * @return Map with user's name and token
      */
     public Map<String, Object> login(String email, String password, boolean rememberMe) {
         // Normalize email to lowercase
@@ -65,7 +65,7 @@ public class UserAuthService {
         String token = jwtService.generateToken(user, rememberMe);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("nickname", user.getName());
+        result.put("name", user.getName());
         result.put("token", token);
         result.put("success", true);
         result.put("message", "Login exitoso");
@@ -114,7 +114,7 @@ public class UserAuthService {
      * Login with existing token
      * 
      * @param token The JWT token
-     * @return Map with user's nickname and token if it's valid
+     * @return Map with user's name and token if it's valid
      */
     public Map<String, Object> loginWithToken(String token) {
         Map<String, Object> result = new HashMap<>();
@@ -128,7 +128,7 @@ public class UserAuthService {
         String cleanToken = token.replace("Bearer ", "");
         User user = jwtService.getUser(cleanToken);
 
-        result.put("nickname", user.getName());
+        result.put("name", user.getName());
         result.put("token", token);
         result.put("success", true);
         result.put("message", "Token válido");
