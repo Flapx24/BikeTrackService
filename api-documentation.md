@@ -43,11 +43,23 @@ Most responses follow this structure:
 
 ```json
 {
+  "username": "myusername",
+  "name": "John",
+  "surname": "Doe",
   "email": "user@example.com",
-  "password": "securepassword",
-  "nickname": "username"
+  "password": "securepassword"
 }
 ```
+
+**Request Body Fields:**
+
+- **username** (string, required): Unique username for the user.
+- **name** (string, required): User's first name.
+- **surname** (string, optional): User's last name.
+- **email** (string, required): User's email address. Must be a valid email format and unique.
+- **password** (string, required): User's password.
+
+_Note: Fields like `imageUrl`, `role`, and `active` are handled automatically by the system and should not be included in the request._
 
 **Success Response:**
 
@@ -64,10 +76,13 @@ Most responses follow this structure:
 **Error Responses:**
 
 - **Code:** 400 Bad Request
-  - Email already exists
-  - Invalid email format
-  - Password too short
-  - Missing required fields
+  - "El nombre de usuario es obligatorio"
+  - "El nombre es obligatorio"
+  - "El correo electrónico es obligatorio"
+  - "Por favor, introduce un correo electrónico válido"
+  - "La contraseña es obligatoria"
+  - "Email already exists"
+  - "Username already exists"
 
 ### Login
 
@@ -93,8 +108,8 @@ Most responses follow this structure:
 ```json
 {
   "success": true,
-  "token": "jwt-token-here",
-  "nickname": "username",
+  "token": "jwt_token_here",
+  "name": "name",
   "message": "Login successful"
 }
 ```
@@ -126,7 +141,7 @@ Most responses follow this structure:
 ```json
 {
   "success": true,
-  "nickname": "username",
+  "name": "name",
   "message": "Autenticación válida"
 }
 ```
@@ -760,7 +775,7 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
 
 **Endpoint:** `GET /api/reviews/route/{routeId}`
 
-**Description:** Get all reviews for a specific route with pagination.
+**Description:** Get all reviews for a specific route with pagination. If the authenticated user has a review for this route, it will be returned first, followed by other reviews in descending order by ID.
 
 **Headers:**
 
@@ -785,6 +800,15 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "message": "Reseñas recuperadas con éxito",
   "data": [
     {
+      "id": 1,
+      "userId": 10,
+      "routeId": 5,
+      "userName": "currentUser",
+      "text": "My review appears first!",
+      "rating": 4.5,
+      "createdAt": "2023-01-01T12:00:00"
+    },
+    {
       "id": 2,
       "userId": 11,
       "routeId": 5,
@@ -797,6 +821,8 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   ]
 }
 ```
+
+_Note: The authenticated user's review (if it exists) will always appear first in the results, regardless of its creation date. Other reviews follow in descending order by ID._
 
 **Error Responses:**
 
