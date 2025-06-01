@@ -42,3 +42,6 @@ src/main/resources/static/images/workshop/
 # User images (exclude everything except the default folder)
 src/main/resources/static/images/user/*
 !src/main/resources/static/images/user/default/
+
+# Default bike images
+src/main/resources/static/images/bikes/*

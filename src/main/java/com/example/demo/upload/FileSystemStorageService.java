@@ -28,7 +28,7 @@ public class FileSystemStorageService implements StorageService {
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemStorageService.class);
 	private final Path rootLocation;
 	private final StorageProperties storageProperties;
-	private final List<String> VALID_ENTITY_TYPES = Arrays.asList("route", "workshop", "user");
+	private final List<String> VALID_ENTITY_TYPES = Arrays.asList("route", "workshop", "user", "bike");
 
 	public FileSystemStorageService(StorageProperties properties) {
 		this.storageProperties = properties;
@@ -226,6 +226,46 @@ public class FileSystemStorageService implements StorageService {
 		} catch (IOException e) {
 			logger.error("Error accessing default images directory", e);
 			return storageProperties.getBaseUrl() + "/user/default/placeholder-user.png";
+		}
+	}
+
+	@Override
+	public String getRandomBicycleImage() {
+		String bikeImagesPath = this.rootLocation + "/bike";
+		Path bikeImagesDir = Paths.get(bikeImagesPath);
+
+		try {
+			if (!Files.exists(bikeImagesDir)) {
+				return storageProperties.getBaseUrl() + "/bike/default-bike.png";
+			}
+
+			List<Path> bikeImages = Files.list(bikeImagesDir)
+					.filter(path -> {
+						String fileName = path.getFileName().toString().toLowerCase();
+						return fileName.endsWith(".jpg") ||
+								fileName.endsWith(".jpeg") ||
+								fileName.endsWith(".png") ||
+								fileName.endsWith(".webp");
+					})
+					.collect(Collectors.toList());
+
+			if (bikeImages.isEmpty()) {
+				return storageProperties.getBaseUrl() + "/bike/default-bike.png";
+			}
+
+			// Select a random image
+			int randomIndex = new Random().nextInt(bikeImages.size());
+			Path selectedImage = bikeImages.get(randomIndex);
+
+			// Convert file system path to relative URL
+			String relativePath = bikeImagesDir.relativize(selectedImage).toString()
+					.replace('\\', '/');
+
+			return storageProperties.getBaseUrl() + "/bike/" + relativePath;
+
+		} catch (IOException e) {
+			logger.error("Error accessing bike images directory", e);
+			return storageProperties.getBaseUrl() + "/bike/default-bike.png";
 		}
 	}
 

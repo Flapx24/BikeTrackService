@@ -3,6 +3,8 @@ package com.example.demo.upload;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +26,7 @@ public class FileUploadController {
 	
 	/**
 	 * Serves a file from any entity type
-	 * @param entityType Entity type (route, workshop, user)
+	 * @param entityType Entity type (route, workshop, user, bike)
 	 * @param filename File name
 	 * @return The requested resource
 	 */
@@ -40,7 +42,36 @@ public class FileUploadController {
 			return ResponseEntity.notFound().build();
 		}
 
-		return ResponseEntity.ok().body(file);
+		// Determine content type based on file extension
+		String contentType = determineContentType(filename);
+		
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, contentType)
+				.body(file);
+	}
+	
+	/**
+	 * Determines the content type based on file extension
+	 * @param filename The filename to check
+	 * @return The appropriate MIME type
+	 */
+	private String determineContentType(String filename) {
+		String lowerCaseFilename = filename.toLowerCase();
+		
+		if (lowerCaseFilename.endsWith(".jpg") || lowerCaseFilename.endsWith(".jpeg")) {
+			return MediaType.IMAGE_JPEG_VALUE;
+		} else if (lowerCaseFilename.endsWith(".png")) {
+			return MediaType.IMAGE_PNG_VALUE;
+		} else if (lowerCaseFilename.endsWith(".webp")) {
+			return "image/webp";
+		} else if (lowerCaseFilename.endsWith(".gif")) {
+			return MediaType.IMAGE_GIF_VALUE;
+		} else if (lowerCaseFilename.endsWith(".svg")) {
+			return "image/svg+xml";
+		} else {
+			// Default to binary if unknown
+			return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+		}
 	}
 
 	/**
