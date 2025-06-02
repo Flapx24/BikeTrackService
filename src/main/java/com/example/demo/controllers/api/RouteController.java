@@ -58,6 +58,9 @@ public class RouteController {
         }
 
         RouteDTO routeDTO = RouteDTO.fromEntity(route, RouteDetailLevel.FULL);
+
+        routeDTO.setReviewCount(route.getReviews() != null ? route.getReviews().size() : 0);
+        routeDTO.setUpdateCount(route.getUpdates() != null ? route.getUpdates().size() : 0);
         
         if (routeDTO.getReviews() != null && routeDTO.getReviews().size() > INITIAL_REVIEWS_LIMIT) {
             routeDTO.setReviews(routeDTO.getReviews().subList(0, INITIAL_REVIEWS_LIMIT));
@@ -84,7 +87,12 @@ public class RouteController {
 
         List<Route> routes = routeService.getAllRoutes(lastRouteId);
         List<RouteDTO> routeDTOs = routes.stream()
-                .map(route -> RouteDTO.fromEntity(route, RouteDetailLevel.BASIC))
+                .map(route -> {
+                    RouteDTO dto = RouteDTO.fromEntity(route, RouteDetailLevel.BASIC);
+                    dto.setReviewCount(route.getReviews() != null ? route.getReviews().size() : 0);
+                    dto.setUpdateCount(route.getUpdates() != null ? route.getUpdates().size() : 0);
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of(
@@ -126,7 +134,12 @@ public class RouteController {
         List<Route> routes = routeService.getRoutesByCityAndMinScore(city, minScore, lastRouteId);
         
         List<RouteDTO> routeDTOs = routes.stream()
-                .map(route -> RouteDTO.fromEntity(route, RouteDetailLevel.BASIC))
+                .map(route -> {
+                    RouteDTO dto = RouteDTO.fromEntity(route, RouteDetailLevel.BASIC);
+                    dto.setReviewCount(route.getReviews() != null ? route.getReviews().size() : 0);
+                    dto.setUpdateCount(route.getUpdates() != null ? route.getUpdates().size() : 0);
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of(
