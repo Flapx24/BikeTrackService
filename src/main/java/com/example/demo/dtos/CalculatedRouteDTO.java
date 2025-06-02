@@ -3,15 +3,17 @@ package com.example.demo.dtos;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.demo.enums.VehicleType;
 import com.example.demo.models.GeoPoint;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CalculatedRouteDTO {
 
-    private List<GeoPoint> routePoints;    private Integer estimatedTimeMinutes;
+    private List<GeoPoint> routePoints;
+    private Integer estimatedTimeMinutes;
     private Double totalDistanceKm;
-    private String vehicleType;
+    private VehicleType vehicleType;
     private boolean success;
     private String message;
 
@@ -25,9 +27,10 @@ public class CalculatedRouteDTO {
      * @param routePoints          List of geographic points that make up the route
      * @param estimatedTimeMinutes Estimated time in minutes to travel the route
      * @param totalDistanceKm      Total distance in kilometers
-     * @param vehicleType          Vehicle type (BICYCLE, CAR, WALKING)
-     */    public CalculatedRouteDTO(List<GeoPoint> routePoints, Integer estimatedTimeMinutes,
-            Double totalDistanceKm, String vehicleType) {
+     * @param vehicleType          Vehicle type enum
+     */
+    public CalculatedRouteDTO(List<GeoPoint> routePoints, Integer estimatedTimeMinutes,
+            Double totalDistanceKm, VehicleType vehicleType) {
         this.routePoints = routePoints;
         this.estimatedTimeMinutes = estimatedTimeMinutes;
         this.totalDistanceKm = totalDistanceKm;
@@ -53,7 +56,9 @@ public class CalculatedRouteDTO {
 
     public void setRoutePoints(List<GeoPoint> routePoints) {
         this.routePoints = routePoints;
-    }    public Integer getEstimatedTimeMinutes() {
+    }
+
+    public Integer getEstimatedTimeMinutes() {
         return estimatedTimeMinutes;
     }
 
@@ -69,11 +74,11 @@ public class CalculatedRouteDTO {
         this.totalDistanceKm = totalDistanceKm;
     }
 
-    public String getVehicleType() {
+    public VehicleType getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(String vehicleType) {
+    public void setVehicleType(VehicleType vehicleType) {
         this.vehicleType = vehicleType;
     }
 

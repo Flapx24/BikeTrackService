@@ -35,6 +35,7 @@ import com.example.demo.dtos.UserDTO;
 import com.example.demo.entities.Route;
 import com.example.demo.entities.User;
 import com.example.demo.enums.RouteDetailLevel;
+import com.example.demo.enums.VehicleType;
 import com.example.demo.models.GeoPoint;
 import com.example.demo.services.RouteCalculationService;
 import com.example.demo.services.RouteService;
@@ -170,10 +171,9 @@ public class AdminRoutesController {
                         "success", false,
                         "message", "No se recibieron puntos de ruta"));
             }
-
             logger.info("Processing {} points for route calculation", request.getPoints().size());
             CalculatedRouteDTO calculatedRoute = routeCalculationService.calculateRoute(
-                    request.getPoints(), "BICYCLE");
+                    request.getPoints(), VehicleType.BICYCLE);
 
             if (calculatedRoute.isSuccess()) {
                 return ResponseEntity.ok(Map.of(

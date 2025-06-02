@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.demo.dtos.CalculatedRouteDTO;
+import com.example.demo.enums.VehicleType;
 import com.example.demo.models.GeoPoint;
 import com.example.demo.services.RouteCalculationService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,7 +48,7 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
     }
 
     @Override
-    public CalculatedRouteDTO calculateRoute(List<GeoPoint> points, String vehicleType) {
+    public CalculatedRouteDTO calculateRoute(List<GeoPoint> points, VehicleType vehicleType) {
         if (points == null || points.size() < MIN_POINTS) {
             return new CalculatedRouteDTO("At least 2 points are required to calculate a route");
         }
@@ -62,26 +63,9 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
         }
 
         try {
-            logger.info("Calculating route for {} points with vehicle type: {}", points.size(), vehicleType);
+            logger.info("Calculating route for {} points with vehicle type: {}", points.size(), vehicleType.name());
 
-            // Normalize vehicle type to OpenRouteService profile
-            String profile;
-            switch (vehicleType.toUpperCase()) {
-                case "BICYCLE":
-                case "BIKE":
-                    profile = "cycling-regular";
-                    break;
-                case "CAR":
-                case "AUTO":
-                    profile = "driving-car";
-                    break;
-                case "WALKING":
-                case "FOOT":
-                    profile = "foot-walking";
-                    break;
-                default:
-                    profile = "cycling-regular";
-            }
+            String profile = vehicleType.getProfile();
 
             // Call the OpenRouteService API with the specific geojson endpoint
             String responseJson = null;
@@ -218,7 +202,7 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
         }
     }
 
-    private CalculatedRouteDTO processDirectionsResponse(String responseJson, String vehicleType) {
+    private CalculatedRouteDTO processDirectionsResponse(String responseJson, VehicleType vehicleType) {
         try {
             logger.debug("Processing response from OpenRouteService");
 
