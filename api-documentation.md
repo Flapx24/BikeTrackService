@@ -212,16 +212,22 @@ _Note: Fields like `imageUrl`, `role`, and `active` are handled automatically by
   "message": "Ruta recuperada con éxito",
   "data": {
     "id": 1,
-    "name": "Route name",
+    "title": "Route name",
     "description": "Route description",
+    "difficulty": "EASY",
+    "imageUrls": ["url1", "url2"],
     "city": "City name",
-    "distance": 10.5,
-    "averageScore": 4.5,
-    "reviewCount": 10,
-    "creationDate": "2023-01-01T12:00:00",
-    "points": [...],
+    "routePoints": [
+      {"lat": 40.416775, "lng": -3.70379}
+    ],
+    "averageReviewScore": 4.5,
     "reviews": [...],
-    "updates": [...]
+    "updates": [...],
+    "reviewCount": 10,
+    "updateCount": 2,
+    "calculatedRoutePoints": [...],
+    "calculatedEstimatedTimeMinutes": 120,
+    "calculatedTotalDistanceKm": 10.5
   }
 }
 ```
@@ -259,15 +265,16 @@ _Note: `reviews` field is limited to 15 items in the initial response_
   "data": [
     {
       "id": 2,
-      "name": "Route name",
+      "title": "Route name",
       "description": "Route description",
+      "difficulty": "MEDIUM",
+      "imageUrls": ["url1"],
       "city": "City name",
-      "distance": 10.5,
-      "averageScore": 4.5,
+      "routePoints": [{ "lat": 40.416775, "lng": -3.70379 }],
+      "averageReviewScore": 4.5,
       "reviewCount": 10,
-      "creationDate": "2023-01-01T12:00:00"
+      "updateCount": 1
     }
-    // more routes...
   ]
 }
 ```
@@ -300,15 +307,16 @@ _Note: `reviews` field is limited to 15 items in the initial response_
   "data": [
     {
       "id": 3,
-      "name": "Route name",
+      "title": "Route name",
       "description": "Route description",
+      "difficulty": "HARD",
+      "imageUrls": [],
       "city": "City name",
-      "distance": 10.5,
-      "averageScore": 4.5,
+      "routePoints": [{ "lat": 40.416775, "lng": -3.70379 }],
+      "averageReviewScore": 4.5,
       "reviewCount": 10,
-      "creationDate": "2023-01-01T12:00:00"
+      "updateCount": 0
     }
-    // more routes...
   ]
 }
 ```
@@ -336,15 +344,20 @@ _Note: `reviews` field is limited to 15 items in the initial response_
 ```json
 {
   "routeId": 1,
-  "title": "Update title",
   "description": "Update description",
-  "updateType": "CLOSURE",
-  "startDate": "2023-01-01",
-  "endDate": "2023-01-15"
+  "date": "2023-01-01",
+  "type": "CLOSURE",
+  "resolved": false
 }
 ```
 
-_Note: `endDate` can be null for indefinite updates_
+**Request Body Fields:**
+
+- **routeId** (number, required): ID of the route to update
+- **description** (string, required): Description of the update
+- **date** (string, required): Date in format "yyyy-MM-dd"
+- **type** (string, required): Type of update. Valid values: "INCIDENT", "INFO", "MAINTENANCE", "CLOSURE", "OTHER"
+- **resolved** (boolean, optional): Whether the update is resolved (default: false)
 
 **Success Response:**
 
@@ -357,13 +370,12 @@ _Note: `endDate` can be null for indefinite updates_
   "message": "Actualización de ruta creada con éxito",
   "data": {
     "id": 1,
-    "routeId": 1,
-    "title": "Update title",
     "description": "Update description",
-    "updateType": "CLOSURE",
-    "startDate": "2023-01-01",
-    "endDate": "2023-01-15",
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-01",
+    "type": "CLOSURE",
+    "resolved": false,
+    "routeId": 1,
+    "userId": 10
   }
 }
 ```
@@ -372,6 +384,9 @@ _Note: `endDate` can be null for indefinite updates_
 
 - **Code:** 400 Bad Request
   - "El ID de la ruta es obligatorio para crear una actualización de ruta"
+  - "La descripción es obligatoria"
+  - "La fecha es obligatoria"
+  - "El tipo de actualización es obligatorio"
 - **Code:** 404 Not Found
   - "Ruta no encontrada con ID: {routeId}"
 
@@ -390,16 +405,20 @@ _Note: `endDate` can be null for indefinite updates_
 ```json
 {
   "id": 1,
-  "routeId": 1,
-  "title": "Updated title",
   "description": "Updated description",
-  "updateType": "CLOSURE",
-  "startDate": "2023-01-01",
-  "endDate": "2023-01-20"
+  "date": "2023-01-02",
+  "type": "MAINTENANCE",
+  "resolved": true
 }
 ```
 
-_Note: `endDate` can be null for indefinite updates_
+**Request Body Fields:**
+
+- **id** (number, required): ID of the route update to modify
+- **description** (string, required): Updated description
+- **date** (string, required): Date in format "yyyy-MM-dd"
+- **type** (string, required): Type of update. Valid values: "INCIDENT", "INFO", "MAINTENANCE", "CLOSURE", "OTHER"
+- **resolved** (boolean, optional): Whether the update is resolved
 
 **Success Response:**
 
@@ -412,13 +431,12 @@ _Note: `endDate` can be null for indefinite updates_
   "message": "Actualización de ruta modificada con éxito",
   "data": {
     "id": 1,
-    "routeId": 1,
-    "title": "Updated title",
     "description": "Updated description",
-    "updateType": "CLOSURE",
-    "startDate": "2023-01-01",
-    "endDate": "2023-01-20",
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-02",
+    "type": "MAINTENANCE",
+    "resolved": true,
+    "routeId": 1,
+    "userId": 10
   }
 }
 ```
@@ -485,13 +503,12 @@ _Note: `endDate` can be null for indefinite updates_
   "message": "Actualización de ruta recuperada con éxito",
   "data": {
     "id": 1,
-    "routeId": 1,
-    "title": "Update title",
     "description": "Update description",
-    "updateType": "CLOSURE",
-    "startDate": "2023-01-01",
-    "endDate": "2023-01-15",
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-01",
+    "type": "CLOSURE",
+    "resolved": false,
+    "routeId": 1,
+    "userId": 10
   }
 }
 ```
@@ -527,15 +544,13 @@ _Note: `endDate` can be null for indefinite updates_
   "data": [
     {
       "id": 1,
-      "routeId": 1,
-      "title": "Update title",
       "description": "Update description",
-      "updateType": "CLOSURE",
-      "startDate": "2023-01-01",
-      "endDate": "2023-01-15",
-      "createdAt": "2023-01-01T12:00:00"
+      "date": "2023-01-01",
+      "type": "CLOSURE",
+      "resolved": false,
+      "routeId": 1,
+      "userId": 10
     }
-    // more updates...
   ]
 }
 ```
@@ -562,14 +577,31 @@ _Note: `endDate` can be null for indefinite updates_
 ```json
 {
   "points": [
-    { "latitude": 40.416775, "longitude": -3.70379 },
-    { "latitude": 40.41789, "longitude": -3.705675 }
+    { "lat": 40.416775, "lng": -3.70379 },
+    { "lat": 40.41789, "lng": -3.705675 }
   ],
   "vehicleType": "BICYCLE"
 }
 ```
 
-_Note: `vehicleType` is optional and defaults to "BICYCLE"_
+**Request Body Fields:**
+
+- **points** (array, required): Array of geographical points with lat and lng coordinates. Minimum 2 points, maximum 50 points.
+  - **lat** (number, required): Latitude coordinate (-90 to 90)
+  - **lng** (number, required): Longitude coordinate (-180 to 180)
+- **vehicleType** (string, required): Type of vehicle for route calculation.
+
+**Valid vehicleType values:**
+
+- `"BICYCLE"` (Bicicleta)
+- `"CAR"` (Automóvil)
+- `"WALKING"` (Caminando)
+
+**Alternative aliases also accepted:**
+
+- For BICYCLE: `"BIKE"`, `"BICICLETA"`, `"CYCLING"`
+- For CAR: `"AUTO"`, `"AUTOMOBILE"`, `"COCHE"`, `"AUTOMOVIL"`, `"DRIVING"`
+- For WALKING: `"FOOT"`, `"WALK"`, `"CAMINANDO"`, `"PIE"`
 
 **Success Response:**
 
@@ -581,15 +613,14 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "success": true,
   "message": "Ruta calculada con éxito",
   "data": {
-    "success": true,
-    "message": "Route calculated successfully",
-    "points": [
-      { "latitude": 40.416775, "longitude": -3.70379 },
-      { "latitude": 40.41699, "longitude": -3.704245 },
-      { "latitude": 40.41789, "longitude": -3.705675 }
+    "routePoints": [
+      { "lat": 40.416775, "lng": -3.70379 },
+      { "lat": 40.41699, "lng": -3.704245 },
+      { "lat": 40.41789, "lng": -3.705675 }
     ],
-    "distance": 0.5,
-    "time": 120
+    "totalDistanceKm": 0.5,
+    "estimatedTimeMinutes": 120,
+    "vehicleType": "BICYCLE"
   }
 }
 ```
@@ -597,8 +628,16 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
 **Error Responses:**
 
 - **Code:** 400 Bad Request
+  - "El cuerpo de la solicitud es obligatorio"
+  - "Los puntos de la ruta son obligatorios"
   - "Se requieren al menos 2 puntos para calcular una ruta"
   - "No se pueden calcular rutas con más de 50 puntos"
+  - "El tipo de vehículo es obligatorio. Los valores permitidos son: BICYCLE (Bicicleta), CAR (Automóvil), WALKING (Caminando)"
+  - "Tipo de vehículo inválido: '{value}'. Los valores permitidos son: BICYCLE (Bicicleta), CAR (Automóvil), WALKING (Caminando)"
+  - "El punto {number} es nulo"
+  - "El punto {number} tiene coordenadas nulas"
+  - "El punto {number} tiene latitud inválida: {value}. Debe estar entre -90 y 90"
+  - "El punto {number} tiene longitud inválida: {value}. Debe estar entre -180 y 180"
   - "Error al calcular la ruta: {message}"
 
 ## Reviews
@@ -607,7 +646,7 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
 
 **Endpoint:** `POST /api/reviews/route/{routeId}`
 
-**Description:** Create a review for a specific route.
+**Description:** Create a review for a specific route, date is set automatically.
 
 **Headers:**
 
@@ -622,9 +661,14 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
 ```json
 {
   "text": "Review text content",
-  "rating": 4.5
+  "rating": 4
 }
 ```
+
+**Request Body Fields:**
+
+- **text** (string, optional): Review text content
+- **rating** (integer, required): Rating from 1 to 5
 
 **Success Response:**
 
@@ -637,12 +681,15 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "message": "Reseña creada con éxito",
   "data": {
     "id": 1,
-    "userId": 10,
-    "routeId": 5,
-    "userName": "username",
+    "user": {
+      "id": 10,
+      "username": "username",
+      "imageUrl": "http://example.com/image.jpg"
+    },
+    "rating": 4,
     "text": "Review text content",
-    "rating": 4.5,
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-01",
+    "routeId": 5
   }
 }
 ```
@@ -673,9 +720,14 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
 ```json
 {
   "text": "Updated review text",
-  "rating": 5.0
+  "rating": 5
 }
 ```
+
+**Request Body Fields:**
+
+- **text** (string, optional): Updated review text content
+- **rating** (integer, required): Rating from 1 to 5
 
 **Success Response:**
 
@@ -688,12 +740,15 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "message": "Reseña actualizada con éxito",
   "data": {
     "id": 1,
-    "userId": 10,
-    "routeId": 5,
-    "userName": "username",
+    "user": {
+      "id": 10,
+      "username": "username",
+      "imageUrl": "http://example.com/image.jpg"
+    },
+    "rating": 5,
     "text": "Updated review text",
-    "rating": 5.0,
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-01",
+    "routeId": 5
   }
 }
 ```
@@ -755,12 +810,15 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "message": "Reseña recuperada con éxito",
   "data": {
     "id": 1,
-    "userId": 10,
-    "routeId": 5,
-    "userName": "username",
+    "user": {
+      "id": 10,
+      "username": "username",
+      "imageUrl": "http://example.com/image.jpg"
+    },
+    "rating": 4,
     "text": "Review text content",
-    "rating": 4.5,
-    "createdAt": "2023-01-01T12:00:00"
+    "date": "2023-01-01",
+    "routeId": 5
   }
 }
 ```
@@ -801,23 +859,28 @@ _Note: `vehicleType` is optional and defaults to "BICYCLE"_
   "data": [
     {
       "id": 1,
-      "userId": 10,
-      "routeId": 5,
-      "userName": "currentUser",
+      "user": {
+        "id": 10,
+        "username": "currentUser",
+        "imageUrl": "http://example.com/image.jpg"
+      },
+      "rating": 4,
       "text": "My review appears first!",
-      "rating": 4.5,
-      "createdAt": "2023-01-01T12:00:00"
+      "date": "2023-01-01",
+      "routeId": 5
     },
     {
       "id": 2,
-      "userId": 11,
-      "routeId": 5,
-      "userName": "user2",
+      "user": {
+        "id": 11,
+        "username": "user2",
+        "imageUrl": "http://example.com/image2.jpg"
+      },
+      "rating": 5,
       "text": "Great route!",
-      "rating": 5.0,
-      "createdAt": "2023-01-02T12:00:00"
+      "date": "2023-01-02",
+      "routeId": 5
     }
-    // more reviews...
   ]
 }
 ```
@@ -860,15 +923,15 @@ _Note: The authenticated user's review (if it exists) will always appear first i
     "id": 1,
     "name": "Workshop Name",
     "city": "City name",
+    "imageUrls": [
+      "https://example.com/images/workshop1_1.jpg",
+      "https://example.com/images/workshop1_2.jpg"
+    ],
     "address": "Workshop address",
     "coordinates": {
       "lat": 40.416775,
       "lng": -3.70379
-    },
-    "imageUrls": [
-      "https://example.com/images/workshop1_1.jpg",
-      "https://example.com/images/workshop1_2.jpg"
-    ]
+    }
   }
 }
 ```
@@ -906,17 +969,16 @@ _Note: The authenticated user's review (if it exists) will always appear first i
       "id": 1,
       "name": "Workshop Name",
       "city": "City name",
+      "imageUrls": [
+        "https://example.com/images/workshop1_1.jpg",
+        "https://example.com/images/workshop1_2.jpg"
+      ],
       "address": "Workshop address",
       "coordinates": {
         "lat": 40.416775,
         "lng": -3.70379
-      },
-      "imageUrls": [
-        "https://example.com/images/workshop1_1.jpg",
-        "https://example.com/images/workshop1_2.jpg"
-      ]
+      }
     }
-    // more workshops...
   ]
 }
 ```
@@ -945,17 +1007,18 @@ _Note: The authenticated user's review (if it exists) will always appear first i
 ```json
 {
   "name": "My Bicycle",
-  "brand": "Brand Name",
-  "model": "Model Name",
-  "bicycleType": "ROAD",
-  "color": "Red",
-  "purchaseDate": "2023-01-01",
   "totalKilometers": 0,
-  "components": []
+  "lastMaintenanceDate": "2023-01-01"
 }
 ```
 
-_Note: `components` and `purchaseDate` can be null_
+**Request Body Fields:**
+
+- **name** (string, required): Name of the bicycle
+- **iconUrl** (string, optional): URL for the bicycle icon/image
+- **totalKilometers** (number, optional): Total kilometers (default: 0)
+- **lastMaintenanceDate** (string, optional): Last maintenance date in "yyyy-MM-dd" format
+- **components** (array, optional): Array of component DTOs
 
 **Success Response:**
 
@@ -969,13 +1032,11 @@ _Note: `components` and `purchaseDate` can be null_
   "data": {
     "id": 1,
     "name": "My Bicycle",
-    "brand": "Brand Name",
-    "model": "Model Name",
-    "bicycleType": "ROAD",
-    "color": "Red",
-    "purchaseDate": "2023-01-01",
-    "totalKilometers": 0,
+    "iconUrl": "http://example.com/bike.jpg",
     "ownerId": 10,
+    "totalKilometers": 0,
+    "lastMaintenanceDate": "2023-01-01",
+    "componentCount": 0,
     "components": []
   }
 }
@@ -1000,17 +1061,19 @@ _Note: `components` and `purchaseDate` can be null_
 ```json
 {
   "name": "Updated Bicycle Name",
-  "brand": "Updated Brand",
-  "model": "Updated Model",
-  "bicycleType": "ROAD",
-  "color": "Blue",
-  "purchaseDate": "2023-01-01",
   "totalKilometers": 100,
-  "components": [1, 2, 3]
+  "lastMaintenanceDate": "2023-01-01",
+  "components": []
 }
 ```
 
-_Note: `components` is an array of component IDs, `purchaseDate` can be null_
+**Request Body Fields:**
+
+- **name** (string, required): Updated name of the bicycle
+- **iconUrl** (string, optional): Updated icon URL
+- **totalKilometers** (number, optional): Updated total kilometers
+- **lastMaintenanceDate** (string, optional): Updated maintenance date in "yyyy-MM-dd" format
+- **components** (array, optional): Array of component DTOs
 
 **Success Response:**
 
@@ -1024,14 +1087,12 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
   "data": {
     "id": 1,
     "name": "Updated Bicycle Name",
-    "brand": "Updated Brand",
-    "model": "Updated Model",
-    "bicycleType": "ROAD",
-    "color": "Blue",
-    "purchaseDate": "2023-01-01",
-    "totalKilometers": 100,
+    "iconUrl": "http://example.com/new-bike.jpg",
     "ownerId": 10,
-    "components": [1, 2, 3]
+    "totalKilometers": 100,
+    "lastMaintenanceDate": "2023-01-01",
+    "componentCount": 0,
+    "components": []
   }
 }
 ```
@@ -1042,8 +1103,6 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
   - "Bicicleta no encontrada con ID: {bicycleId}"
 - **Code:** 401 Unauthorized
   - "No tienes permiso para modificar esta bicicleta"
-- **Code:** 400 Bad Request
-  - "Los siguientes componentes no existen: [...]"
 
 ### Delete Bicycle
 
@@ -1096,27 +1155,18 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
   "data": {
     "id": 1,
     "name": "My Bicycle",
-    "brand": "Brand Name",
-    "model": "Model Name",
-    "bicycleType": "ROAD",
-    "color": "Red",
-    "purchaseDate": "2023-01-01",
-    "totalKilometers": 100,
+    "iconUrl": "http://example.com/bike.jpg",
     "ownerId": 10,
+    "totalKilometers": 100,
+    "lastMaintenanceDate": "2023-01-01",
+    "componentCount": 2,
     "components": [
       {
         "id": 1,
         "name": "Component name",
-        "type": "CHAIN",
-        "brand": "Component brand",
-        "model": "Component model",
-        "purchaseDate": "2023-01-01",
-        "installationDate": "2023-01-02",
-        "currentKilometers": 100,
-        "totalKilometers": 100,
-        "recommendedKilometers": 1000
+        "maxKilometers": 1000,
+        "currentKilometers": 100
       }
-      // more components...
     ]
   }
 }
@@ -1152,15 +1202,13 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
     {
       "id": 1,
       "name": "My Bicycle 1",
-      "brand": "Brand Name",
-      "model": "Model Name",
-      "bicycleType": "ROAD",
-      "color": "Red",
-      "purchaseDate": "2023-01-01",
+      "iconUrl": "http://example.com/bike1.jpg",
+      "ownerId": 10,
       "totalKilometers": 100,
-      "ownerId": 10
+      "lastMaintenanceDate": "2023-01-01",
+      "needsMaintenance": "false",
+      "componentCount": 2
     }
-    // more bicycles...
   ]
 }
 ```
@@ -1195,13 +1243,11 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
   "data": {
     "id": 1,
     "name": "My Bicycle",
-    "brand": "Brand Name",
-    "model": "Model Name",
-    "bicycleType": "ROAD",
-    "color": "Red",
-    "purchaseDate": "2023-01-01",
-    "totalKilometers": 150,
+    "iconUrl": "http://example.com/bike.jpg",
     "ownerId": 10,
+    "totalKilometers": 150,
+    "lastMaintenanceDate": "2023-01-01",
+    "componentCount": 2,
     "components": [...]
   }
 }
@@ -1246,13 +1292,11 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
   "data": {
     "id": 1,
     "name": "My Bicycle",
-    "brand": "Brand Name",
-    "model": "Model Name",
-    "bicycleType": "ROAD",
-    "color": "Red",
-    "purchaseDate": "2023-01-01",
-    "totalKilometers": 50,
+    "iconUrl": "http://example.com/bike.jpg",
     "ownerId": 10,
+    "totalKilometers": 50,
+    "lastMaintenanceDate": "2023-01-01",
+    "componentCount": 2,
     "components": [...]
   }
 }
@@ -1288,18 +1332,16 @@ _Note: `components` is an array of component IDs, `purchaseDate` can be null_
 ```json
 {
   "name": "Component Name",
-  "type": "CHAIN",
-  "brand": "Component Brand",
-  "model": "Component Model",
-  "purchaseDate": "2023-01-01",
-  "installationDate": "2023-01-02",
-  "currentKilometers": 0,
-  "totalKilometers": 0,
-  "recommendedKilometers": 1000
+  "maxKilometers": 1000,
+  "currentKilometers": 0
 }
 ```
 
-_Note: `purchaseDate`, `installationDate` can be null_
+**Request Body Fields:**
+
+- **name** (string, required): Name of the component
+- **maxKilometers** (number, required): Maximum kilometers before maintenance is needed (must be positive)
+- **currentKilometers** (number, required): Current kilometers on the component
 
 **Success Response:**
 
@@ -1313,15 +1355,8 @@ _Note: `purchaseDate`, `installationDate` can be null_
   "data": {
     "id": 1,
     "name": "Component Name",
-    "type": "CHAIN",
-    "brand": "Component Brand",
-    "model": "Component Model",
-    "purchaseDate": "2023-01-01",
-    "installationDate": "2023-01-02",
-    "currentKilometers": 0,
-    "totalKilometers": 0,
-    "recommendedKilometers": 1000,
-    "bicycleId": 1
+    "maxKilometers": 1000,
+    "currentKilometers": 0
   }
 }
 ```
@@ -1352,18 +1387,16 @@ _Note: `purchaseDate`, `installationDate` can be null_
 ```json
 {
   "name": "Updated Component Name",
-  "type": "CHAIN",
-  "brand": "Updated Brand",
-  "model": "Updated Model",
-  "purchaseDate": "2023-01-01",
-  "installationDate": "2023-01-02",
-  "currentKilometers": 100,
-  "totalKilometers": 100,
-  "recommendedKilometers": 1200
+  "maxKilometers": 1200,
+  "currentKilometers": 100
 }
 ```
 
-_Note: `purchaseDate`, `installationDate` can be null_
+**Request Body Fields:**
+
+- **name** (string, required): Updated name of the component
+- **maxKilometers** (number, required): Updated maximum kilometers (must be positive)
+- **currentKilometers** (number, required): Updated current kilometers
 
 **Success Response:**
 
@@ -1377,15 +1410,8 @@ _Note: `purchaseDate`, `installationDate` can be null_
   "data": {
     "id": 1,
     "name": "Updated Component Name",
-    "type": "CHAIN",
-    "brand": "Updated Brand",
-    "model": "Updated Model",
-    "purchaseDate": "2023-01-01",
-    "installationDate": "2023-01-02",
-    "currentKilometers": 100,
-    "totalKilometers": 100,
-    "recommendedKilometers": 1200,
-    "bicycleId": 1
+    "maxKilometers": 1200,
+    "currentKilometers": 100
   }
 }
 ```
@@ -1450,15 +1476,8 @@ _Note: `purchaseDate`, `installationDate` can be null_
   "data": {
     "id": 1,
     "name": "Component Name",
-    "type": "CHAIN",
-    "brand": "Component Brand",
-    "model": "Component Model",
-    "purchaseDate": "2023-01-01",
-    "installationDate": "2023-01-02",
-    "currentKilometers": 100,
-    "totalKilometers": 100,
-    "recommendedKilometers": 1000,
-    "bicycleId": 1
+    "maxKilometers": 1000,
+    "currentKilometers": 100
   }
 }
 ```
@@ -1497,17 +1516,9 @@ _Note: `purchaseDate`, `installationDate` can be null_
     {
       "id": 1,
       "name": "Component 1",
-      "type": "CHAIN",
-      "brand": "Brand 1",
-      "model": "Model 1",
-      "purchaseDate": "2023-01-01",
-      "installationDate": "2023-01-02",
-      "currentKilometers": 100,
-      "totalKilometers": 100,
-      "recommendedKilometers": 1000,
-      "bicycleId": 1
+      "maxKilometers": 1000,
+      "currentKilometers": 100
     }
-    // more components...
   ]
 }
 ```
