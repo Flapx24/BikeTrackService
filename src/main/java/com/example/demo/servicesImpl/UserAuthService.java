@@ -61,10 +61,10 @@ public class UserAuthService {
             result.put("message", "Acceso denegado. Solo usuarios con rol USER pueden acceder a la API.");
             return result;
         }
-
         String token = jwtService.generateToken(user, rememberMe);
 
         Map<String, Object> result = new HashMap<>();
+        result.put("id", user.getId());
         result.put("name", user.getName());
         result.put("token", token);
         result.put("success", true);
@@ -124,10 +124,10 @@ public class UserAuthService {
             result.put("message", "Token inválido o expirado");
             return result;
         }
-
         String cleanToken = token.replace("Bearer ", "");
         User user = jwtService.getUser(cleanToken);
 
+        result.put("id", user.getId());
         result.put("name", user.getName());
         result.put("token", token);
         result.put("success", true);
@@ -202,6 +202,8 @@ public class UserAuthService {
         userService.saveUser(user);
 
         result.put("success", true);
+        result.put("id", user.getId());
+        result.put("name", user.getName());
         result.put("message", "Registro exitoso");
         result.put("imageUrl", user.getImageUrl());
 

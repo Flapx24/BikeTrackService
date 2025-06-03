@@ -69,7 +69,10 @@ _Note: Fields like `imageUrl`, `role`, and `active` are handled automatically by
 ```json
 {
   "success": true,
-  "message": "User registered successfully"
+  "id": 123,
+  "name": "John",
+  "message": "Registro exitoso",
+  "imageUrl": "http://example.com/image.jpg"
 }
 ```
 
@@ -108,6 +111,7 @@ _Note: Fields like `imageUrl`, `role`, and `active` are handled automatically by
 ```json
 {
   "success": true,
+  "id": 123,
   "token": "jwt_token_here",
   "name": "name",
   "message": "Login successful"
@@ -141,6 +145,7 @@ _Note: Fields like `imageUrl`, `role`, and `active` are handled automatically by
 ```json
 {
   "success": true,
+  "id": 123,
   "name": "name",
   "message": "Autenticación válida"
 }

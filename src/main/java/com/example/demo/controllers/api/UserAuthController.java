@@ -29,7 +29,7 @@ public class UserAuthController {
     @Autowired
     @Qualifier("userService")
     private UserService userService;
-    
+
     @Autowired
     @Qualifier("jwtService")
     private JwtService jwtService;
@@ -38,7 +38,7 @@ public class UserAuthController {
     public ResponseEntity<?> register(@Valid @RequestBody User user) {
         try {
             Map<String, Object> result = userAuthService.register(user);
-            
+
             if ((boolean) result.get("success")) {
                 return ResponseEntity.ok(result);
             } else {
@@ -47,9 +47,8 @@ public class UserAuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of(
-                        "success", false,
-                        "message", "Ha ocurrido un error inesperado: " + e.getMessage()
-                    ));
+                            "success", false,
+                            "message", "Ha ocurrido un error inesperado: " + e.getMessage()));
         }
     }
 
@@ -59,39 +58,35 @@ public class UserAuthController {
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
             boolean rememberMe = loginRequest.isRememberMe();
-            
+
             Map<String, Object> result = userAuthService.login(email, password, rememberMe);
             return ResponseEntity.ok(result);
-            
+
         } catch (BadCredentialsException bcex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
-                        "success", false,
-                        "message", "Correo o contraseña incorrectos. Verifica tus datos."
-                    ));
+                            "success", false,
+                            "message", "Correo o contraseña incorrectos. Verifica tus datos."));
         } catch (DisabledException dex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
-                        "success", false,
-                        "message", "La cuenta no está activada. Por favor, activa tu cuenta."
-                    ));
+                            "success", false,
+                            "message", "La cuenta no está activada. Por favor, activa tu cuenta."));
         } catch (AuthenticationException aex) {
             String errorMessage = aex.getMessage();
             if (errorMessage == null || errorMessage.isEmpty()) {
                 errorMessage = "Error en la autenticación. Verifica tus credenciales.";
             }
-            
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
-                        "success", false,
-                        "message", errorMessage
-                    ));
+                            "success", false,
+                            "message", errorMessage));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
-                        "success", false,
-                        "message", "Ha ocurrido un problema inesperado: " + e.getMessage()
-                    ));
+                            "success", false,
+                            "message", "Ha ocurrido un problema inesperado: " + e.getMessage()));
         }
     }
 
@@ -101,19 +96,17 @@ public class UserAuthController {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of(
-                            "success", false,
-                            "message", "Token no proporcionado o formato inválido"
-                        ));
+                                "success", false,
+                                "message", "Token no proporcionado o formato inválido"));
             }
 
             Map<String, Object> fullResult = userAuthService.loginWithToken(authHeader);
-            
             if ((boolean) fullResult.get("success")) {
                 Map<String, Object> response = Map.of(
-                    "success", true,
-                    "name", fullResult.get("name"),
-                    "message", "Autenticación válida"
-                );
+                        "success", true,
+                        "id", fullResult.get("id"),
+                        "name", fullResult.get("name"),
+                        "message", "Autenticación válida");
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(fullResult);
@@ -121,34 +114,30 @@ public class UserAuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
-                        "success", false,
-                        "message", "Error al procesar token: " + e.getMessage()
-                    ));
+                            "success", false,
+                            "message", "Error al procesar token: " + e.getMessage()));
         }
     }
-    
+
     @PostMapping("/validate-token")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
         try {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of(
-                            "success", false,
-                            "message", "Token no proporcionado o formato inválido"
-                        ));
+                                "success", false,
+                                "message", "Token no proporcionado o formato inválido"));
             }
-            
+
             boolean isValid = userAuthService.isTokenValid(authHeader);
             return ResponseEntity.ok(Map.of(
-                "success", isValid,
-                "message", isValid ? "Token válido" : "Token inválido o expirado"
-            ));
+                    "success", isValid,
+                    "message", isValid ? "Token válido" : "Token inválido o expirado"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
-                        "success", false,
-                        "message", "Error al validar token: " + e.getMessage()
-                    ));
+                            "success", false,
+                            "message", "Error al validar token: " + e.getMessage()));
         }
     }
 }
