@@ -288,7 +288,7 @@ _Note: `reviews` field is limited to 15 items in the initial response_
 
 **Endpoint:** `GET /api/routes/filter`
 
-**Description:** Get routes filtered by city and minimum rating.
+**Description:** Get routes filtered by city and/or minimum rating.
 
 **Headers:**
 
@@ -296,8 +296,8 @@ _Note: `reviews` field is limited to 15 items in the initial response_
 
 **Query Parameters:**
 
-- **city:** City name (required)
-- **minScore:** Minimum score (optional, default: 1)
+- **city:** City name (optional)
+- **minScore:** Minimum score (optional, default: 0)
 - **lastRouteId:** ID of the last route received (optional, for pagination)
 
 **Success Response:**
@@ -329,8 +329,7 @@ _Note: `reviews` field is limited to 15 items in the initial response_
 **Error Responses:**
 
 - **Code:** 400 Bad Request
-  - "La puntuación debe estar entre 1 y 5"
-  - "El nombre de la ciudad es obligatorio"
+  - "La puntuación debe estar entre 0 y 5"
 
 ## Route Updates
 

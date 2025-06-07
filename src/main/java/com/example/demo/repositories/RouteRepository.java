@@ -20,8 +20,9 @@ public interface RouteRepository extends JpaRepository<Route, Serializable> {
        @Query("SELECT r FROM Route r WHERE r.id > :lastId ORDER BY r.id ASC")
        List<Route> findAllWithIdGreaterThan(@Param("lastId") Long lastId, Pageable pageable);
 
-       @Query(value = "SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) " +
-                     "AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore " +
+       @Query(value = "SELECT r FROM Route r WHERE " +
+                     "(:city IS NULL OR :city = '' OR LOWER(r.city) = LOWER(:city)) " +
+                     "AND (r.averageReviewScore IS NULL OR r.averageReviewScore >= :minScore) " +
                      "AND r.id > :lastId ORDER BY r.id ASC")
        List<Route> findByCityAndMinScoreAndIdGreaterThan(
                      @Param("city") String city,
@@ -29,8 +30,9 @@ public interface RouteRepository extends JpaRepository<Route, Serializable> {
                      @Param("lastId") Long lastId,
                      Pageable pageable);
 
-       @Query(value = "SELECT r FROM Route r WHERE LOWER(r.city) = LOWER(:city) " +
-                     "AND r.averageReviewScore IS NOT NULL AND r.averageReviewScore >= :minScore " +
+       @Query(value = "SELECT r FROM Route r WHERE " +
+                     "(:city IS NULL OR :city = '' OR LOWER(r.city) = LOWER(:city)) " +
+                     "AND (r.averageReviewScore IS NULL OR r.averageReviewScore >= :minScore) " +
                      "ORDER BY r.id ASC")
        List<Route> findByCityAndMinScore(
                      @Param("city") String city,

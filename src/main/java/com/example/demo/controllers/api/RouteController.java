@@ -103,31 +103,25 @@ public class RouteController {
     }
 
     /**
-     * Get routes filtered by city and minimum rating
+     * Get routes filtered by city and/or minimum rating
      * 
      * @param authHeader Authorization token
-     * @param city City to filter
-     * @param minScore Minimum score (1-5)
+     * @param city City to filter (optional)
+     * @param minScore Minimum score (0-5, default 0)
      * @param lastRouteId ID of the last route received (optional, for pagination)
      * @return List of routes matching the criteria
      */
     @GetMapping("/filter")
     public ResponseEntity<?> getRoutesByCityAndScore(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam String city,
-            @RequestParam(defaultValue = "1") Integer minScore,
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "0") Integer minScore,
             @RequestParam(required = false) Long lastRouteId) {
 
-        if (minScore < 1 || minScore > 5) {
+        if (minScore < 0 || minScore > 5) {
             return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
-                "message", "La puntuación debe estar entre 1 y 5"
-            ));
-        }
-        if (city == null || city.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", "El nombre de la ciudad es obligatorio"
+                "message", "La puntuación debe estar entre 0 y 5"
             ));
         }
         

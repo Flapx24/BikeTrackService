@@ -55,7 +55,10 @@ public class RouteServiceImpl implements RouteService {
     public List<Route> getRoutesByCityAndMinScore(String city, Integer minScore, Long lastRouteId) {
         double minScoreDouble = minScore != null ? minScore.doubleValue() : 0.0;
 
-        String normalizedCity = normalizeCity(city);
+        String normalizedCity = null;
+        if (city != null && !city.trim().isEmpty()) {
+            normalizedCity = normalizeCity(city);
+        }
 
         if (lastRouteId == null) {
             return routeRepository.findByCityAndMinScore(
