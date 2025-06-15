@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.PastOrPresent;
 
 @Entity
 public class Bicycle {
@@ -38,6 +39,7 @@ public class Bicycle {
 
     private Double totalKilometers = 0.0;
 
+    @PastOrPresent(message = "La fecha de mantenimiento no puede ser futura")
     private LocalDate lastMaintenanceDate;
 
     public Bicycle() {

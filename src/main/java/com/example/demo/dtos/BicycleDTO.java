@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 
 public class BicycleDTO {
 
@@ -27,6 +28,7 @@ public class BicycleDTO {
     private List<BicycleComponentDTO> components = new ArrayList<>();
     private Double totalKilometers = 0.0;
 
+    @PastOrPresent(message = "La fecha de mantenimiento no puede ser futura")
     private LocalDate lastMaintenanceDate;
 
     private Integer componentCount;

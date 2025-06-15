@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
         response.put("success", false);
         
         String message = ex.getMessage();
-        if (message != null && message.contains("Tipo de vehículo")) {
+        if (message != null && (message.contains("Tipo de vehículo") || message.contains("fecha de mantenimiento"))) {
             response.put("message", message);
         } else {
             response.put("message", "Datos inválidos: " + message);

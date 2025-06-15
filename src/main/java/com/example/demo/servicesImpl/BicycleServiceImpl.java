@@ -210,6 +210,10 @@ public class BicycleServiceImpl implements BicycleService {
             return false;
         }
         
+        if (maintenanceDate != null && maintenanceDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de mantenimiento no puede ser futura. Solo se permiten fechas presentes o pasadas");
+        }
+        
         bicycle.setLastMaintenanceDate(maintenanceDate);
         saveBicycle(bicycle);
         return true;
